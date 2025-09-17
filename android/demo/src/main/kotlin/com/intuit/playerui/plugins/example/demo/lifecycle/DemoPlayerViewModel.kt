@@ -1,10 +1,10 @@
-package com.intuit.playerui.plugins.example.demo.lifecycle
+package com.intuit.playerui.devtools.example.demo.lifecycle
 
 import com.intuit.playerui.android.AndroidPlayer
 import com.intuit.playerui.android.lifecycle.PlayerViewModel
 import com.intuit.playerui.core.managed.AsyncFlowIterator
 import com.intuit.playerui.core.player.state.PlayerFlowState
-import com.intuit.playerui.plugins.example.ExampleAndroidPlayerPlugin
+import com.intuit.playerui.devtools.example.ExampleAndroidPlayerPlugin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

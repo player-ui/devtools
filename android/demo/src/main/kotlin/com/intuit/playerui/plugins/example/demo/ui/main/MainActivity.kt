@@ -1,4 +1,4 @@
-package com.intuit.playerui.plugins.example.demo.ui.main
+package com.intuit.playerui.devtools.example.demo.ui.main
 
 import android.os.Bundle
 import android.view.Menu
@@ -21,9 +21,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.facebook.soloader.SoLoader
 import com.google.android.material.navigation.NavigationView
-import com.intuit.playerui.plugins.example.demo.R
-import com.intuit.playerui.plugins.example.demo.model.AssetMock
-import com.intuit.playerui.plugins.example.demo.model.StringMock
+import com.intuit.playerui.devtools.example.demo.R
+import com.intuit.playerui.devtools.example.demo.model.AssetMock
+import com.intuit.playerui.devtools.example.demo.model.StringMock
 import com.intuit.playerui.android.ui.PlayerFragment
 import com.intuit.playerui.utils.mocks.ClassLoaderMock
 import com.intuit.playerui.utils.mocks.Mock

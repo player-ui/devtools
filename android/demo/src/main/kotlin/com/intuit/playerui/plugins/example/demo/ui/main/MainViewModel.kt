@@ -1,11 +1,11 @@
-package com.intuit.playerui.plugins.example.demo.ui.main
+package com.intuit.playerui.devtools.example.demo.ui.main
 
 import android.app.Application
 import android.view.Menu
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.intuit.playerui.plugins.example.demo.model.AssetMock
-import com.intuit.playerui.plugins.example.demo.model.StringMock
+import com.intuit.playerui.devtools.example.demo.model.AssetMock
+import com.intuit.playerui.devtools.example.demo.model.StringMock
 import com.intuit.playerui.utils.mocks.ClassLoaderMocksReader
 import com.intuit.playerui.utils.mocks.Mock
 import kotlinx.coroutines.flow.MutableSharedFlow

@@ -1,4 +1,4 @@
-package com.intuit.playerui.plugins.example.demo.ui.start
+package com.intuit.playerui.devtools.example.demo.ui.start
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.intuit.playerui.android.lifecycle.ManagedPlayerState
-import com.intuit.playerui.plugins.example.demo.ui.base.BasePlayerFragment
-import com.intuit.playerui.plugins.example.demo.ui.main.MainViewModel
+import com.intuit.playerui.devtools.example.demo.ui.base.BasePlayerFragment
+import com.intuit.playerui.devtools.example.demo.ui.main.MainViewModel
 import com.intuit.playerui.utils.mocks.getFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

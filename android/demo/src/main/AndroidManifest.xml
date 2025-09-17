@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.intuit.playerui.plugins.example.demo"
+<manifest package="com.intuit.playerui.devtools.example.demo"
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:dist="http://schemas.android.com/apk/distribution"
   xmlns:tools="http://schemas.android.com/tools">

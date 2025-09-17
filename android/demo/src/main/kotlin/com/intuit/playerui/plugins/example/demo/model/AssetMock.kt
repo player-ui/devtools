@@ -1,4 +1,4 @@
-package com.intuit.playerui.plugins.example.demo.model
+package com.intuit.playerui.devtools.example.demo.model
 
 import android.content.res.AssetManager
 import com.intuit.playerui.utils.mocks.Mock

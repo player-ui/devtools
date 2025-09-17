@@ -27,7 +27,7 @@ android_binary(
         allow_empty = True,
     ),
     assets_dir = "src/main/assets",
-    custom_package = "com.intuit.playerui.plugins.example.demo",
+    custom_package = "com.intuit.playerui.devtools.example.demo",
     dex_shards = 4,
     manifest = ":src/main/AndroidManifest.xml",
     multidex = "native",

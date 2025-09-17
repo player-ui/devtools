@@ -1,4 +1,4 @@
-package com.intuit.playerui.plugins.example.demo.ui.base
+package com.intuit.playerui.devtools.example.demo.ui.base
 
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -7,7 +7,7 @@ import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.intuit.playerui.android.lifecycle.ManagedPlayerState
 import com.intuit.playerui.android.lifecycle.PlayerViewModel
-import com.intuit.playerui.plugins.example.demo.lifecycle.DemoPlayerViewModel
+import com.intuit.playerui.devtools.example.demo.lifecycle.DemoPlayerViewModel
 import com.intuit.playerui.android.ui.PlayerFragment
 import com.intuit.playerui.core.bridge.serialization.json.prettify
 import com.intuit.playerui.core.bridge.toJson

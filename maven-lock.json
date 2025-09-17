@@ -3341,22 +3341,22 @@
       "com.intuit.hooks.utils"
     ],
     "com.intuit.playerui.plugins:beacon": [
-      "com.intuit.playerui.plugins.beacon"
+      "com.intuit.playerui.devtools.beacon"
     ],
     "com.intuit.playerui.plugins:common-types": [
-      "com.intuit.playerui.plugins.types"
+      "com.intuit.playerui.devtools.types"
     ],
     "com.intuit.playerui.plugins:coroutines": [
-      "com.intuit.playerui.plugins.coroutines"
+      "com.intuit.playerui.devtools.coroutines"
     ],
     "com.intuit.playerui.plugins:pubsub": [
-      "com.intuit.playerui.plugins.pubsub"
+      "com.intuit.playerui.devtools.pubsub"
     ],
     "com.intuit.playerui.plugins:reference-assets": [
-      "com.intuit.playerui.plugins.assets"
+      "com.intuit.playerui.devtools.assets"
     ],
     "com.intuit.playerui.plugins:set-time-out": [
-      "com.intuit.playerui.plugins.settimeout"
+      "com.intuit.playerui.devtools.settimeout"
     ],
     "com.intuit.playerui:core": [
       "com.intuit.playerui.core.asset",

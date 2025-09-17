@@ -97,7 +97,7 @@ build_constants(
     name = "build_constants",
     constants = {
         # TODO: Configure GROUP to match your JAR/AAR publishing scopes
-        "GROUP": "com.intuit.playerui.plugins.example",
+        "GROUP": "com.intuit.playerui.devtools.example",
     },
     version_file = "//:VERSION",
 )
