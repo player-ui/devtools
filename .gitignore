@@ -1,0 +1,55 @@
+.DS_Store
+Checkmarx/
+*.swp
+.idea
+node_modules/
+report
+dist/
+commonjs/
+module/
+target/
+npm-debug.log
+npm-shrinkwrap.json
+*.iml
+jsconfig.json
+.vscode/*
+!.vscode/settings.json
+_node
+.nyc_output
+yarn-error.log
+package-lock.json
+lerna-debug.log
+coverage/
+junit.xml
+out/
+bundle-master
+bundle-pr
+diff.html
+roleFile
+core.*
+.env
+.eslintcache
+tsconfig.tsbuildinfo
+/.build
+
+# Ignore all bazel-* symlinks. There is no full list since this can change
+# based on the name of the directory bazel is cloned into.
+**/bazel-*
+!bazel-common
+# Ignore outputs generated during Bazel bootstrapping.
+**/output/
+.bazelrc.local
+*storybook.log
+test-results
+.vscode
+.ijwb
+.aswb
+
+## iOS specific
+/ios/DemoProject.xcodeproj
+/ios/demo/.build
+/ios/demo/.swiftpm
+Package.resolved
+/.swiftpm
+# DO NOT commit your provisioning profile. It's a secret.
+/ios/demo/ProvisioningProfile 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.intuit.playerui.plugins.example.demo"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:dist="http://schemas.android.com/apk/distribution"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <uses-sdk
+    android:minSdkVersion="24"
+    android:targetSdkVersion="30" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <dist:module dist:instant="true" />
+
+  <application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    <activity
+      android:name=".ui.splash.SplashActivity"
+      android:theme="@style/SplashTheme">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".ui.main.MainActivity"
+      android:label="@string/title_activity_main"
+      android:theme="@style/AppTheme.NoActionBar">
+    </activity>
+
+    <!-- Resolve a conflict issue while building with Bazel. -->
+    <provider
+      android:name="androidx.startup.InitializationProvider"
+      android:authorities="${applicationId}.androidx-startup"
+      tools:node="remove" />
+  </application>
+</manifest>

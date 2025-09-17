@@ -1,0 +1,82 @@
+// swift-tools-version: 5.9
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+// --- START DECLARATIONS ---
+// Declare dependencies up here to reduce the number of strings we have to type.
+
+// Exclude items that are not part of the package, e.g. test folders and BUILD files.
+// This will prevent us from exporting files that require test dependencies we don't include.
+let excluded = ["ViewInspector", "UITests", "Tests", "BUILD"]
+
+let playerUIDependency: Target.Dependency = .product(name: "PlayerUI", package: "playerui-swift-package")
+let playerUISwiftUIDependency: Target.Dependency = .product(name: "PlayerUISwiftUI", package: "playerui-swift-package")
+
+// TODO: Add your plugins here. Remember to prefix them with the same prefix as in helpers/ios.bzl.
+let fancyPlugin: Target = .target(
+    name: "ExampleFancyPlugin",
+    dependencies: [
+        playerUIDependency,
+        playerUISwiftUIDependency
+    ],
+    path: "plugins/fancy/swiftui",
+    exclude: excluded,
+    resources: [.process("Resources")]
+)
+
+// TODO: Add your assets here. Remember to prefix them with the same prefix as in helpers/ios.bzl.
+let assetTargets: [Target] = [
+    .target(
+        name: "ExampleFancyDogAsset",
+        dependencies: [
+            playerUIDependency,
+            playerUISwiftUIDependency,
+            .target(name: fancyPlugin.name)
+        ],
+        path: "assets/fancy-dog/swiftui",
+        exclude: excluded,
+        resources: [.process("Resources")]
+    )
+]
+let examplePlayerPlugin: Target = .target(
+    name: "ExamplePlayerPlugin",
+    dependencies: [
+        playerUIDependency
+    ] + assetTargets.map { Target.Dependency.target(name: $0.name) },
+    path: "plugins/example-player/ios",
+    exclude: excluded,
+    resources: [.process("Resources")]
+)
+
+// --- END DECLARATIONS ---
+
+// This is the Package.swift for our SPM release.
+// During release, this file and the Swift sources will be published to:
+// https://github.com/player-ui/devtools-ios
+let package = Package(
+    name: "PlayerUIDevTools", // TODO: Update to your project name. Should match the package name in the BUILD file.
+    platforms: [
+        .iOS(.v16),
+        // In an ideal world, we would not include macOS here. However, this is the most efficient way to support
+        // Package.swift validation. (Which will try to run for MacOS by default.)
+        .macOS(.v11) 
+    ],
+    products: [
+        .library(
+            name: examplePlayerPlugin.name,
+            targets: [examplePlayerPlugin.name]
+        ),
+        .library(
+            name: fancyPlugin.name,
+            targets: [fancyPlugin.name]
+        )
+    ],
+    dependencies: [
+        .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.11.2"),
+    ],
+    targets: [
+        examplePlayerPlugin,
+        fancyPlugin
+    ] + assetTargets
+)

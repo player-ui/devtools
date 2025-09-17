@@ -1,0 +1,21 @@
+{
+  "author": "intuit-svc <opensource-svc@intuit.com>",
+  "baseBranch": "main",
+  "versionBranches": true,
+  "noVersionPrefix": true,
+  "owner": "player-ui",
+  "repo": "devtools",
+  "githubApi": "https://github.com/api/v3",
+  "githubGraphqlApi": "https://github.com/api",
+  "plugins": [
+    [
+      "version-file",
+      {
+        "versionFile": "./VERSION",
+        "publishScript": "./helpers/release/release.sh"
+      }
+    ],
+    "./helpers/release/delete-old-prerelease.js",
+    "./helpers/release/next-changelogs.js"
+  ]
+}

@@ -1,0 +1,37 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Welcome" />
+
+# Example Player UI Plugin
+
+Welcome to an example multiplatform [Player UI](https://github.com/player-ui/player) plugin repository.
+
+## React
+
+To install `@player-example/plugin-react`:
+
+```sh
+pnpm i @player-example/plugin-react
+```
+
+Then, construct an instance of the plugin and pass it to the `ReactPlayer`:
+
+```ts
+import { ReactPlayer } from "@player-ui/react";
+import { ExampleReactPlayerPlugin } from "@player-example/plugin-react";
+
+const reactPlayer = new ReactPlayer({
+  plugins: [new ExampleReactPlayerPlugin()],
+});
+```
+
+## Player DSL
+
+To install `@player-example/components`:
+
+```sh
+pnpm i @player-example/components
+```
+
+Then, use the DSL components to build validated Player content using the [Player CLI](https://player-ui.github.io/latest/tools/cli/) - see our [stories](/docs/storybook/src/flows/) for reference.
+

@@ -1,0 +1,63 @@
+# Base Flags
+common --enable_bzlmod
+test --test_output=errors
+coverage --combined_report=lcov
+
+# Android flags to build for all Android platforms and use JVM 17 for build tools
+common --android_platforms=@rules_android//:x86,@rules_android//:x86_64,@rules_android//:armeabi-v7a,@rules_android//:arm64-v8a
+common --java_language_version=17
+common --java_runtime_version=17
+common --tool_java_language_version=17
+common --tool_java_runtime_version=17
+# Configure mobile-install to use @rules_android
+mobile-install --mobile_install_aspect=@rules_android//mobile_install:mi.bzl --mobile_install_supported_rules=android_binary
+
+# CI Configs
+common:ci --build_metadata=ROLE=CI
+common:ci --show_progress_rate_limit=60
+## Resources
+build:ci --local_resources=cpu=4
+build:ci --local_resources=memory=4000
+
+#iOS Flags. TODO: Change this to match your team's set up.
+common --ios_simulator_device="iPhone 16 Pro"
+common --ios_simulator_version="18.2"
+
+# Remote Cache configs
+
+build --bes_results_url=https://app.buildbuddy.io/invocation/
+build --bes_backend=grpcs://remote.buildbuddy.io
+build --remote_cache=grpcs://remote.buildbuddy.io
+build --remote_cache_compression
+build --remote_cache_async
+build --remote_download_toplevel
+build --remote_timeout=3600
+build --build_metadata=REPO_URL=https://github.com/player-ui/devtools.git
+
+test --bes_results_url=https://app.buildbuddy.io/invocation/
+test --bes_backend=grpcs://remote.buildbuddy.io
+test --remote_cache=grpcs://remote.buildbuddy.io
+test --remote_cache_compression
+test --remote_cache_async
+test --remote_download_toplevel
+test --remote_timeout=3600
+test --build_metadata=REPO_URL=https://github.com/player-ui/devtools.git
+
+coverage --bes_results_url=https://app.buildbuddy.io/invocation/
+coverage --bes_backend=grpcs://remote.buildbuddy.io
+coverage --remote_cache=grpcs://remote.buildbuddy.io
+coverage --remote_cache_compression
+coverage --remote_cache_async
+coverage --remote_download_toplevel
+coverage --remote_timeout=3600
+coverage --build_metadata=REPO_URL=https://github.com/player-ui/devtools.git
+
+# Release Configs
+build:release --config=ci --stamp --workspace_status_command=./helpers/release/workspace-status.sh
+
+# Javascript Specific Configs
+build --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+fetch --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+query --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+
+try-import %workspace%/.bazelrc.local

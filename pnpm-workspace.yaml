@@ -1,0 +1,8 @@
+packages:
+  - docs/*
+  - devtools/*/*/*
+  - helpers/mocks
+
+onlyBuiltDependencies:
+  - esbuild
+  - husky

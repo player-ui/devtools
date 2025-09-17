@@ -1,0 +1,90 @@
+{
+  "name": "@player-devtools/devtools",
+  "version": "0.0.0-PLACEHOLDER",
+  "private": false,
+  "description": "Player DevTools repository",
+  "repository": "https://github.com/player-ui/devtools.git",
+  "license": "MIT",
+  "contributors": [
+    "ketan_reddy@intuit.com"
+  ],
+  "lint-staged": {
+    "*.{js,json,css,md,ts,tsx,jsx}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@auto-it/version-file": "^10.46.0",
+    "@eslint/js": "^9.29.0",
+    "@player-tools/cli": "0.12.0",
+    "@player-tools/dsl": "0.12.0",
+    "@player-ui/asset-provider-plugin-react": "0.11.2",
+    "@player-ui/asset-testing-library": "0.11.2",
+    "@player-ui/asset-transform-plugin": "0.11.2",
+    "@player-ui/partial-match-registry": "0.11.2",
+    "@player-ui/player": "0.11.2",
+    "@player-ui/react": "0.11.2",
+    "@player-ui/storybook": "0.11.2",
+    "@player-ui/types": "0.11.2",
+    "@storybook/addon-docs": "^7.6.10",
+    "@storybook/blocks": "^7.6.10",
+    "@storybook/builder-vite": "^7.6.10",
+    "@storybook/channels": "^7.6.10",
+    "@storybook/components": "^7.6.10",
+    "@storybook/core-events": "^7.6.10",
+    "@storybook/manager": "^7.6.10",
+    "@storybook/manager-api": "^7.6.10",
+    "@storybook/preview": "^7.6.10",
+    "@storybook/preview-api": "^7.6.10",
+    "@storybook/react": "^7.6.10",
+    "@storybook/react-vite": "^7.6.10",
+    "@storybook/types": "^7.6.10",
+    "@swc/core": "1.3.74",
+    "@testing-library/dom": "^9.3.3",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/user-event": "^14.5.1",
+    "@types/node": "^24.0.1",
+    "@types/react": "^18.2.51",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^3.2.3",
+    "auto": "^10.37.2",
+    "dlv": "^1.1.3",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.37.4",
+    "happy-dom": "^13.3.8",
+    "husky": "3.1.0",
+    "jiti": "^2.4.2",
+    "prettier": "^3.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remark-gfm": "^3.0.0",
+    "storybook": "^7.6.10",
+    "tocbot": "4.35.0",
+    "tslib": "^2.6.2",
+    "tsup": "^8.3.5",
+    "typescript": "5.8.3",
+    "typescript-eslint": "^8.27.0",
+    "vite": "^5.1.6",
+    "vite-plugin-commonjs": "^0.10.1",
+    "vitest": "^3.2.3"
+  },
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": "^22.15.1",
+    "pnpm": "^10.12.1"
+  },
+  "volta": {
+    "node": "22.15.1",
+    "pnpm": "10.12.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  }
+}
