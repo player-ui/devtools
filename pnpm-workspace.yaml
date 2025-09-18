@@ -1,6 +1,12 @@
 packages:
   - docs/*
-  - devtools/*/*/*
+  - devtools/types
+  - devtools/plugins/mobile/flipper-desktop-client
+  - devtools/plugins/desktop/common
+  - devtools/plugins/desktop/basic
+  - devtools/plugins/desktop/profiler
+  - devtools/messenger
+  - devtools/client
   - helpers/mocks
 
 onlyBuiltDependencies:
