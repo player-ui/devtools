@@ -1,14 +1,13 @@
 load("@rules_player//player:defs.bzl", generate_mocks_manifest = "generate_mocks_manifest")
 load("@aspect_rules_js//npm:defs.bzl", "npm_package")
 
-PLUGIN_MOCKS = [ # TODO: Add all plugins here
-    "example-player",
+MOCKS = [
 ]
 
 # This one is used directly by iOS, and indirectly by the other platforms.
 filegroup(
     name = "all_mocks",
-    srcs = ["//plugins/{}/mocks".format(plugin) for plugin in PLUGIN_MOCKS],
+    srcs = ["//{}/mocks".format(mock) for mock in MOCKS],
     visibility = ["//visibility:public"],
 )
 

@@ -2,9 +2,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_library")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@rules_player//internal:defs.bzl", "stamp")
-load("@rules_player//ios:defs.bzl", "assemble_pod", "ios_publish")
-# load("@rules_swift_package_manager//swiftpkg:defs.bzl", "swift_update_packages")
-# load("@bazel_gazelle//:def.bzl", "gazelle_binary", "gazelle")
+load("@rules_player//ios:defs.bzl", "assemble_ios_release", "spm_publish")
 load("//helpers:defs.bzl", "as_target")
 
 ##### Start user-defined variables #####
@@ -132,30 +130,19 @@ sh_binary(
 )
 
 # iOS Swift Package Manager targets
-load("//helpers:ios.bzl", "ios_spm_package")
+assemble_ios_release(
+    name = "spm_publish_zip",
+    data = {
+        "Package.swift": "",
+        "LICENSE": "",
+    },
+)
 
-# You can run `bazel run //:discover-ios-targets` to help you find the plugins/assets to include
-ios_spm_package(
-    name = "ios_publish",
-    package_swift = "//:Package.swift",
-    repository = "https://github.com/player-ui/devtools-ios.git",
+spm_publish(
+    name = "spm_publish",
+    repository = "https://github.intuit.com/player-ui/devtools-ios.git",
     target_branch = "main",
-    plugins = [
-        {
-            "target": "//plugins/fancy/swiftui:ExampleFancyPlugin_Sources",
-            "resourceTarget": "//plugins/fancy/core:core_native_bundle",
-        },
-        {
-            "target": "//plugins/example-player/ios:ExamplePlayerPlugin_Sources",
-            "resourceTarget": "//plugins/example-player/core:core_native_bundle",
-        },
-    ],
-    assets = [
-        {
-            "target": "//assets/fancy-dog/swiftui:ExampleFancyDogAsset_Sources",
-            "resourceTarget": "//assets/fancy-dog/core:core_native_bundle",
-        },
-    ],
+    zip = "//:spm_publish_zip",
 )
 
 ###### End iOS ######

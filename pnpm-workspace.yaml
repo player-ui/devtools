@@ -1,4 +1,5 @@
 packages:
+  - cli
   - docs/*
   - devtools/types
   - devtools/plugins/mobile/flipper-desktop-client
