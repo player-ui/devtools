@@ -1,7 +1,7 @@
-import { PLUGIN_ID } from "../constants";
-import { navigation } from "./navigation";
-import { schema } from "./schema";
-import { views } from "./views";
+import { PLUGIN_ID } from "../constants/index";
+import { navigation } from "./navigation/index";
+import { schema } from "./schema/index";
+import { views } from "./views/index";
 
 export default {
   id: PLUGIN_ID,

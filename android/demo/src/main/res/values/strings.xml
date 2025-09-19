@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">Example Player Demo</string>
-    <string name="title_activity_main">Example Player Demo</string>
-    <string name="player_fragment_label">Example Player</string>
-</resources>
