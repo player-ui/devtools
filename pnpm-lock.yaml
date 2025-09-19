@@ -351,8 +351,6 @@ importers:
         specifier: ^3.17.5
         version: 3.17.5
 
-  cli: {}
-
   devtools/client:
     dependencies:
       '@player-devtools/messenger':
@@ -405,10 +403,6 @@ importers:
         version: link:../../../types
 
   devtools/types: {}
-
-  docs/storybook: {}
-
-  helpers/mocks: {}
 
 packages:
 
