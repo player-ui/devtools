@@ -1,0 +1,74 @@
+version: 2.1
+
+executors:
+  base:
+    docker:
+      - image: docker.io/playerui/bazel-docker
+    working_directory: ~/devtools
+    resource_class: large
+    environment:
+      TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+
+jobs:
+  install:
+    executor: base
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package.json checksum
+            # when this file is changed, this key will fail
+            - devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
+            - devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - devtools-{{ .Branch }}
+            # Find the most recent cache used from any branch
+            - devtools-main
+            - devtools-
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - node_modules
+            - ~/.cache/yarn
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  checkLabels:
+    executor: base
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+      - run:
+          name: Check SemVer label
+          command: yarn auto pr-check --url $CIRCLE_BUILD_URL
+
+  test:
+    executor: base
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+      - run:
+          name: Test
+          command: bazel test //...
+
+  # TODO: Add release phase
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - install
+
+      - checkLabels:
+          context:
+            - Publish
+          requires:
+            - install
+
+      - test:
+          requires:
+            - install
