@@ -13,17 +13,17 @@ jobs:
   install:
     executor: base
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            # Find a cache corresponding to this specific package.json checksum
-            # when this file is changed, this key will fail
-            - devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
-            - devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - devtools-{{ .Branch }}
-            # Find the most recent cache used from any branch
-            - devtools-main
-            - devtools-
+      # - checkout
+      # - restore_cache: # TODO: restore. For the first run, there is no cache.
+      #     keys:
+      #       # Find a cache corresponding to this specific package.json checksum
+      #       # when this file is changed, this key will fail
+      #       - devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
+      #       - devtools-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      #       - devtools-{{ .Branch }}
+      #       # Find the most recent cache used from any branch
+      #       - devtools-main
+      #       - devtools-
       - run:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
