@@ -1,0 +1,5 @@
+{
+  "plugins": [
+    "@player-ui/common-types-plugin"
+  ]
+}

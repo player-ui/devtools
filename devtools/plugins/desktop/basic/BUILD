@@ -25,13 +25,13 @@ dependencies = [
     "//:node_modules/dset",
 ]
 
-dsl_input = "src/content/index.ts"
+dsl_input_dir = "src/content"
 
-dsl_output = "_generated"
+dsl_output_dir = "_generated"
 
 dsl_pipeline(
     package_name = "@player-devtools/basic-web-plugin",
     deps = dependencies,
-    dsl_input = dsl_input,
-    dsl_output = dsl_output,
+    dsl_input_dir = dsl_input_dir,
+    dsl_output_dir = dsl_output_dir,
 )
