@@ -355,16 +355,16 @@ importers:
     dependencies:
       '@player-devtools/messenger':
         specifier: workspace:*
-        version: link:../messenger
+        version: link:../messenger/core
       '@player-devtools/types':
         specifier: workspace:*
         version: link:../types
 
-  devtools/messenger:
+  devtools/messenger/core:
     dependencies:
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../types
+        version: link:../../types
 
   devtools/plugins/desktop/basic:
     dependencies:
@@ -379,7 +379,7 @@ importers:
     dependencies:
       '@player-devtools/messenger':
         specifier: workspace:*
-        version: link:../../../messenger
+        version: link:../../../messenger/core
       '@player-devtools/types':
         specifier: workspace:*
         version: link:../../../types
@@ -403,6 +403,8 @@ importers:
         version: link:../../../types
 
   devtools/types: {}
+
+  helpers/mocks: {}
 
 packages:
 

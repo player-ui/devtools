@@ -813,6 +813,28 @@
               "package": "/ios/demo/Package.swift"
             }
           },
+          "swiftpkg_swift_hooks": {
+            "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
+            "attributes": {
+              "bazel_package_name": "swiftpkg_swift_hooks",
+              "commit": "5f3136ac2a3c27aa469e3f9a1222b15080d431d3",
+              "remote": "https://github.com/intuit/swift-hooks.git",
+              "version": "0.1.0",
+              "env": {},
+              "env_inherit": [],
+              "init_submodules": false,
+              "recursive_init_submodules": true,
+              "patch_args": [
+                "-p0"
+              ],
+              "patch_cmds": [],
+              "patch_cmds_win": [],
+              "patch_tool": "",
+              "patches": [],
+              "publicly_expose_all_targets": false,
+              "replace_scm_with_registry": false
+            }
+          },
           "swiftpkg_playerui_swift_package": {
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
@@ -967,28 +989,6 @@
               "replace_scm_with_registry": false
             }
           },
-          "swiftpkg_swift_hooks": {
-            "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
-            "attributes": {
-              "bazel_package_name": "swiftpkg_swift_hooks",
-              "commit": "5f3136ac2a3c27aa469e3f9a1222b15080d431d3",
-              "remote": "https://github.com/intuit/swift-hooks.git",
-              "version": "0.1.0",
-              "env": {},
-              "env_inherit": [],
-              "init_submodules": false,
-              "recursive_init_submodules": true,
-              "patch_args": [
-                "-p0"
-              ],
-              "patch_cmds": [],
-              "patch_cmds_win": [],
-              "patch_tool": "",
-              "patches": [],
-              "publicly_expose_all_targets": false,
-              "replace_scm_with_registry": false
-            }
-          },
           "swiftpkg_swift_syntax": {
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
@@ -1080,6 +1080,7 @@
         },
         "moduleExtensionMetadata": {
           "explicitRootModuleDirectDeps": [
+            "swiftpkg_swift_hooks",
             "swiftpkg_playerui_swift_package",
             "swiftpkg_swiftlint",
             "swiftpkg_viewinspector",
@@ -1104,6 +1105,64 @@
             "rules_swift_package_manager+",
             "cgrindel_bazel_starlib",
             "cgrindel_bazel_starlib+"
+          ]
+        ]
+      }
+    },
+    "@@rules_xcodeproj+//xcodeproj:extensions.bzl%internal": {
+      "general": {
+        "bzlTransitiveDigest": "kH4BrVCFHiI09x+0a3TOJpG+SQkYOdzJyhxHl+ZeHN0=",
+        "usagesDigest": "Dh77Az+jI27CQt4k3xDdgHvDrPJrHGw2XrcX+E6SSQI=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "rules_xcodeproj_generated": {
+            "repoRuleId": "@@rules_xcodeproj+//xcodeproj:repositories.bzl%generated_files_repo",
+            "attributes": {}
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "rules_xcodeproj+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
+    "@@rules_xcodeproj+//xcodeproj:extensions.bzl%non_module_deps": {
+      "general": {
+        "bzlTransitiveDigest": "kH4BrVCFHiI09x+0a3TOJpG+SQkYOdzJyhxHl+ZeHN0=",
+        "usagesDigest": "U4MZxUyqRv34ZTYnXayQIJM2vEgjvB69TetWDcYtGsA=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "rules_xcodeproj_legacy_index_import": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "build_file_content": "load(\"@bazel_skylib//rules:native_binary.bzl\", \"native_binary\")\n\nnative_binary(\n    name = \"index_import\",\n    src = \"index-import\",\n    out = \"index-import\",\n    visibility = [\"//visibility:public\"],\n)\n",
+              "canonical_id": "index-import-5.8.0.1",
+              "sha256": "28c1ffa39d99e74ed70623899b207b41f79214c498c603915aef55972a851a15",
+              "url": "https://github.com/MobileNativeFoundation/index-import/releases/download/5.8.0.1/index-import.tar.gz"
+            }
+          },
+          "rules_xcodeproj_index_import": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "build_file_content": "load(\"@bazel_skylib//rules:native_binary.bzl\", \"native_binary\")\n\nnative_binary(\n    name = \"index_import\",\n    src = \"index-import\",\n    out = \"index-import\",\n    visibility = [\"//visibility:public\"],\n)\n",
+              "canonical_id": "index-import-6.1.0.1",
+              "sha256": "9a54fc1674af6031125a9884480a1e31e1bcf48b8f558b3e8bcc6b6fcd6e8b61",
+              "url": "https://github.com/MobileNativeFoundation/index-import/releases/download/6.1.0.1/index-import.tar.gz"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "rules_xcodeproj+",
+            "bazel_tools",
+            "bazel_tools"
           ]
         ]
       }
