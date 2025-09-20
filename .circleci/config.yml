@@ -24,14 +24,14 @@ jobs:
             - devtools-main
             - devtools-
       - run:
-          # Yarn is needed for auto releases
+          # Install auto for auto releases
           name: Install Dependencies
-          command: yarn install --frozen-lockfile
+          command: npx install --frozen-lockfile
       - save_cache:
           key: devtools-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}
           paths:
             - node_modules
-            - ~/.cache/yarn
+            - ~/.cache/pnpm
       - persist_to_workspace:
           root: .
           paths:
@@ -44,7 +44,7 @@ jobs:
           at: ~/devtools
       - run:
           name: Check SemVer label
-          command: yarn auto pr-check --url $CIRCLE_BUILD_URL
+          command: npx auto pr-check --url $CIRCLE_BUILD_URL
 
   test:
     executor: base
