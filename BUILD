@@ -5,12 +5,6 @@ load("@rules_player//internal:defs.bzl", "stamp")
 load("@rules_player//ios:defs.bzl", "assemble_ios_release", "spm_publish")
 load("//helpers:defs.bzl", "as_target")
 
-##### Start user-defined variables #####
-# TODO: Fill these out
-project_name = "DevTools"
-repo = "git@github.com:player-ui/devtools.git"
-##### End user-defined variables #####
-
 package(default_visibility = ["//visibility:public"])
 
 ###### Start JS ######
@@ -103,8 +97,6 @@ ts_config(
 ###### Start iOS ######
 # SwiftLint
 exports_files([".swiftlint.yml"])
-
-
 
 # Validation against the actual release package (what users will consume)
 sh_binary(

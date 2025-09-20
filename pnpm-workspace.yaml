@@ -6,7 +6,7 @@ packages:
   - devtools/plugins/desktop/common
   - devtools/plugins/desktop/basic
   - devtools/plugins/desktop/profiler
-  - devtools/messenger
+  - devtools/messenger/core
   - devtools/client
   - helpers/mocks
 

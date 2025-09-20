@@ -35,7 +35,7 @@ const internalEvents: Array<InternalEvent<BaseEvent<string, unknown>>["type"]> =
  * @param options.addListener - function to add a listener
  * @param options.removeListener - function to remove a listener
  * @param options.handleFailedMessage - function to handle failed messages
- * @param option.log - function to handle logging
+ * @param options.log - function to handle logging
  * @returns Messenger
  * @example
  * ```typescript
