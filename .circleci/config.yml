@@ -38,4 +38,4 @@ workflows:
           context:
             - Publish
 
-      - test:
+      - test
