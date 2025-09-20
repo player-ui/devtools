@@ -14,6 +14,24 @@ jobs:
     executor: base
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package.json checksum
+            # when this file is changed, this key will fail
+            - devtools-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}
+            - devtools-{{ .Branch }}
+            # Find the most recent cache used from any branch
+            - devtools-main
+            - devtools-
+      - run:
+          # Yarn is needed for auto releases
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: devtools-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - node_modules
+            - ~/.cache/yarn
       - persist_to_workspace:
           root: .
           paths:
