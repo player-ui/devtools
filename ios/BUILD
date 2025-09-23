@@ -11,5 +11,6 @@ xcodeproj(
 
         # Add all test targets here. ONLY test targets shouldl go here
         "//devtools/messenger/ios:PlayerUIDevToolsMessengerTests",
+        "//devtools/types/ios:PlayerUIDevToolsTypesTests",
     ],
 )

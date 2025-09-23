@@ -1,7 +1,7 @@
 packages:
   - cli
   - docs/*
-  - devtools/types
+  - devtools/types/core
   - devtools/plugins/mobile/flipper-desktop-client
   - devtools/plugins/desktop/common
   - devtools/plugins/desktop/basic
