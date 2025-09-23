@@ -1166,6 +1166,67 @@
           ]
         ]
       }
+    },
+    "@@swiftlint+//bazel:extensions.bzl%extra_rules": {
+      "general": {
+        "bzlTransitiveDigest": "bQaIwIVfdP8t32ZvwG0ZM8y3N7Q6hhlgHsz7avAKFFs=",
+        "usagesDigest": "jGC0K54Ctu94xi3kzH4//qjUi+OsxCLDYZYr+8Gvw9E=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "swiftlint_extra_rules": {
+            "repoRuleId": "@@swiftlint+//bazel:deps.bzl%extra_swift_sources",
+            "attributes": {}
+          }
+        },
+        "recordedRepoMappingEntries": []
+      }
+    },
+    "@@swiftlint+//bazel:repos.bzl%swiftlint_repos_bzlmod": {
+      "general": {
+        "bzlTransitiveDigest": "ybtEcu8rTdsEUtWwFQ8KM7Hu15+gEIpAicMLP7zs8KE=",
+        "usagesDigest": "tZS+6cNJAy71LmcQ2aqmNv08uAzm2wt/GnF/v1J6ZLk=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "swiftlint_com_github_scottrhoyt_swifty_text_table": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "b77d403db9f33686caeb2a12986997fb02a0819e029e669c6b9554617c4fd6ae",
+              "build_file": "@@swiftlint+//bazel:SwiftyTextTable.BUILD",
+              "strip_prefix": "SwiftyTextTable-0.9.0",
+              "url": "https://github.com/scottrhoyt/SwiftyTextTable/archive/refs/tags/0.9.0.tar.gz"
+            }
+          },
+          "com_github_johnsundell_collectionconcurrencykit": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "9083fe6f8b4f820bfb5ef5c555b31953116f158ec113e94c6406686e78da34aa",
+              "build_file": "@@swiftlint+//bazel:CollectionConcurrencyKit.BUILD",
+              "strip_prefix": "CollectionConcurrencyKit-0.2.0",
+              "url": "https://github.com/JohnSundell/CollectionConcurrencyKit/archive/refs/tags/0.2.0.tar.gz"
+            }
+          },
+          "com_github_krzyzanowskim_cryptoswift": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "69b23102ff453990d03aff4d3fabd172d0667b2b3ed95730021d60a0f8d50d14",
+              "build_file": "@@swiftlint+//bazel:CryptoSwift.BUILD",
+              "strip_prefix": "CryptoSwift-1.8.4",
+              "url": "https://github.com/krzyzanowskim/CryptoSwift/archive/refs/tags/1.8.4.tar.gz"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "swiftlint+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
     }
   }
 }

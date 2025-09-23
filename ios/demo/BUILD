@@ -14,8 +14,9 @@ swift_library(
         "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
         "@swiftpkg_swift_hooks//:SwiftHooks",
 
-        # These are the messenger components under development.
+        # These are the components under development.
         "//devtools/messenger/ios:PlayerUIDevToolsMessenger",
+        "//devtools/types/ios:PlayerUIDevToolsTypes",
     ]
 )
 
