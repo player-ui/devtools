@@ -1,41 +1,255 @@
 version: 2.1
 
+parameters:
+  GHA_Action:
+    type: string
+    default: ""
+  should_release:
+    type: boolean
+    default: false
+
+orbs:
+  codecov: codecov/codecov@5.4.3
+
 executors:
   base:
     docker:
-      - image: docker.io/playerui/bazel-docker
+      - image: docker.io/playerui/bazel-docker-slim:9
     working_directory: ~/devtools
-    resource_class: large
+    resource_class: xlarge
     environment:
       TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
+commands:
+  auto_shipit:
+    description: Perform Auto shipit
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+
+      - restore_cache:
+          keys:
+            - devtools-{{ .Branch }}-{{ .Revision }}
+            - devtools-{{ .Branch }}
+            - devtools-main
+
+      - run: echo "//registry.npmjs.com/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run: echo -e $GPG_KEY | gpg --import --batch
+      - run: |
+          source ~/.bashrc
+          npx auto shipit --only-graduate-with-release-label -vv
+  check_branch_status:
+    description: "Check if the branch is clean after the build"
+    steps:
+      - run:
+          name: Check branch status
+          command: |
+            if [[ -n "$(git status --porcelain)" ]]; then 
+              echo "Error: The branch is not clean after the build. Please run the build locally and commit any changes."
+              exit 1
+            else
+              echo "The branch is clean after the build."
+            fi
+
 jobs:
-  install:
+  setup:
     executor: base
     steps:
       - checkout
+
+      - restore_cache:
+          keys:
+            - devtools-{ { checksum "package.json" }}
+
       - persist_to_workspace:
           root: .
           paths:
             - .
+
+  bazelrc:
+    executor: base
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+      - run: |
+          echo "build --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
+          echo "test --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
+          echo "coverage --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  build:
+    executor: base
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+
+      - run: bazel build --config=ci -- //...
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: devtools-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+      - check_branch_status
 
   test:
     executor: base
     steps:
       - attach_workspace:
           at: ~/devtools
-      - run:
-          name: Test
-          command: bazel test //...
 
-  # TODO: Add release phase
+      - restore_cache:
+          keys:
+            - devtools-{{ .Branch }}-{{ .Revision }}
+            - devtools-{{ .Branch }}
+            - devtools-main
+
+      - run: |
+          bazel coverage --config=ci ...
+
+      - codecov/upload:
+          files: ./bazel-out/_coverage/_coverage_report.dat
+
+  maybe_release:
+    executor: base
+    steps:
+      - run: echo "Should I release? (<< pipeline.parameters.should_release >>)"
+      - when:
+          condition: << pipeline.parameters.should_release >>
+          steps:
+            - auto_shipit
+
+  release:
+    executor: base
+    steps:
+      - auto_shipit
 
 workflows:
-  version: 2
-  build_and_test:
+  build_and_test_pr:
     jobs:
-      - install
+      - setup:
+          filters:
+            branches:
+              ignore:
+                - main
+                - /version-.*/
+            tags:
+              ignore: /.*/
+
+      - bazelrc:
+          filters:
+            branches:
+              ignore: /pull\/.*/
+          context:
+            - BuildTools
+          requires:
+            - setup
+
+      - build:
+          name: build-trunk
+          filters:
+            branches:
+              ignore:
+                - /pull\/.*/
+          requires:
+            - bazelrc
+
+      - build:
+          name: build-fork
+          filters:
+            branches:
+              only:
+                - /pull\/.*/
+          requires:
+            - setup
+
+      # - maybe_release:
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - /pull\/.*/
+      #     context:
+      #       - Publish
+      #     requires:
+      #       - build-trunk
+
+      - test:
+          name: test-trunk
+          filters:
+            branches:
+              ignore:
+                - /pull\/.*/
+          requires:
+            - build-trunk
+
+      - test:
+          name: test-fork
+          filters:
+            branches:
+              only:
+                - /pull\/.*./
+          requires:
+            - build-fork
+
+  build_and_test_main:
+    when:
+      equal: ["", << pipeline.parameters.GHA_Action >>]
+    jobs:
+      - setup:
+          filters:
+            branches:
+              only:
+                - main
+                - /version-.*/
+      - bazelrc:
+          context:
+            - BuildTools
+          requires:
+            - setup
+
+      - build:
+          requires:
+            - bazelrc
 
       - test:
           requires:
-            - install
+            - build
+
+      # - release:
+      #     context:
+      #       - Publish
+      #     requires:
+      #       - test
+
+  full_release:
+    when:
+      equal: [release, << pipeline.parameters.GHA_Action >>]
+    jobs:
+      - setup
+
+      - build:
+          requires:
+            - setup
+
+      - bazelrc:
+          context:
+            - BuildTools
+          requires:
+            - setup
+
+      - test:
+          requires:
+            - bazelrc
+
+      # - release:
+      #     context:
+      #       - Publish
+      #     requires:
+      #       - test

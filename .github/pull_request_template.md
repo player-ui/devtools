@@ -1,5 +1,3 @@
-# JIRA
-
 # What Changed
 
 # Why
