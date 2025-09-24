@@ -24,7 +24,7 @@ public protocol BaseEvent: Codable {
 }
 
 extension BaseEvent {
-    var payload: String? { nil }
+    public var payload: String? { nil }
 }
 
 enum BaseEventCodingKeys: CodingKey {

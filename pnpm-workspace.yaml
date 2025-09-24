@@ -9,7 +9,8 @@ packages:
   - devtools/messenger/core
   - devtools/client
   - helpers/mocks
-
+  - devtools/fancy/core
+  
 onlyBuiltDependencies:
   - esbuild
   - husky

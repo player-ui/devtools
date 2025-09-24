@@ -60,7 +60,6 @@
     "@storybook/react": "^7.6.10",
     "@storybook/react-vite": "^7.6.10",
     "@storybook/types": "^7.6.10",
-    "@swc/core": "1.3.74",
     "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^6.4.1",
     "@testing-library/react": "^14.2.1",
@@ -141,5 +140,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": []
+  },
+  "devDependencies": {
+    "@swc/core": "1.3.74"
   }
 }

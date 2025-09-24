@@ -16,25 +16,15 @@ public protocol MessengerLogger {
     func log(_ args: Any...)
 }
 
-/// Default console logger implementation
-public struct ConsoleLogger: MessengerLogger {
-    public init() {}
-    
-    public func log(_ args: Any...) {
-        let message = args.map { "\($0)" }.joined(separator: " ")
-        print(message)
-    }
-}
-
 /// Swift implementation of MessengerOptions matching the TypeScript interface
 public struct MessengerOptions<Message: BaseEvent> {
     /// API to send messages
-    public let sendMessage: (InternalEvent) async throws -> Void
+    public let sendMessage: (Message) async throws -> Void
 
     /// API to add a listener
     public let addListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
 
-    /// API to remove a listener  
+    /// API to remove a listener
     public let removeListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
 
     /// Callback to handle messages
@@ -42,22 +32,22 @@ public struct MessengerOptions<Message: BaseEvent> {
 
     /// Context (player or devtools)
     public let context: MessengerContext
-    
-    /// Unique id (optional, will be generated if not provided)
-    public let id: String?
-    
+
+    /// Unique id (required)
+    public let id: String
+
     /// Time between beacons in milliseconds (defaults to 1000)
-    public let beaconIntervalMS: Int?
-    
+    public let beaconIntervalMS: Int
+
     /// Debug mode (defaults to false)
-    public let debug: Bool?
-    
+    public let debug: Bool
+
     /// Handle failed message (optional)
     public let handleFailedMessage: ((MessengerTransaction<Message>) -> Void)?
 
     /// Logger for handling log messages
     public let logger: MessengerLogger
-    
+
     /// Initialize MessengerOptions
     /// - Parameters:
     ///   - sendMessage: Function to send messages
@@ -65,8 +55,8 @@ public struct MessengerOptions<Message: BaseEvent> {
     ///   - removeListener: Function to remove message listeners
     ///   - messageCallback: Callback to handle incoming messages
     ///   - context: Messenger context (player or devtools)
-    ///   - id: Optional unique identifier
-    ///   - beaconIntervalMS: Optional beacon interval in milliseconds
+    ///   - id: Required unique identifier
+    ///   - beaconIntervalMS: Required beacon interval in milliseconds
     ///   - debug: Optional debug mode flag
     ///   - handleFailedMessage: Optional failed message handler
     ///   - logger: Logger instance for handling log output
@@ -76,11 +66,11 @@ public struct MessengerOptions<Message: BaseEvent> {
         removeListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
         messageCallback: @escaping (MessengerTransaction<Message>) -> Void,
         context: MessengerContext,
-        id: String? = nil,
-        beaconIntervalMS: Int? = nil,
-        debug: Bool? = nil,
+        id: String,
+        beaconIntervalMS: Int = 1000,
+        debug: Bool = false,
         handleFailedMessage: ((MessengerTransaction<Message>) -> Void)? = nil,
-        logger: MessengerLogger = ConsoleLogger()
+        logger: MessengerLogger
     ) {
         self.sendMessage = sendMessage
         self.addListener = addListener
@@ -98,6 +88,11 @@ public struct MessengerOptions<Message: BaseEvent> {
 public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transaction" is already taken in Swift
     public let message: Message
     public let metaData: TransactionMetaData
+
+    public init(message: Message, metaData: TransactionMetaData) {
+        self.message = message
+        self.metaData = metaData
+    }
 
     public func encode(to encoder: any Encoder) throws {
         // For the message
@@ -123,23 +118,32 @@ public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transactio
 
 public protocol InternalEvent: BaseEvent {}
 
-struct BeaconEvent: InternalEvent {
-    var type = "MESSENGER_BEACON"
-    var target: String?
+public struct BeaconEvent: InternalEvent {
+    public var type = "MESSENGER_BEACON"
+    public var target: String?
 }
 
-struct DisconnectEvent: InternalEvent {
-    var type = "MESSENGER_DISCONNECT"
-    var target: String?
+public struct DisconnectEvent: InternalEvent {
+    public var type = "MESSENGER_DISCONNECT"
+    public var target: String?
 }
 
-struct RequestLostEventsEvent: InternalEvent {
-    var type = "MESSENGER_REQUEST_LOST_EVENTS"
-    var target: String?
+public struct RequestLostEventsEvent: InternalEvent {
+    public var type = "MESSENGER_REQUEST_LOST_EVENTS"
+    public var target: String?
+    public var payload: PayloadType?
+
+    public struct PayloadType: Codable {
+        public let messagesReceived: Int
+    }
 }
 
-struct EventsBatchEvent<Message: InternalEvent>: InternalEvent {
-    var type = "MESSENGER_EVENT_BATCH"
-    var target: String?
-    let events: [MessengerTransaction<Message>]
+public struct EventsBatchEvent<Message: InternalEvent>: InternalEvent {
+    public var type = "MESSENGER_EVENT_BATCH"
+    public var target: String?
+    public var payload: PayloadType?
+
+    public struct PayloadType: Codable {
+        public let events: [MessengerTransaction<Message>]
+    }
 }

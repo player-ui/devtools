@@ -1,66 +1,202 @@
 //
 // Messenger.swift
-// Generated with Cursor by Koriann South, September 20, 2025
-//
-// This implementation wraps the devtools/messenger/core/index.ts Messenger class
-// and provides a Swift interface for iOS. It uses JavaScriptCore to bridge between Swift and JS.
-//
-// NOTE: This code assumes that the JS bundle (containing Messenger) is available and loaded into the JSContext.
-// You may need to adjust the JS loading mechanism for your app's needs.
+// Generated with Cursor by Koriann South - September 23, 2025
 
 import Foundation
+import PlayerUI
 import JavaScriptCore
+import PlayerUIDevToolsTypes
 
-public class Messenger {
-    private let jsContext: JSContext
+/// Swift wrapper for the JavaScript Messenger implementation
+/// Provides a native Swift API while delegating to the JS implementation
+public class Messenger<Message: BaseEvent> {
+    private let jsContext: JSContext?
     private let jsMessenger: JSValue
-    private var messageCallback: (([String: Any]) -> Void)?
-
-    /// Initialize a Messenger instance.
-    /// - Parameters:
-    ///   - context: The JSContext containing the Messenger class.
-    ///   - options: Dictionary of options to pass to Messenger (see TS docs).
-    ///   - messageCallback: Called when a message is received from JS Messenger.
-    public init?(jsContext: JSContext, options: [String: Any], messageCallback: (([String: Any]) -> Void)? = nil) {
-        self.jsContext = jsContext
-        self.messageCallback = messageCallback
-
-        // Get Messenger constructor from JS first
-        guard let messengerConstructor = jsContext.objectForKeyedSubscript("Messenger") else {
-            print("Messenger class not found in JSContext")
-            return nil
+    
+    /// Initialize a new Messenger instance
+    /// - Parameter options: Configuration options for the messenger
+    /// - Throws: MessengerError if initialization fails
+    public init(options: MessengerOptions<Message>) throws {
+        // Load the context
+        let context = JSContext()
+        guard let url = ResourceUtilities.urlForFile(name: "Messenger.native", ext: "js", bundle: Bundle.module),
+              let jsString = try? String(contentsOf: url, encoding: String.Encoding.utf8) else {
+            throw MessengerError.jsSourceNotFound
         }
+        self.jsContext = context
+        
+        // Create the options object for JavaScript
+        let jsOptions = Self.createJSOptions(from: options, context: context)
+        // The JavaScript file returns an object with exports, get Messenger from there
+        guard let result = context?.evaluateScript(jsString),
+              let messengerClass = result.objectForKeyedSubscript("Messenger"),
+              let messenger = messengerClass.construct(withArguments: [jsOptions]) else {
+            throw MessengerError.initializationFailed
+        }
+        self.jsMessenger = messenger
+    }
+    
+    /// Send a message through the messenger
+    /// - Parameter message: The message to send
+    public func sendMessage(_ message: Message) {
+        do {
+            let messageData = try JSONEncoder().encode(message)
+            let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
+            
+            jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+        } catch {
+            print("Failed to encode message: \(error)")
+        }
+    }
+    
+    /// Send a message as a JSON string
+    /// - Parameter messageString: The message as a JSON string
+    public func sendMessage(_ messageString: String) {
+        jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+    }
+    
+    /// Destroy the messenger instance and clean up resources
+    public func destroy() {
+        jsMessenger.invokeMethod("destroy", withArguments: [])
+    }
+    
+    /// Reset static records (bridges to JavaScript implementation)
+    ///
+    /// **Important:** This method calls the static `Messenger.reset()` method in JavaScript,
+    /// which clears ALL static state (events and connections) for ALL messenger instances
+    /// that share the same JavaScript context. This affects:
+    ///
+    /// - All Swift Messenger instances (since they share `sharedJSContext`)
+    /// - All events stored in the JavaScript static `events` record
+    /// - All connections stored in the JavaScript static `connections` record
+    ///
+    /// This is an instance method (not static) because it needs access to the shared
+    /// JavaScript context, but it performs a global operation affecting all instances.
+    /// Use with caution in multi-instance scenarios.
+    public func reset() {
+        guard let messengerClass = jsContext?.objectForKeyedSubscript("Messenger") else {
+            print("Warning: Messenger class not found in JavaScript context")
+            return
+        }
+        
+        messengerClass.invokeMethod("reset", withArguments: [])
+    }
+}
 
-        // Expose a Swift callback to JS for messageCallback
-        let swiftCallback: @convention(block) (JSValue) -> Void = { jsValue in
-            if let dict = jsValue.toDictionary() as? [String: Any] {
-                messageCallback?(dict)
+private extension Messenger {
+    // Create the options to pass down to the JavaScript Messenger
+    static func createJSOptions(from options: MessengerOptions<Message>, context: JSContext?) -> [String: Any] {
+        var jsOptions: [String: Any] = [
+            "context": options.context.rawValue,
+            "id": options.id,
+            "beaconIntervalMS": options.beaconIntervalMS,
+            "debug": options.debug
+        ]
+        
+        // Create JavaScript functions that bridge to Swift closures
+        jsOptions["sendMessage"] = Self.createSendMessageCallback(options.sendMessage, context: context)
+        jsOptions["messageCallback"] = Self.createTransactionCallback(options.messageCallback, context: context)
+        jsOptions["addListener"] = Self.createListenerCallback(options.addListener, context: context)
+        jsOptions["removeListener"] = Self.createListenerCallback(options.removeListener, context: context)
+        
+        if let handleFailedMessage = options.handleFailedMessage {
+            jsOptions["handleFailedMessage"] = Self.createTransactionCallback(handleFailedMessage, context: context)
+        }
+        
+        jsOptions["logger"] = Self.createLoggerObject(options.logger, context: context)
+        
+        return jsOptions
+    }
+    
+    /// Helper to create a callback for sending messages
+    private static func createSendMessageCallback<T: BaseEvent>(_ sendMessage: @escaping (T) async throws -> Void, context: JSContext?) -> JSValue? {
+        return JSValue(object: { (message: JSValue) in
+            Task {
+                do {
+                    guard let decodedMessage: T = Self.decodeJSValue(message) else { return }
+                    try await sendMessage(decodedMessage)
+                } catch {
+                    print("Failed to send message: \(error)")
+                }
             }
-        }
-
-        // Prepare options, injecting the callback
-        var jsOptions = options
-        jsOptions["messageCallback"] = JSValue(object: swiftCallback, in: jsContext)
-
-        // Create Messenger instance
-        guard let messengerInstance = messengerConstructor.construct(withArguments: [jsOptions]) else {
-            print("Failed to construct Messenger instance")
+        }, in: context)
+    }
+    
+    /// Helper to create a callback for transaction handling
+    private static func createTransactionCallback<T: BaseEvent>(_ callback: @escaping (MessengerTransaction<T>) -> Void, context: JSContext?) -> JSValue? {
+        return JSValue(object: { (transaction: JSValue) in
+            guard let decodedTransaction: MessengerTransaction<T> = Self.decodeJSValue(transaction) else { return }
+            callback(decodedTransaction)
+        }, in: context)
+    }
+    
+    /// Helper to create listener callbacks that encode transactions to JSON
+    private static func createListenerCallback<T: BaseEvent>(_ listenerMethod: @escaping (@escaping (MessengerTransaction<T>) -> Void) -> Void, context: JSContext?) -> JSValue? {
+        return JSValue(object: { (callback: JSValue) in
+            listenerMethod { transaction in
+                guard let encodedString = Self.encodeToJSONString(transaction) else { return }
+                callback.call(withArguments: [encodedString])
+            }
+        }, in: context)
+    }
+    
+    /// Helper to create the logger object
+    private static func createLoggerObject(_ logger: MessengerLogger, context: JSContext?) -> [String: JSValue?] {
+        return [
+            "log": JSValue(object: { (args: [JSValue]) in
+                let logArgs = args.compactMap { $0.toString() }
+                logger.log(logArgs)
+            }, in: context)
+        ]
+    }
+    
+    /// Generic helper to decode JSValue to Swift object
+    private static func decodeJSValue<T: Codable>(_ jsValue: JSValue) -> T? {
+        guard let jsonString = jsValue.toString(),
+              let jsonData = jsonString.data(using: .utf8) else {
+            print("Failed to convert JSValue to string")
             return nil
         }
-
-        self.jsMessenger = messengerInstance
+        
+        do {
+            return try JSONDecoder().decode(T.self, from: jsonData)
+        } catch {
+            print("Failed to decode \(T.self): \(error)")
+            return nil
+        }
     }
-
-    /// Send an event to the Messenger.
-    public func send(event: [String: Any]) {
-        let jsEvent = JSValue(object: event, in: jsContext)
-        _ = jsMessenger.invokeMethod("send", withArguments: [jsEvent as Any])
+    
+    /// Generic helper to encode Swift object to JSON string
+    private static func encodeToJSONString<T: Codable>(_ object: T) -> String? {
+        do {
+            let data = try JSONEncoder().encode(object)
+            return String(data: data, encoding: .utf8)
+        } catch {
+            print("Failed to encode \(T.self): \(error)")
+            return nil
+        }
     }
+}
 
-    /// Disconnect the Messenger.
-    public func disconnect() {
-        _ = jsMessenger.invokeMethod("disconnect", withArguments: [])
+// MARK: - Error Types
+
+/// The different types of errors that can occur when using the Messenger
+public enum MessengerError: Error, LocalizedError {
+    case jsSourceNotFound
+    case initializationFailed
+    case encodingFailed
+    case decodingFailed
+    
+    public var errorDescription: String? {
+        switch self {
+        case .jsSourceNotFound:
+            return "JavaScript Messenger source file not found"
+        case .initializationFailed:
+            return "Failed to initialize JavaScript Messenger"
+        case .encodingFailed:
+            return "Failed to encode message"
+        case .decodingFailed:
+            return "Failed to decode message"
+        }
     }
-
-    // Add more wrapper methods as needed (e.g., for beacon, etc.)
 }
