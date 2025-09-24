@@ -9,12 +9,7 @@ tsup_config(name = "tsup_config")
 vitest_config(name = "vitest_config")
 
 js_pipeline(
-    package_name = "@player-devtools/messenger",
-    deps = [
-        ":node_modules/@player-devtools/types",
-        "//:node_modules/@types/node",
-        "//:node_modules/tiny-uid",
-        "//:node_modules/@swc/core",
-    ],
-    native_bundle = "Messenger",
+    package_name = "@player-devtools/fancy",
+    deps = ["//:node_modules/@swc/core",],
+    native_bundle = "Fancy",
 )
