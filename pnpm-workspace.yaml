@@ -10,6 +10,7 @@ packages:
   - devtools/client
   - helpers/mocks
   - devtools/fancy/core
+  - devtools/utils/ios/Resources/core
   
 onlyBuiltDependencies:
   - esbuild

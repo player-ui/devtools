@@ -361,8 +361,6 @@ importers:
         specifier: workspace:*
         version: link:../types/core
 
-  devtools/fancy/core: {}
-
   devtools/messenger/core:
     dependencies:
       '@player-devtools/types':
@@ -406,6 +404,8 @@ importers:
         version: link:../../../types/core
 
   devtools/types/core: {}
+
+  devtools/utils/ios/Resources/core: {}
 
   helpers/mocks: {}
 
