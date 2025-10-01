@@ -14,16 +14,16 @@ public extension JSValue {
     ///   - className: The name of the class to construct
     ///   - jsModule: The name of the module to construct the class from. (I.e. the same as "native_bundle" in the BUILD file.)
     ///   If nil, the class will be constructed from the module of the same name as the class.
-    ///   - filename: The name of the file to construct the class from
     ///   - args: The arguments to pass to the constructor
     /// - Returns: The constructed JS class as a JSValue
     static func construct(
         className: String,
         inModule jsModule: String? = nil,
-        fromFile filename: String,
+        inBundle bundle: Bundle,
         withArguments args: [Any] = []
     ) throws -> JSValue {
-        guard let url = Bundle.module.url(forResource: filename, withExtension: "js") else {
+        let jsModule = jsModule ?? className
+        guard let url = bundle.url(forResource: "\(jsModule).native", withExtension: "js") else {
             throw JSBaseError.noSuchFile
         }
         guard let script = try? String(contentsOf: url, encoding: .utf8) else {
@@ -35,15 +35,16 @@ public extension JSValue {
 
         context.evaluateScript(script)
 
-        guard let jsClass = context.objectForKeyedSubscript(jsModule ?? className)
-            .objectForKeyedSubscript(className)
-            .construct(withArguments: args),
-              !jsClass.isUndefined
-        else {
-            throw JSBaseError.noSuchClass
+        guard let module = context.objectForKeyedSubscript(jsModule) else {
+            throw JSBaseError.noSuchJSModule
         }
-
-        return jsClass
+        guard let jsClass = module.objectForKeyedSubscript(className) else {
+            throw JSBaseError.noSuchJSClass
+        }
+        guard let constructedClass = jsClass.construct(withArguments: args), jsClass.isUndefined else {
+            throw JSBaseError.couldNotInstantiateClass
+        }
+        return constructedClass
     }
 
     /// A wrapper function that mainly catches "undefined" results and replaces them with nil.
@@ -63,6 +64,8 @@ public extension JSValue {
         case noSuchFile
         case failedToParseScript
         case failedToMakeContext
-        case noSuchClass
+        case noSuchJSModule
+        case noSuchJSClass
+        case couldNotInstantiateClass
     }
 }

@@ -7,5 +7,6 @@ ios_library(
     resources = ["//devtools/messenger/core:core_native_bundle"],
     deps = [
         "//devtools/types/ios:PlayerUIDevToolsTypes",
+        "//devtools/utils/ios:PlayerUIDevToolsUtils",
     ],
 )
