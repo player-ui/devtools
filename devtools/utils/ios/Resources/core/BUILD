@@ -9,7 +9,7 @@ tsup_config(name = "tsup_config")
 vitest_config(name = "vitest_config")
 
 js_pipeline(
-    package_name = "@player-devtools/fancy",
+    package_name = "@player-devtools/utils-test-do-not-export",
     deps = ["//:node_modules/@swc/core",],
-    native_bundle = "Fancy",
+    native_bundle = "Utils",
 )
