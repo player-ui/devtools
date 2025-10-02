@@ -49,7 +49,7 @@ test-results
 /ios/DemoProject.xcodeproj
 /ios/demo/.build
 /ios/demo/.swiftpm
-Package.resolved
+/Package.resolved
 /.swiftpm
 # DO NOT commit your provisioning profile. It's a secret.
 /ios/demo/ProvisioningProfile 
