@@ -16,13 +16,14 @@ mobile-install --mobile_install_aspect=@rules_android//mobile_install:mi.bzl --m
 common:ci-base --build_metadata=ROLE=CI
 common:ci-base --remote_build_event_upload=minimal 
 common:ci-base --nolegacy_important_outputs
+common:ci-base --combined_report=lcov
 # Only show progress every 60 seconds on CI.
 # We want to find a compromise between printing often enough to show that the build isn't stuck,
 # but not so often that we produce a long log file that requires a lot of scrolling.
 # https://bazel.build/reference/command-line-reference#flag--show_progress_rate_limit
 common:ci-base --show_progress_rate_limit=60
-# Circle medium base executor, 2 cores, 4gb ram
-common:ci --config=ci-base --local_resources=cpu=2 --local_resources=memory=4096
+# Circle large base executor, 4 cores, 8gb ram
+common:ci --config=ci-base --local_resources=cpu=4 --local_resources=memory=8192
 # Circle m4pro.medium 6 cores 28gb ram (?)
 common:ci-mac --config=ci-base --local_resources=cpu=4 --local_resources=memory=26000
 

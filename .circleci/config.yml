@@ -18,7 +18,7 @@ executors:
     docker:
       - image: docker.io/playerui/bazel-docker-slim:9
     working_directory: ~/devtools
-    resource_class: medium
+    resource_class: large
     environment:
       TZ: "/usr/share/zoneinfo/America/Los_Angeles"
   minimal:
@@ -277,7 +277,7 @@ jobs:
 
       - run: |
           BUNDLE_TARGETS=$(bazel query "kind(.*_test, //...) except filter('android|ios|swiftui', //...)" --output label 2>/dev/null | tr '\n' ' ')
-          bazel coverage --combined_report=lcov --config=ci -- $BUNDLE_TARGETS
+          bazel coverage --config=ci -- $BUNDLE_TARGETS
 
       - run:
           when: always
