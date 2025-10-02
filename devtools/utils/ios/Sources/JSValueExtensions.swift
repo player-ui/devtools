@@ -9,30 +9,34 @@ import JavaScriptCore
 // While this is public, it is only intended to be used within the devtools bundle.
 // Do not export this extension outside of the devtools bundle.
 public extension JSValue {
-    /// Construct a JS class from a file
+    /// Construct a JS class from a file using an existing JSContext
     /// - Parameters:
     ///   - className: The name of the class to construct
     ///   - jsModule: The name of the module to construct the class from. (I.e. the same as "native_bundle" in the BUILD file.)
     ///   If nil, the class will be constructed from the module of the same name as the class.
+    ///   - context: The existing JSContext to use
+    ///   - bundle: The bundle containing the JavaScript file
     ///   - args: The arguments to pass to the constructor
     /// - Returns: The constructed JS class as a JSValue
     static func construct(
         className: String,
         inModule jsModule: String? = nil,
+        fromFile fileName: String? = nil,
         inBundle bundle: Bundle,
-        withArguments args: [Any] = []
+        withArguments args: [Any] = [],
+        inContext context: JSContext,
+        withPolyfill polyfill: @escaping () -> Void = {}
     ) throws -> JSValue {
         let jsModule = jsModule ?? className
-        guard let url = bundle.url(forResource: "\(jsModule).native", withExtension: "js") else {
+        let fileName = fileName ?? "\(jsModule).native"
+        guard let url = bundle.url(forResource: fileName, withExtension: "js") else {
             throw JSBaseError.noSuchFile
         }
         guard let script = try? String(contentsOf: url, encoding: .utf8) else {
             throw JSBaseError.failedToParseScript
         }
-        guard let context = JSContext() else {
-            throw JSBaseError.failedToMakeContext
-        }
 
+        polyfill()
         context.evaluateScript(script)
 
         guard let module = context.objectForKeyedSubscript(jsModule) else {
@@ -41,7 +45,7 @@ public extension JSValue {
         guard let jsClass = module.objectForKeyedSubscript(className) else {
             throw JSBaseError.noSuchJSClass
         }
-        guard let constructedClass = jsClass.construct(withArguments: args), jsClass.isUndefined else {
+        guard let constructedClass = jsClass.construct(withArguments: args), !constructedClass.isUndefined else {
             throw JSBaseError.couldNotInstantiateClass
         }
         return constructedClass
