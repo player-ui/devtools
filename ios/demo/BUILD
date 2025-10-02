@@ -8,7 +8,7 @@ swift_library(
     data = [":Mocks",],
     # If you add to any of these, you'll need to regenerate the xcodeproj
     deps = [
-        # These are the packages needed by the development package.
+        # These are the packages needed by the development package or demo app itself.
         # DO NOT put packages that require XCTest here (i.e. UI test dependencies).
         "@swiftpkg_playerui_swift_package//:PlayerUI",
         "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",

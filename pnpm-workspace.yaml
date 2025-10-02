@@ -8,9 +8,8 @@ packages:
   - devtools/plugins/desktop/profiler
   - devtools/messenger/core
   - devtools/client
-  - helpers/mocks
-  - devtools/fancy/core
   - devtools/utils/ios/Resources/core
+  - helpers/mocks
   
 onlyBuiltDependencies:
   - esbuild

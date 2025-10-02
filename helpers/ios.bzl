@@ -7,8 +7,7 @@ load("@rules_pkg//:pkg.bzl", "pkg_zip")
 # TODO: Change these to be appropriate for your project
 prefix = "PlayerUIDevTools"
 default_dependencies = [
-  "@swiftpkg_playerui_swift_package//:PlayerUI",
-  "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
+  "@swiftpkg_playerui_swift_package//:PlayerUI"
 ]
 default_test_dependencies = []
 test_host = "//ios/demo:DemoApp"

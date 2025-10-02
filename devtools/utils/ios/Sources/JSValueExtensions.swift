@@ -6,8 +6,6 @@ import Foundation
 import PlayerUI
 import JavaScriptCore
 
-// While this is public, it is only intended to be used within the devtools bundle.
-// Do not export this extension outside of the devtools bundle.
 public extension JSValue {
     /// Construct a JS class from a file using an existing JSContext
     /// - Parameters:
@@ -18,6 +16,11 @@ public extension JSValue {
     ///   - bundle: The bundle containing the JavaScript file
     ///   - args: The arguments to pass to the constructor
     /// - Returns: The constructed JS class as a JSValue
+    ///
+    /// ## 🛑 WARNING
+    /// While this method is public, it is only intended to be used within DevTools.
+    /// Please exercise caution when using this extension outside of DevTools.
+    /// 
     static func construct(
         className: String,
         inModule jsModule: String? = nil,
@@ -53,6 +56,10 @@ public extension JSValue {
 
     /// A wrapper function that mainly catches "undefined" results and replaces them with nil.
     /// This wraps `invokeMethod`.
+    /// 
+    /// ## 🛑 WARNING
+    /// While this method is public, it is only intended to be used within DevTools.
+    /// Please exercise caution when using this extension outside of DevTools.
     func invokeClassMethod(
         _ method: String,
         withArguments arguments: [Any] = []
