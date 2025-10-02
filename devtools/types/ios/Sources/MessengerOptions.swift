@@ -4,6 +4,7 @@
 
 import Foundation
 import JavaScriptCore
+import PlayerUI
 import PlayerUIDevToolsUtils
 
 /// Context for the messenger instance
@@ -18,7 +19,6 @@ public protocol MessengerLogger {
 }
 
 /// Swift implementation of MessengerOptions matching the TypeScript interface
-@objcMembers
 public class MessengerOptions<Message: BaseEvent> {
     /// API to send messages
     public let sendMessage: (Message) async throws -> Void
@@ -84,6 +84,39 @@ public class MessengerOptions<Message: BaseEvent> {
         self.debug = debug
         self.handleFailedMessage = handleFailedMessage
         self.logger = logger
+    }
+    
+    /// Generic helper to decode JSValue to Swift object
+    private func decodeJSValue<T: Codable>(_ jsValue: JSValue) -> T? {
+        // Try to get JSON representation of the object
+        guard let context = jsValue.context else {
+            return nil
+        }
+        
+        // Use JSON.stringify to properly serialize the object
+        guard let jsonStringify = context.objectForKeyedSubscript("JSON")?.objectForKeyedSubscript("stringify"),
+              let jsonString = jsonStringify.call(withArguments: [jsValue])?.toString(),
+              let jsonData = jsonString.data(using: .utf8) else {
+            return nil
+        }
+
+        do {
+            return try JSONDecoder().decode(T.self, from: jsonData)
+        } catch {
+            logger.log("Failed to decode \(T.self):", error)
+            return nil
+        }
+    }
+
+    /// Generic helper to encode Swift object to JSON string
+    private func encodeToJSONString<T: Codable>(_ object: T) -> String? {
+        do {
+            let data = try JSONEncoder().encode(object)
+            return String(data: data, encoding: .utf8)
+        } catch {
+            logger.log("Failed to encode \(T.self):", error)
+            return nil
+        }
     }
 }
 
@@ -151,96 +184,87 @@ public struct EventsBatchEvent<Message: InternalEvent>: InternalEvent {
 }
 
 public extension MessengerOptions {
-    func asJSValue() throws -> JSValue? {
+    func asJSValue(in context: JSContext) throws -> JSValue? {
         var jsOptions: [String: Any] = [
-            "context": context.rawValue,
+            "context": self.context.rawValue,
             "id": id,
             "beaconIntervalMS": beaconIntervalMS,
             "debug": debug
         ]
-
-        // Create JavaScript functions that bridge to Swift closures
-        guard let context = JSContext() else { return nil }
-        jsOptions["sendMessage"] = Self.createSendMessageCallback(sendMessage, context: context)
-        jsOptions["messageCallback"] = Self.createTransactionCallback(messageCallback, context: context)
-        jsOptions["addListener"] = Self.createListenerCallback(addListener, context: context)
-        jsOptions["removeListener"] = Self.createListenerCallback(removeListener, context: context)
-
-        if let handleFailedMessage = handleFailedMessage {
-            jsOptions["handleFailedMessage"] = Self.createTransactionCallback(handleFailedMessage, context: context)
-        }
-
-        jsOptions["logger"] = Self.createLoggerObject(logger, context: context)
-
-        return try JSValue.construct(className: "MessengerOptions", inModule: "Types", inBundle: Bundle.module, withArguments: [jsOptions])
-    }
-
-    /// Helper to create a callback for sending messages
-    private static func createSendMessageCallback<T: BaseEvent>(_ sendMessage: @escaping (T) async throws -> Void, context: JSContext?) -> JSValue? {
-        return JSValue(object: { (message: JSValue) in
-            Task {
-                do {
-                    guard let decodedMessage: T = Self.decodeJSValue(message) else { return }
-                    try await sendMessage(decodedMessage)
-                } catch {
-                    print("Failed to send message: \(error)")
+        
+        // Create sendMessage callback with @convention(block) and wrap in JSValue
+        // This needs to return a Promise since the JS code calls .catch() on the result
+        let sendMessageCallback: @convention(block) (JSValue) -> JSValue? = { message in
+            // Check if this is an internal messenger message that we should ignore
+            if let messageType = message.objectForKeyedSubscript("type")?.toString() {
+                if messageType.hasPrefix("MESSENGER_") {
+                    // Return a resolved promise for internal messages
+                    return JSUtilities.createPromise(context: context) { resolve, reject in
+                        resolve()
+                    }
                 }
             }
-        }, in: context)
-    }
-
-    /// Helper to create a callback for transaction handling
-    private static func createTransactionCallback<T: BaseEvent>(_ callback: @escaping (MessengerTransaction<T>) -> Void, context: JSContext?) -> JSValue? {
-        return JSValue(object: { (transaction: JSValue) in
-            guard let decodedTransaction: MessengerTransaction<T> = Self.decodeJSValue(transaction) else { return }
-            callback(decodedTransaction)
-        }, in: context)
-    }
-
-    /// Helper to create listener callbacks that encode transactions to JSON
-    private static func createListenerCallback<T: BaseEvent>(_ listenerMethod: @escaping (@escaping (MessengerTransaction<T>) -> Void) -> Void, context: JSContext?) -> JSValue? {
-        return JSValue(object: { (callback: JSValue) in
-            listenerMethod { transaction in
-                guard let encodedString = Self.encodeToJSONString(transaction) else { return }
+            
+            // Use PlayerUI's createPromise utility for cleaner Promise creation
+            return JSUtilities.createPromise(context: context) { resolve, reject in
+                Task {
+                    do {
+                        guard let decodedMessage: Message = self.decodeJSValue(message) else { 
+                            reject("Failed to decode message")
+                            return 
+                        }
+                        try await self.sendMessage(decodedMessage)
+                        resolve()
+                    } catch {
+                        self.logger.log("Failed to send message:", error)
+                        reject(error.localizedDescription)
+                    }
+                }
+            }
+        }
+        jsOptions["sendMessage"] = JSValue(object: sendMessageCallback, in: context)
+        
+        // Create messageCallback with @convention(block) and wrap in JSValue
+        let messageCallbackJS: @convention(block) (JSValue) -> Void = { transaction in
+            guard let decodedTransaction: MessengerTransaction<Message> = self.decodeJSValue(transaction) else { return }
+            self.messageCallback(decodedTransaction)
+        }
+        jsOptions["messageCallback"] = JSValue(object: messageCallbackJS, in: context)
+        
+        // Create addListener callback with @convention(block) and wrap in JSValue
+        let addListenerJS: @convention(block) (JSValue) -> Void = { callback in
+            self.addListener { transaction in
+                guard let encodedString = self.encodeToJSONString(transaction) else { return }
                 callback.call(withArguments: [encodedString])
             }
-        }, in: context)
-    }
-
-    /// Helper to create the logger object
-    private static func createLoggerObject(_ logger: MessengerLogger, context: JSContext?) -> [String: JSValue?] {
-        return [
-            "log": JSValue(object: { (args: [JSValue]) in
-                let logArgs = args.compactMap { $0.toString() }
-                logger.log(logArgs)
-            }, in: context)
-        ]
-    }
-
-    /// Generic helper to decode JSValue to Swift object
-    private static func decodeJSValue<T: Codable>(_ jsValue: JSValue) -> T? {
-        guard let jsonString = jsValue.toString(),
-              let jsonData = jsonString.data(using: .utf8) else {
-            print("Failed to convert JSValue to string")
-            return nil
         }
-
-        do {
-            return try JSONDecoder().decode(T.self, from: jsonData)
-        } catch {
-            print("Failed to decode \(T.self): \(error)")
-            return nil
+        jsOptions["addListener"] = JSValue(object: addListenerJS, in: context)
+        
+        // Create removeListener callback with @convention(block) and wrap in JSValue
+        let removeListenerJS: @convention(block) (JSValue) -> Void = { callback in
+            self.removeListener { transaction in
+                guard let encodedString = self.encodeToJSONString(transaction) else { return }
+                callback.call(withArguments: [encodedString])
+            }
         }
-    }
-
-    /// Generic helper to encode Swift object to JSON string
-    private static func encodeToJSONString<T: Codable>(_ object: T) -> String? {
-        do {
-            let data = try JSONEncoder().encode(object)
-            return String(data: data, encoding: .utf8)
-        } catch {
-            print("Failed to encode \(T.self): \(error)")
-            return nil
+        jsOptions["removeListener"] = JSValue(object: removeListenerJS, in: context)
+        
+        // Create logger object with @convention(block) functions
+        let logFunction: @convention(block) () -> Void = {
+            // For now, just log a simple message - we can enhance this later
+            self.logger.log("Log called from JavaScript")
         }
+        jsOptions["logger"] = ["log": JSValue(object: logFunction, in: context)]
+        
+        // Add handleFailedMessage if present
+        if let handleFailedMessage = handleFailedMessage {
+            let handleFailedMessageJS: @convention(block) (JSValue) -> Void = { transaction in
+                guard let decodedTransaction: MessengerTransaction<Message> = self.decodeJSValue(transaction) else { return }
+                handleFailedMessage(decodedTransaction)
+            }
+            jsOptions["handleFailedMessage"] = JSValue(object: handleFailedMessageJS, in: context)
+        }
+        
+        return JSValue(object: jsOptions, in: context)
     }
 }

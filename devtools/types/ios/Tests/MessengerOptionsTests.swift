@@ -35,7 +35,8 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let jsValue = try options.asJSValue()
+        let context = JSContext()!
+        let jsValue = try options.asJSValue(in: context)
         
         XCTAssertNotNil(jsValue, "asJSValue should return a JSValue")
         XCTAssertFalse(jsValue?.isUndefined ?? true, "JSValue should not be undefined")
@@ -61,7 +62,8 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let jsValue = try options.asJSValue()
+        let context = JSContext()!
+        let jsValue = try options.asJSValue(in: context)
         
         XCTAssertNotNil(jsValue, "asJSValue should return a JSValue")
         XCTAssertFalse(jsValue?.isUndefined ?? true, "JSValue should not be undefined")
@@ -84,7 +86,8 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let jsValue = try options.asJSValue()
+        let context = JSContext()!
+        let jsValue = try options.asJSValue(in: context)
         
         XCTAssertNotNil(jsValue, "asJSValue should return a JSValue")
         
@@ -107,7 +110,8 @@ final class MessengerOptionsTests: XCTestCase {
                 logger: MockLogger()
             )
             
-            let jsValue = try options.asJSValue()
+            let context = JSContext()!
+        let jsValue = try options.asJSValue(in: context)
             
             XCTAssertNotNil(jsValue, "asJSValue should return a JSValue for id: \(testId)")
             XCTAssertEqual(jsValue?.objectForKeyedSubscript("id")?.toString(), testId, "ID should match for: \(testId)")
@@ -129,7 +133,8 @@ final class MessengerOptionsTests: XCTestCase {
                 logger: MockLogger()
             )
             
-            let jsValue = try options.asJSValue()
+            let context = JSContext()!
+        let jsValue = try options.asJSValue(in: context)
             
             XCTAssertNotNil(jsValue, "asJSValue should return a JSValue for interval: \(interval)")
             XCTAssertEqual(jsValue?.objectForKeyedSubscript("beaconIntervalMS")?.toInt32(), Int32(interval), "Beacon interval should match: \(interval)")
@@ -149,7 +154,8 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let debugJSValue = try debugOptions.asJSValue()
+        let context = JSContext()!
+        let debugJSValue = try debugOptions.asJSValue(in: context)
         XCTAssertEqual(debugJSValue?.objectForKeyedSubscript("debug")?.toBool(), true)
         
         // Test debug = false
@@ -164,27 +170,28 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let nonDebugJSValue = try nonDebugOptions.asJSValue()
+        let nonDebugJSValue = try nonDebugOptions.asJSValue(in: context)
         XCTAssertEqual(nonDebugJSValue?.objectForKeyedSubscript("debug")?.toBool(), false)
     }
     
     func testAsJSValueContextEnumValues() throws {
         // Test all context enum values
-        for context in MessengerContext.allCases {
+        for messengerContext in MessengerContext.allCases {
             let options = MessengerOptions<TestEvent>(
                 sendMessage: { _ in },
                 addListener: { _ in },
                 removeListener: { _ in },
                 messageCallback: { _ in },
-                context: context,
-                id: "context-test-\(context.rawValue)",
+                context: messengerContext,
+                id: "context-test-\(messengerContext.rawValue)",
                 logger: MockLogger()
             )
             
-            let jsValue = try options.asJSValue()
+            let jsContext = JSContext()!
+            let jsValue = try options.asJSValue(in: jsContext)
             
-            XCTAssertNotNil(jsValue, "asJSValue should work for context: \(context)")
-            XCTAssertEqual(jsValue?.objectForKeyedSubscript("context")?.toString(), context.rawValue, "Context should match: \(context.rawValue)")
+            XCTAssertNotNil(jsValue, "asJSValue should work for context: \(messengerContext)")
+            XCTAssertEqual(jsValue?.objectForKeyedSubscript("context")?.toString(), messengerContext.rawValue, "Context should match: \(messengerContext.rawValue)")
         }
     }
     
@@ -214,8 +221,9 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let jsValue1 = try options1.asJSValue()
-        let jsValue2 = try options2.asJSValue()
+        let context = JSContext()!
+        let jsValue1 = try options1.asJSValue(in: context)
+        let jsValue2 = try options2.asJSValue(in: context)
         
         // Verify both instances have their own properties
         XCTAssertEqual(jsValue1?.objectForKeyedSubscript("id")?.toString(), "instance-1")
@@ -242,10 +250,11 @@ final class MessengerOptionsTests: XCTestCase {
         )
         
         // This should not throw an error under normal circumstances
-        XCTAssertNoThrow(try options.asJSValue(), "asJSValue should not throw under normal conditions")
+        let context = JSContext()!
+        XCTAssertNoThrow(try options.asJSValue(in: context), "asJSValue should not throw under normal conditions")
         
         // Verify the result is valid
-        let jsValue = try options.asJSValue()
+        let jsValue = try options.asJSValue(in: context)
         XCTAssertNotNil(jsValue, "asJSValue should return a valid JSValue")
         XCTAssertFalse(jsValue?.isUndefined ?? true, "JSValue should not be undefined")
     }
@@ -263,7 +272,8 @@ final class MessengerOptionsTests: XCTestCase {
             logger: MockLogger()
         )
         
-        let jsValue = try options.asJSValue()
+        let context = JSContext()!
+        let jsValue = try options.asJSValue(in: context)
         
         // Test that all expected properties exist and are readable
         XCTAssertFalse(jsValue?.objectForKeyedSubscript("context")?.isUndefined ?? true, "context property should exist")
