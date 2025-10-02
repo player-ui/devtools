@@ -163,12 +163,7 @@ jobs:
           command: |
             bazel build \
               --config=ci-mac \
-              $(bazel query "kind(ios_unit_test, //ios/...)") \
-              $(bazel query "kind(ios_unit_test, //plugins/...)") \
-              $(bazel query "kind(ios_ui_test, //ios/...)") \
-              $(bazel query "kind(ios_ui_test, //plugins/...)") \
-              $(bazel query "attr(name, '.*SwiftLint', //ios/...)") \
-              $(bazel query "attr(name, '.*SwiftLint', //plugins/...)")
+              $(bazel query "kind('ios_unit_test|ios_ui_test|.*SwiftLint', //...)")
       - run:
           name: Tests
           command: |
@@ -179,17 +174,13 @@ jobs:
               --combined_report=lcov \
               --test_output=all \
               --test_timeout=1800 \
-              $(bazel query "kind(ios_unit_test, //ios/...)") \
-              $(bazel query "kind(ios_unit_test, //plugins/...)") \
-              $(bazel query "kind(ios_ui_test, //ios/...)") \
-              $(bazel query "kind(ios_ui_test, //plugins/...)")
+              $(bazel query "kind('ios_unit_test|ios_ui_test', //...)")
       - run:
           name: Lint
           command: |
             bazel test \
               --config=ci-mac \
-              $(bazel query "attr(name, '.*SwiftLint', //ios/...)") \
-              $(bazel query "attr(name, '.*SwiftLint', //plugins/...)")
+              $(bazel query "attr(name, '.*SwiftLint', //...)")
 
       - run:
           when: always
@@ -220,9 +211,9 @@ jobs:
       - attach_workspace:
           at: ~/devtools
 
-      - run: bazel build --config=ci -- $(bazel query 'kind(".*_test", //...) except filter("ios|swiftui", //...)') -//android/demo:android_instrumentation_test
+      - run: bazel build --config=ci -- $(bazel query 'kind(".*_test", //...) except filter("ios|swiftui|android", //...)')
 
-      - run: bazel test --config=ci -- $(bazel query 'kind(".*_test", //...) except filter("ios|swiftui", //...)') -//android/demo:android_instrumentation_test
+      - run: bazel test --config=ci -- $(bazel query 'kind(".*_test", //...) except filter("ios|swiftui|android", //...)')
 
       - run:
           when: always
