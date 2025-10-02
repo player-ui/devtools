@@ -12,17 +12,18 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-generate_mocks_manifest(
-    name = "manifest",
-    mocks = [":all_mocks"],
-)
+# TODO: Uncomment this when we have mocks
+# generate_mocks_manifest(
+#     name = "manifest",
+#     mocks = [":all_mocks"],
+# )
 
 npm_package(
     name = "mocks",
     visibility = ["//visibility:public"],
     package = "@player-devtools/mocks", # TODO: Change this to match your project
     srcs = [
-        ":manifest",
+        # ":manifest", # TODO: Uncomment this when we have mocks
         "package.json"
     ],
     tags = ["do-not-publish"],
@@ -31,6 +32,6 @@ npm_package(
 java_library(
     name = "jar",
     resource_strip_prefix = "helpers",
-    resources = [":manifest"],
+    # resources = [":manifest"], # TODO: Uncomment this when we have mocks
     visibility = ["//visibility:public"],
 )

@@ -80,13 +80,13 @@ jobs:
           paths:
             - .
 
-  build:
+  build_core:
     executor: base
     steps:
       - attach_workspace:
           at: ~/devtools
 
-      - run: bazel build --config=ci -- //...
+      - run: bazel build --config=ci -- $(bazel query "attr(name, 'native_bundle', //...)" --output label 2>/dev/null | tr '\n' ' ')
 
       - save_cache:
           paths:
@@ -99,7 +99,7 @@ jobs:
             - .
       - check_branch_status
 
-  test:
+  test_js:
     executor: base
     steps:
       - attach_workspace:
@@ -112,10 +112,21 @@ jobs:
             - devtools-main
 
       - run: |
-          bazel coverage --config=ci ...
+          bazel coverage --config=ci -- $(bazel query "kind(js_test, //...)" --output label 2>/dev/null | tr '\n' ' ')
 
       - codecov/upload:
-          files: ./bazel-out/_coverage/_coverage_report.dat
+          files: ./bazel-out/_coverage/_js_coverage_report.dat
+
+  test_ios:
+    executor: base
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+          
+      - run: bazel coverage --config=ci -- $(bazel query "kind('ios_unit_test|ios_ui_test', //...)")
+      
+      - codecov/upload:
+          files: ./bazel-out/_coverage/_ios_coverage_report.dat
 
   maybe_release:
     executor: base
@@ -152,7 +163,7 @@ workflows:
           requires:
             - setup
 
-      - build:
+      - build_core:
           name: build-trunk
           filters:
             branches:
@@ -161,7 +172,7 @@ workflows:
           requires:
             - bazelrc
 
-      - build:
+      - build_core:
           name: build-fork
           filters:
             branches:
@@ -180,7 +191,7 @@ workflows:
       #     requires:
       #       - build-trunk
 
-      - test:
+      - test_js:
           name: test-trunk
           filters:
             branches:
@@ -189,12 +200,30 @@ workflows:
           requires:
             - build-trunk
 
-      - test:
+      - test_js:
           name: test-fork
           filters:
             branches:
               only:
                 - /pull\/.*./
+          requires:
+            - build-fork
+
+      - test_ios:
+          name: test-trunk
+          filters:
+            branches:
+              ignore:
+                - /pull\/.*/
+          requires:
+            - build-trunk
+      
+      - test_ios:
+          name: test-fork
+          filters:
+            branches:
+              only:
+                - /pull\/.*/
           requires:
             - build-fork
 
@@ -214,13 +243,17 @@ workflows:
           requires:
             - setup
 
-      - build:
+      - build_core:
           requires:
             - bazelrc
 
-      - test:
+      - test_js:
           requires:
-            - build
+            - build_core
+
+      - test_ios:
+          requires:
+            - build_core
 
       # - release:
       #     context:
@@ -234,7 +267,7 @@ workflows:
     jobs:
       - setup
 
-      - build:
+      - build_core:
           requires:
             - setup
 
@@ -244,7 +277,11 @@ workflows:
           requires:
             - setup
 
-      - test:
+      - test_js:
+          requires:
+            - bazelrc
+
+      - test_ios:
           requires:
             - bazelrc
 
