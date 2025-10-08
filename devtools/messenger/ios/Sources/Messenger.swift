@@ -12,15 +12,16 @@ import PlayerUIDevToolsUtils
 /// Provides a native Swift API while delegating to the JS implementation
 public class Messenger<Message: BaseEvent> {
     private let jsMessenger: JSValue
-
+    private let sharedContext: JSContext?
+    
     /// Initialize a new Messenger instance
     /// - Parameter options: Configuration options for the messenger
     /// - Throws: MessengerError if initialization fails
-    public init(options: MessengerOptions<Message>) throws {
+    public init(options: MessengerOptions<Message>, jsContext: JSContext = JSContext()) throws {
         // Create a shared JSContext for both the options and the messenger
-        let sharedContext = JSContext()!
+        self.sharedContext = jsContext
         
-        guard let jsOptions = try options.asJSValue(in: sharedContext) else {
+        guard let sharedContext, let jsOptions = try options.asJSValue(in: sharedContext) else {
             throw MessengerError.initializationFailed
         }
         
@@ -33,31 +34,52 @@ public class Messenger<Message: BaseEvent> {
             withPolyfill: { sharedContext.setupMessengerPolyfill() }
         )
     }
-
+    
     /// Send a message through the messenger
     /// - Parameter message: The message to send
     public func sendMessage(_ message: Message) {
         do {
             let messageData = try JSONEncoder().encode(message)
             let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
-
-            jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+            
+            // JSContext/JSValue are not thread-safe, must be accessed from main thread
+            if Thread.isMainThread {
+                jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+            } else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+                }
+            }
         } catch {
             print("Failed to encode message: \(error)")
         }
     }
-
+    
     /// Send a message as a JSON string
     /// - Parameter messageString: The message as a JSON string
     public func sendMessage(_ messageString: String) {
-        jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+        // JSContext/JSValue are not thread-safe, must be accessed from main thread
+        if Thread.isMainThread {
+            jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
+            }
+        }
     }
-
+    
     /// Destroy the messenger instance and clean up resources
     public func destroy() {
-        jsMessenger.invokeMethod("destroy", withArguments: [])
+        // JSContext/JSValue are not thread-safe, must be accessed from main thread
+        if Thread.isMainThread {
+            jsMessenger.invokeMethod("destroy", withArguments: [])
+        } else {
+            DispatchQueue.main.sync {
+                jsMessenger.invokeMethod("destroy", withArguments: [])
+            }
+        }
     }
-
+    
     /// Reset static records (bridges to JavaScript implementation)
     ///
     /// **Important:** This method calls the static `Messenger.reset()` method in JavaScript,
@@ -72,15 +94,26 @@ public class Messenger<Message: BaseEvent> {
     /// JavaScript context, but it performs a global operation affecting all instances.
     /// Use with caution in multi-instance scenarios.
     public func reset() {
-        guard let messengerClass = JSContext()
-            .objectForKeyedSubscript("Messenger")
-            .objectForKeyedSubscript("Messenger")
-        else {
-            print("Warning: Messenger class not found in JavaScript context")
-            return
+        // JSContext/JSValue are not thread-safe, must be accessed from main thread
+        let performReset = {
+            guard let messengerClass = self.sharedContext?
+                .objectForKeyedSubscript("Messenger")
+                .objectForKeyedSubscript("Messenger")
+            else {
+                print("Warning: Messenger class not found in JavaScript context")
+                return
+            }
+            
+            messengerClass.invokeMethod("reset", withArguments: [])
         }
-
-        messengerClass.invokeMethod("reset", withArguments: [])
+        
+        if Thread.isMainThread {
+            performReset()
+        } else {
+            DispatchQueue.main.sync {
+                performReset()
+            }
+        }
     }
 }
 
@@ -92,7 +125,7 @@ public enum MessengerError: Error, LocalizedError {
     case initializationFailed
     case encodingFailed
     case decodingFailed
-
+    
     public var errorDescription: String? {
         switch self {
         case .jsSourceNotFound:
@@ -125,7 +158,7 @@ extension JSContext {
             let timerId = timerStorage.createTimer(callback: callback, delay: Int(delay))
             return JSValue(int32: Int32(timerId), in: self)
         }
-
+        
         // clearInterval in JS cancels the repeating job.
         let clearInterval: @convention(block) (JSValue?) -> Void = { timerId in
             guard let timerId = timerId?.toInt32() else { return }
@@ -138,7 +171,7 @@ extension JSContext {
                 print("Swift DevTools, Debug mode:", args)
             }
         }
-
+        
         guard let jsSetInterval = JSValue(object: setInterval, in: self) else { return }
         setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
         guard let jsClearInterval = JSValue(object: clearInterval, in: self) else { return }
@@ -155,29 +188,27 @@ private class TimerStorage {
     private var timers: [Int: DispatchSourceTimer] = [:]
     private var callbacks: [Int: JSValue] = [:]
     private var timerCounter = 0
-    private let queue = DispatchQueue(label: "timer-storage", attributes: .concurrent)
-
+    // Use serial queue for simplicity and thread safety
+    private let queue = DispatchQueue(label: "timer-storage")
+    
     private init() {}
     
     func createTimer(callback: JSValue, delay: Int) -> Int {
-        return queue.sync(flags: .barrier) {
+        return queue.sync {
             timerCounter += 1
             let timerId = timerCounter
-
+            
             // Store the callback strongly to prevent deallocation
             callbacks[timerId] = callback
             
-            let timer = DispatchSource.makeTimerSource(queue: .global(qos: .background))
+            let timer = DispatchSource.makeTimerSource(queue: .main)
             timer.schedule(deadline: .now(), repeating: .milliseconds(delay))
             timer.setEventHandler { [weak self] in
-                // Ensure we're on the main queue for JSValue operations
-                DispatchQueue.main.async {
-                    self?.queue.sync {
-                        if let storedCallback = self?.callbacks[timerId] {
-                            storedCallback.call(withArguments: [])
-                        }
-                    }
-                }
+                // We're already on main queue (timer's queue), which is required for JSValue
+                // Read the callback within the lock to ensure thread safety
+                guard let self = self else { return }
+                let callbackToExecute = self.queue.sync { self.callbacks[timerId] }
+                callbackToExecute?.call(withArguments: [])
             }
             timer.resume()
             
@@ -187,7 +218,7 @@ private class TimerStorage {
     }
     
     func cancelTimer(id: Int) {
-        queue.sync(flags: .barrier) {
+        queue.sync {
             if let timer = timers[id] {
                 timer.cancel()
                 timers.removeValue(forKey: id)
@@ -197,7 +228,7 @@ private class TimerStorage {
     }
     
     deinit {
-        queue.sync(flags: .barrier) {
+        queue.sync {
             for timer in timers.values {
                 timer.cancel()
             }

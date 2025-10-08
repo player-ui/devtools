@@ -22,34 +22,34 @@ public protocol MessengerLogger {
 public class MessengerOptions<Message: BaseEvent> {
     /// API to send messages
     public let sendMessage: (Message) async throws -> Void
-
+    
     /// API to add a listener
     public let addListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
-
+    
     /// API to remove a listener
     public let removeListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
-
+    
     /// Callback to handle messages
     public let messageCallback: (MessengerTransaction<Message>) -> Void
-
+    
     /// Context (player or devtools)
     public let context: MessengerContext
-
+    
     /// Unique id (required)
     public let id: String
-
+    
     /// Time between beacons in milliseconds (defaults to 1000)
     public let beaconIntervalMS: Int
-
+    
     /// Debug mode (defaults to false)
     public let debug: Bool
-
+    
     /// Handle failed message (optional)
     public let handleFailedMessage: ((MessengerTransaction<Message>) -> Void)?
-
+    
     /// Logger for handling log messages
     public let logger: MessengerLogger
-
+    
     /// Initialize MessengerOptions
     /// - Parameters:
     ///   - sendMessage: Function to send messages
@@ -99,7 +99,7 @@ public class MessengerOptions<Message: BaseEvent> {
               let jsonData = jsonString.data(using: .utf8) else {
             return nil
         }
-
+        
         do {
             return try JSONDecoder().decode(T.self, from: jsonData)
         } catch {
@@ -107,7 +107,7 @@ public class MessengerOptions<Message: BaseEvent> {
             return nil
         }
     }
-
+    
     /// Generic helper to encode Swift object to JSON string
     private func encodeToJSONString<T: Codable>(_ object: T) -> String? {
         do {
@@ -123,19 +123,19 @@ public class MessengerOptions<Message: BaseEvent> {
 public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transaction" is already taken in Swift
     public let message: Message
     public let metaData: TransactionMetaData
-
+    
     public init(message: Message, metaData: TransactionMetaData) {
         self.message = message
         self.metaData = metaData
     }
-
+    
     public func encode(to encoder: any Encoder) throws {
         // For the message
         var eventContainer = encoder.container(keyedBy: BaseEventCodingKeys.self)
         try eventContainer.encode(self.message.type, forKey: .type)
         try eventContainer.encode(self.message.target, forKey: .target)
         try eventContainer.encode(self.message.payload, forKey: .payload)
-
+        
         // For the metaData
         var metaDataContainer = encoder.container(keyedBy: TransactionMetaData.CodingKeys.self)
         try metaDataContainer.encode(self.metaData.id, forKey: .id)
@@ -144,7 +144,7 @@ public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transactio
         try metaDataContainer.encode(self.metaData.context, forKey: .context)
         try metaDataContainer.encode(self.metaData.isMessenger, forKey: .isMessenger)
     }
-
+    
     public init(from decoder: any Decoder) throws {
         self.message = try Message(from: decoder)
         self.metaData = try TransactionMetaData(from: decoder)
@@ -167,7 +167,7 @@ public struct RequestLostEventsEvent: InternalEvent {
     public var type = "MESSENGER_REQUEST_LOST_EVENTS"
     public var target: String?
     public var payload: PayloadType?
-
+    
     public struct PayloadType: Codable {
         public let messagesReceived: Int
     }
@@ -177,13 +177,14 @@ public struct EventsBatchEvent<Message: InternalEvent>: InternalEvent {
     public var type = "MESSENGER_EVENT_BATCH"
     public var target: String?
     public var payload: PayloadType?
-
+    
     public struct PayloadType: Codable {
         public let events: [MessengerTransaction<Message>]
     }
 }
 
 public extension MessengerOptions {
+    // TODO: clean up
     func asJSValue(in context: JSContext) throws -> JSValue? {
         var jsOptions: [String: Any] = [
             "context": self.context.rawValue,
@@ -195,17 +196,6 @@ public extension MessengerOptions {
         // Create sendMessage callback with @convention(block) and wrap in JSValue
         // This needs to return a Promise since the JS code calls .catch() on the result
         let sendMessageCallback: @convention(block) (JSValue) -> JSValue? = { message in
-            // Check if this is an internal messenger message that we should ignore
-            if let messageType = message.objectForKeyedSubscript("type")?.toString() {
-                if messageType.hasPrefix("MESSENGER_") {
-                    // Return a resolved promise for internal messages
-                    return JSUtilities.createPromise(context: context) { resolve, reject in
-                        resolve()
-                    }
-                }
-            }
-            
-            // Use PlayerUI's createPromise utility for cleaner Promise creation
             return JSUtilities.createPromise(context: context) { resolve, reject in
                 Task {
                     do {

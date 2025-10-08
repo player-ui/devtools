@@ -801,7 +801,7 @@
         "bzlTransitiveDigest": "+z+pZIYCLcHGxGMADT76Mme+Sq6/ptcE1QGsNUmgRZ4=",
         "usagesDigest": "5pbtf6zJZFcAPQSnlUBJd2OrZb5MXjZr++YZ1avmxOQ=",
         "recordedFileInputs": {
-          "@@//ios/demo/Package.resolved": "0a379d5a37316beb774e62f9dd77a2360c43bdb9b581f900471857539049a1e9"
+          "@@//ios/demo/Package.resolved": "09ead33163f9017743a4055a7811be530a8339417e909a941e59e43d3dc66527"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -839,9 +839,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_playerui_swift_package",
-              "commit": "1973de37eb4446d62ea62ff689643e1ad02d69b3",
+              "commit": "4ddfe6ceeaaaeb70f6d4316eb2937545faac5447",
               "remote": "https://github.com/player-ui/playerui-swift-package.git",
-              "version": "0.12.0",
+              "version": "0.14.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -861,9 +861,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swiftlint",
-              "commit": "625792423014cc49b0a1e5a1a5c0d6b8b3de10f9",
+              "commit": "cc6fbaf355caf9ebe02c1b631a8edaa6df9145c5",
               "remote": "https://github.com/realm/SwiftLint.git",
-              "version": "0.59.1",
+              "version": "0.61.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -883,9 +883,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_viewinspector",
-              "commit": "a6fcac8485bc8f57b2d2b55bb6d97138e8659e4b",
+              "commit": "e9a06346499a3a889165647e3f23f8a7b2609a1c",
               "remote": "https://github.com/nalexn/viewinspector.git",
-              "version": "0.10.2",
+              "version": "0.10.3",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -949,9 +949,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_sourcekitten",
-              "commit": "453f75b8a3bb2c3596c0d2dd422c289788233a22",
+              "commit": "731ffe6a35344a19bab00cdca1c952d5b4fee4d8",
               "remote": "https://github.com/jpsim/SourceKitten.git",
-              "version": "0.37.1",
+              "version": "0.37.2",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -993,9 +993,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swift_syntax",
-              "commit": "1103c45ece4f7fe160b8f75b4ea1ee2e5fac1841",
+              "commit": "21b3b45635decd1a0b89968f81b6d9a93128f773",
               "remote": "https://github.com/swiftlang/swift-syntax.git",
-              "version": "601.0.0",
+              "version": "602.0.0-prerelease-2025-08-11",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -1059,9 +1059,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_yams",
-              "commit": "3d6871d5b4a5cd519adf233fbb576e0a2af71c17",
+              "commit": "d41ba4e7164c0838c6d48351f7575f7f762151fe",
               "remote": "https://github.com/jpsim/Yams.git",
-              "version": "5.4.0",
+              "version": "6.1.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
