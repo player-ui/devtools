@@ -169,10 +169,10 @@ public extension MessengerOptions {
             "id": id,
             "beaconIntervalMS": beaconIntervalMS,
             "debug": debug,
-            "sendMessage": createSendMessageCallback(context: context),
-            "messageCallback": createMessageCallback(context: context),
-            "addListener": createAddListenerCallback(context: context),
-            "removeListener": createRemoveListenerCallback(context: context),
+            "sendMessage": createSendMessageCallback(context: context) as Any,
+            "messageCallback": createMessageCallback(context: context) as Any,
+            "addListener": createAddListenerCallback(context: context) as Any,
+            "removeListener": createRemoveListenerCallback(context: context) as Any,
             "logger": createLogger(context: context)
         ]
         
