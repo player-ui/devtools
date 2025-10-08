@@ -8,7 +8,7 @@ import JavaScriptCore
 import PlayerUIDevToolsTypes
 import PlayerUIDevToolsUtils
 
-/// Swift wrapper for the JavaScript Messenger implementation
+/// Swift wrapper for the JavaScript Messenger implementation.
 /// Provides a native Swift API while delegating to the JS implementation
 public class Messenger<Message: BaseEvent> {
     private let jsMessenger: JSValue
@@ -121,11 +121,19 @@ public class Messenger<Message: BaseEvent> {
 
 /// The different types of errors that can occur when using the Messenger
 public enum MessengerError: Error, LocalizedError {
+    /// JavaScript source file could not be found in the bundle
     case jsSourceNotFound
+    
+    /// Failed to initialize the JavaScript Messenger instance
     case initializationFailed
+    
+    /// Failed to encode a message to JSON
     case encodingFailed
+    
+    /// Failed to decode a message from JSON
     case decodingFailed
     
+    /// A localized description of the error
     public var errorDescription: String? {
         switch self {
         case .jsSourceNotFound:
@@ -142,9 +150,17 @@ public enum MessengerError: Error, LocalizedError {
 
 extension JSContext {
     /**
+     Sets up polyfills for JavaScript APIs required by the Messenger implementation.
+     
      Provides setInterval, clearInterval, and console.log implementations for the JS Messenger
      used by the Swift wrapper, which will not have access to the browser APIs.
      (I.e. this is a polyfill for the JS Messenger.)
+     
+     This method must be called before initializing any Messenger instances in this context.
+     The polyfills enable:
+     - `setInterval`: Registers repeating timers for periodic tasks (e.g., beacon messages)
+     - `clearInterval`: Cancels active timers
+     - `console.log`: Provides debug logging output
      */
     func setupMessengerPolyfill() {
         // Store timers in a class-level dictionary to avoid JSValue storage issues
@@ -181,8 +197,13 @@ extension JSContext {
     }
 }
 
-// Separate timer storage class to avoid JSValue memory management issues
+/// Manages JavaScript timer storage and lifecycle
+///
+/// This class provides thread-safe storage for JavaScript callbacks and their associated
+/// dispatch timers, avoiding JSValue memory management issues that can occur when storing
+/// JavaScript values directly in timer closures.
 private class TimerStorage {
+    /// Shared singleton instance
     static let shared = TimerStorage()
     
     private var timers: [Int: DispatchSourceTimer] = [:]
@@ -193,6 +214,12 @@ private class TimerStorage {
     
     private init() {}
     
+    /// Creates a new repeating timer with the given callback
+    ///
+    /// - Parameters:
+    ///   - callback: JavaScript function to call on each timer fire
+    ///   - delay: Interval in milliseconds between timer fires
+    /// - Returns: Unique timer ID that can be used to cancel the timer
     func createTimer(callback: JSValue, delay: Int) -> Int {
         return queue.sync {
             timerCounter += 1
@@ -217,6 +244,9 @@ private class TimerStorage {
         }
     }
     
+    /// Cancels an active timer
+    ///
+    /// - Parameter id: The timer ID returned from `createTimer`
     func cancelTimer(id: Int) {
         queue.sync {
             if let timer = timers[id] {
@@ -227,6 +257,7 @@ private class TimerStorage {
         }
     }
     
+    /// Cleans up all active timers when the storage is deallocated
     deinit {
         queue.sync {
             for timer in timers.values {

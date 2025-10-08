@@ -782,6 +782,7 @@ final class MessengerTests: XCTestCase {
 
 // MARK: - Test Event Types
 
+/// A test event type used for unit testing the Messenger
 struct TestEvent: BaseEvent {
     typealias Payload = TestPayload
     
@@ -796,21 +797,30 @@ struct TestEvent: BaseEvent {
     }
 }
 
+/// A test payload structure for testing message serialization
 struct TestPayload: Codable, Equatable {
     let count: Int
 }
 
 // MARK: - Mock Implementations
 
+/// Mock logger implementation for testing
 class MockLogger: MessengerLogger {
+    /// Array of all logged messages for test assertions
     var loggedMessages: [String] = []
     
+    /// Logs a message by storing it in the loggedMessages array
+    /// - Parameter args: Variable arguments to log
     func log(_ args: Any...) {
         let message = args.map { "\($0)" }.joined(separator: " ")
         loggedMessages.append(message)
     }
 }
 
+/// Mock messaging API for testing Messenger functionality
+///
+/// Provides thread-safe mock implementations of message sending and listener management
+/// for use in unit tests. Tracks all method calls and messages for assertions.
 class MockMessagingAPI {
     private var sentMessages: [TestEvent] = []
     private var listeners: [(MessengerTransaction<TestEvent>) -> Void] = []
@@ -821,6 +831,7 @@ class MockMessagingAPI {
     // Serial queue to protect shared mutable state
     private let queue = DispatchQueue(label: "com.mockapi.queue")
     
+    /// Resets all tracked state and counters
     func reset() {
         queue.sync {
             sentMessages.removeAll()
@@ -831,6 +842,9 @@ class MockMessagingAPI {
         }
     }
     
+    /// Sends a message and notifies all registered listeners
+    /// - Parameter message: The test event to send
+    /// - Throws: Any errors that occur during message processing
     func sendMessage(_ message: TestEvent) throws {
         let (count, currentListeners) = queue.sync { () -> (Int, [(MessengerTransaction<TestEvent>) -> Void]) in
             sendMessageCallCount += 1
@@ -857,6 +871,8 @@ class MockMessagingAPI {
         }
     }
     
+    /// Registers a new message listener
+    /// - Parameter callback: The callback to invoke when messages are received
     func addListener(_ callback: @escaping (MessengerTransaction<TestEvent>) -> Void) {
         queue.sync {
             addListenerCallCount += 1
@@ -864,6 +880,8 @@ class MockMessagingAPI {
         }
     }
     
+    /// Removes a message listener
+    /// - Parameter callback: The callback to remove from the listeners list
     func removeListener(_ callback: @escaping (MessengerTransaction<TestEvent>) -> Void) {
         queue.sync {
             removeListenerCallCount += 1
@@ -873,18 +891,23 @@ class MockMessagingAPI {
     }
     
     // Thread-safe accessors for test assertions
+    
+    /// Thread-safe snapshot of all sent messages
     var sentMessagesSnapshot: [TestEvent] {
         queue.sync { sentMessages }
     }
     
+    /// Thread-safe snapshot of sendMessage call count
     var sendMessageCallCountSnapshot: Int {
         queue.sync { sendMessageCallCount }
     }
     
+    /// Thread-safe snapshot of addListener call count
     var addListenerCallCountSnapshot: Int {
         queue.sync { addListenerCallCount }
     }
     
+    /// Thread-safe snapshot of removeListener call count
     var removeListenerCallCountSnapshot: Int {
         queue.sync { removeListenerCallCount }
     }

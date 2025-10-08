@@ -85,17 +85,22 @@ public class MessengerOptions<Message: BaseEvent> {
         self.handleFailedMessage = handleFailedMessage
         self.logger = logger
     }
-    
-    /// Generic helper to decode JSValue to Swift object
-    private func decodeJSValue<T: Codable>(_ jsValue: JSValue) -> T? {
-        // Try to get JSON representation of the object
-        guard let context = jsValue.context else {
+}
+
+// MARK: - JSValue Extensions
+
+extension JSValue {
+    /// Decode a JSValue into a Swift Codable type
+    /// Uses JSON.stringify to convert the JavaScript value to JSON, then decodes it
+    /// - Parameter withLogger: Optional logger for error reporting
+    func decode<T: Codable>(withLogger logger: MessengerLogger? = nil) -> T? {
+        guard let context = self.context else {
             return nil
         }
         
         // Use JSON.stringify to properly serialize the object
         guard let jsonStringify = context.objectForKeyedSubscript("JSON")?.objectForKeyedSubscript("stringify"),
-              let jsonString = jsonStringify.call(withArguments: [jsValue])?.toString(),
+              let jsonString = jsonStringify.call(withArguments: [self])?.toString(),
               let jsonData = jsonString.data(using: .utf8) else {
             return nil
         }
@@ -103,18 +108,23 @@ public class MessengerOptions<Message: BaseEvent> {
         do {
             return try JSONDecoder().decode(T.self, from: jsonData)
         } catch {
-            logger.log("Failed to decode \(T.self):", error)
+            logger?.log("Failed to decode \(T.self) from JSValue:", error)
             return nil
         }
     }
-    
-    /// Generic helper to encode Swift object to JSON string
-    private func encodeToJSONString<T: Codable>(_ object: T) -> String? {
+}
+
+// MARK: - Codable Extensions
+
+extension Encodable {
+    /// Convert a Codable object to a JSON string
+    /// - Parameter withLogger: Optional logger for error reporting
+    func toJSONString(withLogger logger: MessengerLogger? = nil) -> String? {
         do {
-            let data = try JSONEncoder().encode(object)
+            let data = try JSONEncoder().encode(self)
             return String(data: data, encoding: .utf8)
         } catch {
-            logger.log("Failed to encode \(T.self):", error)
+            logger?.log("Failed to encode \(type(of: self)) to JSON string:", error)
             return nil
         }
     }
@@ -151,57 +161,39 @@ public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transactio
     }
 }
 
-public protocol InternalEvent: BaseEvent {}
-
-public struct BeaconEvent: InternalEvent {
-    public var type = "MESSENGER_BEACON"
-    public var target: String?
-}
-
-public struct DisconnectEvent: InternalEvent {
-    public var type = "MESSENGER_DISCONNECT"
-    public var target: String?
-}
-
-public struct RequestLostEventsEvent: InternalEvent {
-    public var type = "MESSENGER_REQUEST_LOST_EVENTS"
-    public var target: String?
-    public var payload: PayloadType?
-    
-    public struct PayloadType: Codable {
-        public let messagesReceived: Int
-    }
-}
-
-public struct EventsBatchEvent<Message: InternalEvent>: InternalEvent {
-    public var type = "MESSENGER_EVENT_BATCH"
-    public var target: String?
-    public var payload: PayloadType?
-    
-    public struct PayloadType: Codable {
-        public let events: [MessengerTransaction<Message>]
-    }
-}
-
 public extension MessengerOptions {
-    // TODO: clean up
+    /// Convert MessengerOptions to a JSValue for use in JavaScript context
     func asJSValue(in context: JSContext) throws -> JSValue? {
         var jsOptions: [String: Any] = [
             "context": self.context.rawValue,
             "id": id,
             "beaconIntervalMS": beaconIntervalMS,
-            "debug": debug
+            "debug": debug,
+            "sendMessage": createSendMessageCallback(context: context) as Any,
+            "messageCallback": createMessageCallback(context: context) as Any,
+            "addListener": createAddListenerCallback(context: context) as Any,
+            "removeListener": createRemoveListenerCallback(context: context) as Any,
+            "logger": createLogger(context: context)
         ]
         
-        // Create sendMessage callback with @convention(block) and wrap in JSValue
-        // This needs to return a Promise since the JS code calls .catch() on the result
-        let sendMessageCallback: @convention(block) (JSValue) -> JSValue? = { message in
+        if let failedMessageCallback = createFailedMessageCallback(context: context) {
+            jsOptions["handleFailedMessage"] = failedMessageCallback
+        }
+        
+        return JSValue(object: jsOptions, in: context)
+    }
+    
+    // MARK: - Callback Creators
+    
+    /// Creates the sendMessage callback that returns a Promise
+    private func createSendMessageCallback(context: JSContext) -> JSValue? {
+        let callback: @convention(block) (JSValue) -> JSValue? = { message in
             return JSUtilities.createPromise(context: context) { resolve, reject in
                 Task {
                     do {
-                        guard let decodedMessage: Message = self.decodeJSValue(message) else { 
+                        guard let decodedMessage: Message = message.decode(withLogger: self.logger) else {
                             reject("Failed to decode message")
-                            return 
+                            return
                         }
                         try await self.sendMessage(decodedMessage)
                         resolve()
@@ -212,49 +204,62 @@ public extension MessengerOptions {
                 }
             }
         }
-        jsOptions["sendMessage"] = JSValue(object: sendMessageCallback, in: context)
-        
-        // Create messageCallback with @convention(block) and wrap in JSValue
-        let messageCallbackJS: @convention(block) (JSValue) -> Void = { transaction in
-            guard let decodedTransaction: MessengerTransaction<Message> = self.decodeJSValue(transaction) else { return }
+        return JSValue(object: callback, in: context)
+    }
+    
+    /// Creates the messageCallback that handles incoming messages
+    private func createMessageCallback(context: JSContext) -> JSValue? {
+        let callback: @convention(block) (JSValue) -> Void = { transaction in
+            guard let decodedTransaction: MessengerTransaction<Message> = transaction.decode(withLogger: self.logger) else {
+                return
+            }
             self.messageCallback(decodedTransaction)
         }
-        jsOptions["messageCallback"] = JSValue(object: messageCallbackJS, in: context)
-        
-        // Create addListener callback with @convention(block) and wrap in JSValue
-        let addListenerJS: @convention(block) (JSValue) -> Void = { callback in
+        return JSValue(object: callback, in: context)
+    }
+    
+    /// Creates the addListener callback
+    private func createAddListenerCallback(context: JSContext) -> JSValue? {
+        let callback: @convention(block) (JSValue) -> Void = { jsCallback in
             self.addListener { transaction in
-                guard let encodedString = self.encodeToJSONString(transaction) else { return }
-                callback.call(withArguments: [encodedString])
+                guard let encodedString = transaction.toJSONString(withLogger: self.logger) else { return }
+                jsCallback.call(withArguments: [encodedString])
             }
         }
-        jsOptions["addListener"] = JSValue(object: addListenerJS, in: context)
-        
-        // Create removeListener callback with @convention(block) and wrap in JSValue
-        let removeListenerJS: @convention(block) (JSValue) -> Void = { callback in
+        return JSValue(object: callback, in: context)
+    }
+    
+    /// Creates the removeListener callback
+    private func createRemoveListenerCallback(context: JSContext) -> JSValue? {
+        let callback: @convention(block) (JSValue) -> Void = { jsCallback in
             self.removeListener { transaction in
-                guard let encodedString = self.encodeToJSONString(transaction) else { return }
-                callback.call(withArguments: [encodedString])
+                guard let encodedString = transaction.toJSONString(withLogger: self.logger) else { return }
+                jsCallback.call(withArguments: [encodedString])
             }
         }
-        jsOptions["removeListener"] = JSValue(object: removeListenerJS, in: context)
-        
-        // Create logger object with @convention(block) functions
+        return JSValue(object: callback, in: context)
+    }
+    
+    /// Creates the logger object with log function
+    private func createLogger(context: JSContext) -> [String: JSValue?] {
         let logFunction: @convention(block) () -> Void = {
-            // For now, just log a simple message - we can enhance this later
             self.logger.log("Log called from JavaScript")
         }
-        jsOptions["logger"] = ["log": JSValue(object: logFunction, in: context)]
-        
-        // Add handleFailedMessage if present
-        if let handleFailedMessage = handleFailedMessage {
-            let handleFailedMessageJS: @convention(block) (JSValue) -> Void = { transaction in
-                guard let decodedTransaction: MessengerTransaction<Message> = self.decodeJSValue(transaction) else { return }
-                handleFailedMessage(decodedTransaction)
-            }
-            jsOptions["handleFailedMessage"] = JSValue(object: handleFailedMessageJS, in: context)
+        return ["log": JSValue(object: logFunction, in: context)]
+    }
+    
+    /// Creates the handleFailedMessage callback if needed
+    private func createFailedMessageCallback(context: JSContext) -> JSValue? {
+        guard let handleFailedMessage = handleFailedMessage else {
+            return nil
         }
         
-        return JSValue(object: jsOptions, in: context)
+        let callback: @convention(block) (JSValue) -> Void = { transaction in
+            guard let decodedTransaction: MessengerTransaction<Message> = transaction.decode(withLogger: self.logger) else {
+                return
+            }
+            handleFailedMessage(decodedTransaction)
+        }
+        return JSValue(object: callback, in: context)
     }
 }
