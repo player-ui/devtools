@@ -33,7 +33,7 @@ public interface TransactionMetaData {
     public abstract val type: String
 
 //    public abstract val target: String?
-} // TODO: Maybe this'll implement TransactionMetaData?
+}
 
 @Serializable public sealed class EventWithPayload<Payload> : Event() {
     public abstract val payload: Payload

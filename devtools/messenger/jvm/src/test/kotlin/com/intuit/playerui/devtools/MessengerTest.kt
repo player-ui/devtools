@@ -65,8 +65,8 @@ class MessengerTest : Messenger.Logger {
     }
 
     private fun buildMessenger(id: String, configure: Messenger.Options.() -> Messenger.Options = { this }) = Messenger(Messenger.Options(
-        id = id,
         context = Context.DEVTOOLS,
+        id = id,
         //
         logger = this,
         debug = true,

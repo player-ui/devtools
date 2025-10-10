@@ -5,25 +5,18 @@ import com.intuit.playerui.core.bridge.Node
 import com.intuit.playerui.core.bridge.Promise
 import com.intuit.playerui.core.bridge.deserialize
 import com.intuit.playerui.core.bridge.getInvokable
-import com.intuit.playerui.core.bridge.getSerializable
 import com.intuit.playerui.core.bridge.runtime.Runtime
 import com.intuit.playerui.core.bridge.runtime.ScriptContext
 import com.intuit.playerui.core.bridge.runtime.add
 import com.intuit.playerui.core.player.PlayerException
 import com.intuit.playerui.core.plugins.JSScriptPluginWrapper
 import com.intuit.playerui.plugins.settimeout.SetTimeoutPlugin
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 
-// TODO: This should be a funterface, serialization issues
 public typealias MessageHandler = (Event) -> Unit
-
-//public fun interface MessageHandler {
-//    public fun handle(message: Event)
-//}
 
 public class Messenger(
     internal val options: Options
@@ -68,10 +61,6 @@ public class Messenger(
             ?: throw PlayerException("Could not find static reset function on Messenger class")
     }
 
-//    override fun handle(message: Event) {
-//        handleMessage.handle(message)
-//    }
-
     override fun invoke(message: Event) {
         handleMessage.invoke(message)
     }
@@ -97,22 +86,24 @@ public class Messenger(
     }
 
     @Serializable
-    public abstract class Options2(
+    public data class Options(
         public val context: TransactionMetaData.Context,
+
+        // Not transient because we want to require an implementation
+        @SerialName("_sendMessage") public val sendMessage: suspend (message: Event) -> Unit,
+        public val addListener: (callback: MessageHandler) -> Unit,
+        public val removeListener: (callback: MessageHandler) -> Unit,
+        @SerialName("_messageCallback") public val messageCallback: MessageHandler,
+        @Transient public val handleFailedMessage: MessageHandler? = null,
+
         public val id: String? = null,
-//        @Transient public val logger: Logger = Logger {},
         public val beaconIntervalMS: Long? = null,
         public val debug: Boolean? = null,
-    ){
-        public abstract suspend fun sendMessage(message: Event)
-        public abstract fun addListener(callback: MessageHandler)
-        public abstract fun removeListener(callback: MessageHandler)
-        public abstract fun messageCallback(message: Event)
-        public abstract fun handleFailedMessage(message: Event)
-        public abstract fun log(vararg args: Any?)
-
+        @Transient public val logger: Logger = Logger { },
+    ) {
+        // [Logger] structure can't automatically serialize, so we represent as it should be manually
         @SerialName("logger")
-        private val _logger: Map<String, Invokable<Unit>> = mapOf("log" to Invokable { log(*it) })
+        private val _logger: Map<String, Invokable<Unit>> = mapOf("log" to Invokable { logger.log(*it) })
 
         @SerialName("sendMessage")
         private val _sendMessage = { message: Node ->
@@ -127,77 +118,13 @@ public class Messenger(
             }
         }
 
-        @SerialName("addListener")
-        private val _addListener = { callback: MessageHandler ->
-            addListener(callback)
-        }
-
-        @SerialName("removeListener")
-        private val _removeListener = { callback: MessageHandler ->
-            removeListener(callback)
-        }
-
         @SerialName("handleFailedMessage")
         private val _handleFailedMessage = { message: Node ->
-            handleFailedMessage(message.deserialize<Event>())
-        }
-
-        @SerialName("messageCallback")
-        private val _messageCallback = { message: Node ->
-            messageCallback(message.deserialize<Event>())
-        }
-    }
-
-    // TODO: Turn into abstract class w/ pseudo-constructor that takes callback in argument form
-    @Serializable
-    public data class Options(
-        @Transient val logger: Logger = Logger {},
-        val context: TransactionMetaData.Context,
-
-        @Transient val sendMessage: suspend (message: Event) -> Unit = error("sendMessage not provided"),
-        @Transient val addListener: (callback: MessageHandler) -> Unit = {},
-        @Transient val removeListener: (callback: MessageHandler) -> Unit = {},
-        @Transient val messageCallback: MessageHandler = {},
-        @Transient val handleFailedMessage: MessageHandler? = null,
-
-        val id: String? = null,
-        val beaconIntervalMS: Long? = null,
-        val debug: Boolean? = null,
-    ) {
-        // [Logger] structure can't automatically serialize, so we represent as it should be manually
-        @SerialName("logger")
-        internal val _logger: Map<String, Invokable<Unit>> = mapOf("log" to Invokable { logger.log(*it) })
-
-        @SerialName("sendMessage")
-        internal val _sendMessage = { message: Node ->
-            message.runtime.Promise { resolve, reject ->
-                try {
-                    sendMessage(message.deserialize<Event>())
-                    resolve(Unit)
-                } catch (e: Throwable) {
-                    e.printStackTrace()
-                    reject(e)
-                }
-            }
-        }
-
-        @SerialName("addListener")
-        internal val _addListener = { callback: MessageHandler ->
-            addListener(callback)
-        }
-
-        @SerialName("removeListener")
-        internal val _removeListener = { callback: MessageHandler ->
-            removeListener(callback)
-        }
-
-        @SerialName("handleFailedMessage")
-        internal val _handleFailedMessage = { message: Node ->
             handleFailedMessage?.let { message.deserialize<Event>().let(it) }
         }
 
         @SerialName("messageCallback")
-        internal val _messageCallback = { message: Node ->
+        private val _messageCallback = { message: Node ->
             messageCallback(message.deserialize<Event>())
         }
     }
