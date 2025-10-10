@@ -91,7 +91,7 @@ class MessengerTest : Messenger.Logger {
                 copy(
                     sendMessage = {
                         sent.add(it)
-                        if (it is BeaconEvent) {
+                        if (sent.size > 2) {
                             cont.resumeWith(Result.success(it))
                         }
                     }
