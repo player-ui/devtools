@@ -57,7 +57,7 @@ public class Messenger(
     }
 
     private val reset: () -> Unit by lazy {
-        instance.runtime.getObject(NAME)?.getInvokable<Unit>("reset")
+        instance.runtime.getObject(NAME)?.getObject(NAME)?.getInvokable<Unit>("reset")
             ?: throw PlayerException("Could not find static reset function on Messenger class")
     }
 

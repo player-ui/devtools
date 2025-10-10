@@ -171,7 +171,23 @@ class MessengerTest : Messenger.Logger {
         val messenger = buildMessenger("destroy")
         assertEquals(1, listeners.size)
         messenger.destroy()
-        // TODO: This should be 0 once it actually works
         assertEquals(0, listeners.size)
+    }
+
+    @Test fun `reset removes listeners`() {
+        val messenger = buildMessenger("reset")
+        assertEquals(1, listeners.size)
+        listeners.first().invoke(
+            BeaconEvent(
+                id = 0,
+                timestamp = 0,
+                sender = "test-2",
+                context = JsonPrimitive("content-script"),
+                tag = true,
+            )
+        )
+        assertEquals(1, messenger.node.runtime.getObject("Messenger")?.getObject("Messenger")?.getObject("connections")?.size)
+        messenger.reset()
+        assertEquals(0, messenger.node.runtime.getObject("Messenger")?.getObject("Messenger")?.getObject("connections")?.size)
     }
 }
