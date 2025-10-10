@@ -97,8 +97,7 @@ build_constants = use_repo_rule("@rules_player//distribution:defs.bzl", "build_c
 build_constants(
     name = "build_constants",
     constants = {
-        # TODO: Configure GROUP to match your JAR/AAR publishing scopes
-        "GROUP": "com.intuit.playerui.devtools.example",
+        "GROUP": "com.intuit.playerui.devtools",
     },
     version_file = "//:VERSION",
 )
@@ -131,7 +130,7 @@ maven.install(
     fetch_sources = True,
     known_contributing_modules = [
         "bazel_worker_java",
-        "example-player-plugin",
+        "devtools",
     ],
     lock_file = "//:maven-lock.json",
     repositories = [

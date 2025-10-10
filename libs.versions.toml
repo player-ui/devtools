@@ -1,5 +1,5 @@
 [versions]
-playerui = "0.13.0-next.2"
+playerui = "0.14.0"
 kotlinx-coroutines = "1.6.0"
 androidx-activity = "1.7.0"
 androidx-appcompat = "1.3.1"
@@ -15,6 +15,7 @@ playerui-android = { module = "com.intuit.playerui:android", version.ref = "play
 playerui-j2v8-all = { module = "com.intuit.playerui:j2v8-all", version.ref = "playerui" }
 playerui-testutils = { module = "com.intuit.playerui:testutils", version.ref = "playerui" }
 playerui-utils = { module = "com.intuit.playerui:utils", version.ref = "playerui" }
+playerui-plugins-set-time-out = { module = "com.intuit.playerui.plugins:set-time-out", version.ref = "playerui" }
 
 # Compose
 compose-compiler = { module = "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable", version = "2.1.20" } # Version should match Kotlin compiler
