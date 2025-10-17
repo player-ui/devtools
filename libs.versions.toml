@@ -17,6 +17,10 @@ playerui-testutils = { module = "com.intuit.playerui:testutils", version.ref = "
 playerui-utils = { module = "com.intuit.playerui:utils", version.ref = "playerui" }
 playerui-plugins-set-time-out = { module = "com.intuit.playerui.plugins:set-time-out", version.ref = "playerui" }
 
+# Flipper
+flipper = { module = "com.facebook.flipper:flipper", version = "0.212.0" }
+openssl = { module = "com.android.ndk.thirdparty:openssl:aar", version = "1.1.1l-beta-1" }
+
 # Compose
 compose-compiler = { module = "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable", version = "2.1.20" } # Version should match Kotlin compiler
 compose-bom = { module = "androidx.compose:compose-bom", version = "2025.04.00" }

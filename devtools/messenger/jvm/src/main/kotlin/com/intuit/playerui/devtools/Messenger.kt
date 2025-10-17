@@ -8,16 +8,20 @@ import com.intuit.playerui.core.bridge.getInvokable
 import com.intuit.playerui.core.bridge.runtime.Runtime
 import com.intuit.playerui.core.bridge.runtime.ScriptContext
 import com.intuit.playerui.core.bridge.runtime.add
+import com.intuit.playerui.core.bridge.serialization.serializers.NodeWrapperSerializer
 import com.intuit.playerui.core.player.PlayerException
 import com.intuit.playerui.core.plugins.JSScriptPluginWrapper
 import com.intuit.playerui.plugins.settimeout.SetTimeoutPlugin
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 
 public typealias MessageHandler = (Event) -> Unit
 
+@Serializable(with = Messenger.Serializer::class)
 public class Messenger(
     internal val options: Options
 ) : MessageHandler, JSScriptPluginWrapper(NAME, sourcePath = BUNDLED_SOURCE_PATH) {
@@ -30,8 +34,7 @@ public class Messenger(
         }
 
         runtime.load(ScriptContext(script, BUNDLED_SOURCE_PATH))
-        // TODO: Add UUID to messengerOptions
-        val optionsKey = "messengerOptions"
+        val optionsKey = "messengerOptions_${hashCode()}"
         runtime.add(optionsKey, options.copy(
             // hijack listeners to ensure we can remove them w/ stable JVM references
             addListener = { _ -> options.addListener(this) },
@@ -89,7 +92,7 @@ public class Messenger(
     public data class Options(
         public val context: TransactionMetaData.Context,
 
-        // Not transient because we want to require an implementation
+        // Not transient because we want to require an implementation, but it does mean deserialization not supported
         @SerialName("_sendMessage") public val sendMessage: suspend (message: Event) -> Unit,
         public val addListener: (callback: MessageHandler) -> Unit,
         public val removeListener: (callback: MessageHandler) -> Unit,
@@ -120,12 +123,25 @@ public class Messenger(
 
         @SerialName("handleFailedMessage")
         private val _handleFailedMessage = { message: Node ->
-            handleFailedMessage?.let { message.deserialize<Event>().let(it) }
+            handleFailedMessage?.let {
+                try {
+                    message.deserialize<Event>().let(it)
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    throw e
+                }
+            }
         }
 
         @SerialName("messageCallback")
         private val _messageCallback = { message: Node ->
-            messageCallback(message.deserialize<Event>())
+            try {
+                messageCallback(message.deserialize<Event>())
+            } catch (e: Throwable) {
+                println("Failed to handle message callback for $message")
+                e.printStackTrace()
+                throw e
+            }
         }
     }
 
@@ -133,4 +149,8 @@ public class Messenger(
         private const val NAME = "Messenger"
         private const val BUNDLED_SOURCE_PATH = "devtools/messenger/core/dist/Messenger.native.js"
     }
+
+    internal object Serializer : KSerializer<Messenger> by NodeWrapperSerializer({
+        throw SerializationException("Messenger deserialization is not supported")
+    })
 }

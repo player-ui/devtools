@@ -108,7 +108,7 @@ bazel_dep(name = "rules_jvm_external", version = "6.8")
 git_override(
     module_name = "rules_jvm_external",
     # branch = "maven-export-aar-6.8",
-    commit = "6c44f9d997391e1b8476d0add317f16a87625ceb",
+    commit = "0dc1a97c0403de02e0bf9a03244212a15dae3333",
     remote = "https://github.com/sugarmanz/rules_jvm_external.git",
 )
 
@@ -126,6 +126,13 @@ maven.amend_artifact(
         "com.intuit.playerui:hermes",
     ],
 )
+maven.amend_artifact(
+    coordinates = "com.facebook.flipper:flipper",
+    exclusions = [
+        # TODO: Try to override
+        "com.android.ndk.thirdparty:openssl",
+    ],
+)
 maven.install(
     fetch_sources = True,
     known_contributing_modules = [
@@ -139,6 +146,11 @@ maven.install(
     ],
     version_conflict_policy = "pinned",
 )
+# maven.override(
+#     name = "maven",
+#     coordinates = "com.android.ndk.thirdparty:openssl",
+#     target = "@maven//:com.android.ndk.thirdparty:openssl",
+# )
 use_repo(maven, "maven")
 
 bazel_dep(name = "rules_kotlin", version = "2.1.8")

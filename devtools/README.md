@@ -1,0 +1,12 @@
+TODO: Potentially restructure modules:
+- packages
+  - client
+  - browser-client (currently in another repo)
+  - flipper-client
+  - messenger
+  - plugin
+  - types
+  - utils
+- plugins
+  - basic
+  - profiler

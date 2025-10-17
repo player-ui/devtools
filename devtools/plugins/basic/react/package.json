@@ -1,0 +1,10 @@
+{
+  "name": "@player-devtools/basic-plugin-react",
+  "version": "0.0.0-PLACEHOLDER",
+  "main": "src/index.tsx",
+  "dependencies": {
+    "@player-devtools/basic-plugin": "workspace:*",
+    "@player-devtools/plugin-react": "workspace:*",
+    "@player-devtools/types": "workspace:*"
+  }
+}
