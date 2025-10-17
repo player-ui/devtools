@@ -32,6 +32,9 @@ core.*
 tsconfig.tsbuildinfo
 /.build
 
+# AI
+.augment
+
 # Ignore all bazel-* symlinks. There is no full list since this can change
 # based on the name of the directory bazel is cloned into.
 **/bazel-*
@@ -53,3 +56,4 @@ test-results
 /.swiftpm
 # DO NOT commit your provisioning profile. It's a secret.
 /ios/demo/ProvisioningProfile 
+.gitconfig

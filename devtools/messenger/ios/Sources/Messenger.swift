@@ -11,28 +11,26 @@ import PlayerUIDevToolsUtils
 /// Swift wrapper for the JavaScript Messenger implementation.
 /// Provides a native Swift API while delegating to the JS implementation
 public class Messenger<Message: BaseEvent> {
-    private let jsMessenger: JSValue
-    private let sharedContext: JSContext?
+    private let jsBase: JSBase
     
     /// Initialize a new Messenger instance
     /// - Parameter options: Configuration options for the messenger
     /// - Throws: MessengerError if initialization fails
     public init(options: MessengerOptions<Message>, jsContext: JSContext = JSContext()) throws {
-        // Create a shared JSContext for both the options and the messenger
-        self.sharedContext = jsContext
-        
-        guard let sharedContext, let jsOptions = try options.asJSValue(in: sharedContext) else {
+        guard let jsOptions = try options.asJSValue(in: jsContext) else {
             throw MessengerError.initializationFailed
         }
         
-        self.jsMessenger = try JSValue.construct(
+        let jsMessenger = try JSValue.construct(
             className: "Messenger",
             fromFile: "Messenger.native",
             inBundle: Bundle.module,
             withArguments: [jsOptions],
-            inContext: sharedContext,
-            withPolyfill: { sharedContext.setupMessengerPolyfill() }
+            inContext: jsContext,
+            withPolyfill: { jsContext.setupMessengerPolyfill() }
         )
+
+        self.jsBase = JSBase(messenger: jsMessenger, context: jsContext)
     }
     
     /// Send a message through the messenger
@@ -41,16 +39,12 @@ public class Messenger<Message: BaseEvent> {
         do {
             let messageData = try JSONEncoder().encode(message)
             let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
-            
-            // JSContext/JSValue are not thread-safe, must be accessed from main thread
-            if Thread.isMainThread {
-                jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-            } else {
-                DispatchQueue.main.async { [weak self] in
-                    self?.jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-                }
+
+            Task {
+                await jsBase.messenger.invokeMethod("sendMessage", withArguments: [messageString])
             }
         } catch {
+            // TODO: log this instead?
             print("Failed to encode message: \(error)")
         }
     }
@@ -58,25 +52,15 @@ public class Messenger<Message: BaseEvent> {
     /// Send a message as a JSON string
     /// - Parameter messageString: The message as a JSON string
     public func sendMessage(_ messageString: String) {
-        // JSContext/JSValue are not thread-safe, must be accessed from main thread
-        if Thread.isMainThread {
-            jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-        } else {
-            DispatchQueue.main.async { [weak self] in
-                self?.jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-            }
+        Task {
+            await jsBase.messenger.invokeMethod("sendMessage", withArguments: [messageString])
         }
     }
     
     /// Destroy the messenger instance and clean up resources
     public func destroy() {
-        // JSContext/JSValue are not thread-safe, must be accessed from main thread
-        if Thread.isMainThread {
-            jsMessenger.invokeMethod("destroy", withArguments: [])
-        } else {
-            DispatchQueue.main.sync {
-                jsMessenger.invokeMethod("destroy", withArguments: [])
-            }
+        Task {
+            await jsBase.messenger.invokeMethod("destroy", withArguments: [])
         }
     }
     
@@ -94,25 +78,9 @@ public class Messenger<Message: BaseEvent> {
     /// JavaScript context, but it performs a global operation affecting all instances.
     /// Use with caution in multi-instance scenarios.
     public func reset() {
-        // JSContext/JSValue are not thread-safe, must be accessed from main thread
-        let performReset = {
-            guard let messengerClass = self.sharedContext?
-                .objectForKeyedSubscript("Messenger")
-                .objectForKeyedSubscript("Messenger")
-            else {
-                print("Warning: Messenger class not found in JavaScript context")
-                return
-            }
-            
-            messengerClass.invokeMethod("reset", withArguments: [])
-        }
-        
-        if Thread.isMainThread {
-            performReset()
-        } else {
-            DispatchQueue.main.sync {
-                performReset()
-            }
+        Task {
+            await jsBase.context.staticMessenger?
+                .invokeMethod("reset", withArguments: [])
         }
     }
 }
@@ -121,30 +89,12 @@ public class Messenger<Message: BaseEvent> {
 
 /// The different types of errors that can occur when using the Messenger
 public enum MessengerError: Error, LocalizedError {
-    /// JavaScript source file could not be found in the bundle
-    case jsSourceNotFound
-    
     /// Failed to initialize the JavaScript Messenger instance
     case initializationFailed
     
-    /// Failed to encode a message to JSON
-    case encodingFailed
-    
-    /// Failed to decode a message from JSON
-    case decodingFailed
-    
     /// A localized description of the error
     public var errorDescription: String? {
-        switch self {
-        case .jsSourceNotFound:
-            return "JavaScript Messenger source file not found"
-        case .initializationFailed:
-            return "Failed to initialize JavaScript Messenger"
-        case .encodingFailed:
-            return "Failed to encode message"
-        case .decodingFailed:
-            return "Failed to decode message"
-        }
+        return "JavaScript Messenger source file not found"
     }
 }
 
@@ -194,6 +144,32 @@ extension JSContext {
         setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
         guard let jsConsole = JSValue(object: console, in: self) else { return }
         setObject(jsConsole, forKeyedSubscript: "console" as NSString)
+    }
+}
+
+/// A wrapper for the JSContext and value needed by the Messenger. To ensure thread-safety, we put the JSValue and context in an `actor`.
+/// The compiler will then enforce thread-safety for us.
+actor JSBase {
+    let messenger: JSValue
+    let context: JSContext
+
+    init(messenger: JSValue, context: JSContext) {
+        self.messenger = messenger
+        self.context = context
+    }
+}
+
+private extension JSContext {
+    /// A shorthand for accessing the static methods on the Messenger class
+    var staticMessenger: JSValue? {
+        guard let messengerClass = objectForKeyedSubscript("Messenger")
+            .objectForKeyedSubscript("Messenger")
+        else {
+            // TODO: log this instead?
+            print("Warning: Messenger class not found in JavaScript context")
+            return nil
+        }
+        return messengerClass
     }
 }
 
