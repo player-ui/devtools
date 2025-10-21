@@ -1,6 +1,5 @@
 //
-//  GlobalMessenger.swift
-//  DemoProject
+//  SharedMessengerLayer.swift
 //
 //  Created by Koriann South on 2025-10-17.
 //
@@ -10,9 +9,9 @@ import JavaScriptCore
 /// The shared details of all Swift Messengers.
 public actor SharedMessengerLayer {
     /// Shared singleton JSContext for all Messenger instances
-    static let context: JSContext = JSContext()
+    public static let context: JSContext = JSContext()
     /// Shared singleton instance for sync interval manager
-    nonisolated static let syncIntervalManager = SynchronousIntervalManager()
+    public nonisolated static let syncIntervalManager = SynchronousIntervalManager()
     /// Shared singleton instance for async interval manager
     nonisolated static let asyncIntervalManager = AsynchronousIntervalManager()
 
@@ -23,8 +22,8 @@ public actor SharedMessengerLayer {
     /// that share the same JSContext.
     ///
     /// This can't live on Messenger because generic types cannot have static functions
-    nonisolated public static func reset(in context: JSContext) {
-        context.staticMessenger?.invokeMethod("reset", withArguments: [])
+    nonisolated public static func reset() {
+        Self.context.staticMessenger?.invokeMethod("reset", withArguments: [])
     }
 }
 
@@ -92,9 +91,9 @@ actor AsynchronousIntervalManager {
 /// ## ⚠️ Warning
 /// This isn't the best, but doesn't seem avoidable right now. In anticipation of a better strategy being introduced one day, I'm leaving the
 /// full actor implementation intact underneath.
-class SynchronousIntervalManager {
+public class SynchronousIntervalManager {
     /// A sync wrapper for the async cancelTimer
-    func cancelTimer(id: Int) {
+    public func cancelTimer(id: Int) {
         Task {
             await SharedMessengerLayer.asyncIntervalManager.cancelTimer(id: id)
             DispatchSemaphore.intervals.signal()
@@ -103,7 +102,7 @@ class SynchronousIntervalManager {
     }
 
     /// A sync wrapper for the async createTimer
-    func createTimer(callback: JSValue, delay: Int) -> Int {
+    public func createTimer(callback: JSValue, delay: Int) -> Int {
         var timerId: Int = 0
         Task {
             timerId = await SharedMessengerLayer.asyncIntervalManager.createTimer(callback: callback, delay: delay)

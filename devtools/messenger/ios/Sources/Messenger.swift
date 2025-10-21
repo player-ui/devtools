@@ -21,7 +21,7 @@ public class Messenger<Message: BaseEvent> {
     /// - Parameter options: Configuration options for the messenger
     /// - Throws: MessengerError if initialization fails
     public init(options: MessengerOptions<Message>) throws {
-        guard let jsOptions = try options.asJSValue(in: SharedMessengerLayer.context) else {
+        guard let jsOptions = options.asJSValue else {
             throw MessengerError.initializationFailed
         }
         
@@ -38,7 +38,7 @@ public class Messenger<Message: BaseEvent> {
     
     /// Send a message through the messenger
     /// - Parameter message: The message to send
-    public func sendMessage(_ message: Message) {
+    public func sendMessage(_ message: Message) { // TODO: decide if we should leave the Task part up to the consumer and make these async
         do {
             let messageData = try JSONEncoder().encode(message)
             let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
