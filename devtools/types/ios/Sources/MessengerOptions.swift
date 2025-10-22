@@ -7,10 +7,12 @@ import JavaScriptCore
 import PlayerUI
 import PlayerUIDevToolsUtils
 
-/// Context for the messenger instance
+/// Context for the messenger instance. This is where the messages are coming from
 public enum MessengerContext: String, Codable, CaseIterable {
-    case player = "player"
-    case devtools = "devtools"
+    /// This Messenger lives inside the player and is SENDING info
+    case player
+    /// This Messenger lives outside the player and is RECEIVING info from the player
+    case devtools
 }
 
 /// Logger protocol for handling log messages
@@ -40,19 +42,19 @@ public class MessengerOptions<Message: BaseEvent> {
 
     /// API to send messages
     public let sendMessage: (Message) async throws -> Void
-    
+
     /// API to add a listener
     public let addListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
-    
+
     /// API to remove a listener
     public let removeListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
-    
+
     /// Callback to handle messages
     public let messageCallback: (MessengerTransaction<Message>) -> Void
 
     /// Handle failed message (optional)
     public let handleFailedMessage: ((MessengerTransaction<Message>) -> Void)?
-    
+
     /// Initialize MessengerOptions
     /// - Parameters:
     ///   - id: Required unique identifier
@@ -60,7 +62,8 @@ public class MessengerOptions<Message: BaseEvent> {
     ///   - logger: Logger instance for handling log output
     ///   - beaconIntervalMS: Beacon interval in milliseconds (defaults to 1000). This is how often this Messenger will
     ///   send out a beacon to let other Messengers know it exists.
-    ///   - debug: Debug mode flag (defaults to false)
+    ///   - debug: Debug mode flag (defaults to false). If this is true, we will log debug messages with the provided logger.
+    ///   If it is not, we will not log messages.
     ///   - sendMessage: Function to send messages
     ///   - addListener: Function to add message listeners
     ///   - removeListener: Function to remove message listeners
@@ -91,80 +94,6 @@ public class MessengerOptions<Message: BaseEvent> {
     }
 }
 
-// MARK: - JSValue Extensions
-
-extension JSValue {
-    /// Decode a JSValue into a Swift Codable type
-    /// Uses JSON.stringify to convert the JavaScript value to JSON, then decodes it
-    /// - Parameter withLogger: Optional logger for error reporting
-    func decode<T: Codable>(withLogger logger: MessengerLogger? = nil) -> T? {
-        guard let context = self.context else {
-            return nil
-        }
-        
-        // Use JSON.stringify to properly serialize the object
-        guard let jsonStringify = context.objectForKeyedSubscript("JSON")?.objectForKeyedSubscript("stringify"),
-              let jsonString = jsonStringify.call(withArguments: [self])?.toString(),
-              let jsonData = jsonString.data(using: .utf8) else {
-            return nil
-        }
-        
-        do {
-            return try JSONDecoder().decode(T.self, from: jsonData)
-        } catch {
-            logger?.log("Failed to decode \(T.self) from JSValue:", error)
-            return nil
-        }
-    }
-}
-
-// MARK: - Codable Extensions
-
-extension Encodable {
-    /// Convert a Codable object to a JSON string
-    /// - Parameter withLogger: Optional logger for error reporting
-    func toJSONString(withLogger logger: MessengerLogger? = nil) -> String? {
-        do {
-            let data = try JSONEncoder().encode(self)
-            return String(data: data, encoding: .utf8)
-        } catch {
-            logger?.log("Failed to encode \(type(of: self)) to JSON string:", error)
-            return nil
-        }
-    }
-}
-
-public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transaction" is already taken in Swift
-    public let message: Message
-    public let metaData: TransactionMetaData
-    
-    public init(message: Message, metaData: TransactionMetaData) {
-        self.message = message
-        self.metaData = metaData
-    }
-    
-    public func encode(to encoder: any Encoder) throws {
-        // For the message
-        var eventContainer = encoder.container(keyedBy: BaseEventCodingKeys.self)
-        try eventContainer.encode(self.message.type, forKey: .type)
-        try eventContainer.encode(self.message.target, forKey: .target)
-        try eventContainer.encode(self.message.payload, forKey: .payload)
-        
-        // For the metaData
-        var metaDataContainer = encoder.container(keyedBy: TransactionMetaData.CodingKeys.self)
-        try metaDataContainer.encode(self.metaData.id, forKey: .id)
-        try metaDataContainer.encode(self.metaData.timestamp, forKey: .timestamp)
-        try metaDataContainer.encode(self.metaData.sender, forKey: .sender)
-        try metaDataContainer.encode(self.metaData.context, forKey: .context)
-        try metaDataContainer.encode(self.metaData.isMessenger, forKey: .isMessenger)
-    }
-    
-    public init(from decoder: any Decoder) throws {
-        self.message = try Message(from: decoder)
-        self.metaData = try TransactionMetaData(from: decoder)
-    }
-}
-
 public extension MessengerOptions {
     /// Convert MessengerOptions to a JSValue for use in JavaScript context
     /// Uses the shared JSContext from SharedMessengerLayer
@@ -187,7 +116,7 @@ public extension MessengerOptions {
 
         return JSValue(object: jsOptions, in: SharedMessengerLayer.context)
     }
-    
+
     // MARK: - Callback Creators
 
     /// The sendMessage callback that returns a Promise
@@ -270,5 +199,43 @@ public extension MessengerOptions {
             handleFailedMessage(decodedTransaction)
         }
         return JSValue(object: callback, in: context)
+    }
+}
+
+// MARK: - JSValue Extensions
+
+extension JSValue {
+    /// Decode a JSValue into a Swift type that works with the Swit Messenger
+    /// - Parameter withLogger: Optional logger for error reporting
+    func decode<T: Codable>(withLogger logger: MessengerLogger? = nil) -> T? {
+        guard let obj = toObject() else {
+            logger?.log("Failed to decode \(T.self) from JSValue: message is not a valid object")
+            return nil
+        }
+
+        do {
+            // Serialize the JSValue to JSON and decode a Swift value from that
+            let data = try JSONSerialization.data(withJSONObject: obj)
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            logger?.log("Failed to decode \(T.self) from JSValue:", error)
+            return nil
+        }
+    }
+}
+
+// MARK: - Codable Extensions
+
+extension Encodable {
+    /// Convert a Codable object to a JSON string
+    /// - Parameter withLogger: Optional logger for error reporting
+    func toJSONString(withLogger logger: MessengerLogger? = nil) -> String? {
+        do {
+            let data = try JSONEncoder().encode(self)
+            return String(data: data, encoding: .utf8)
+        } catch {
+            logger?.log("Failed to encode \(type(of: self)) to JSON string:", error)
+            return nil
+        }
     }
 }

@@ -14,28 +14,30 @@ import PlayerUIDevToolsUtils
 /// ## ⚠️ Note
 /// All instances of Messenger will share the same JSContext
 public class Messenger<Message: BaseEvent> {
-    // A thread-safe way to access the Messenger
+    /// A thread-safe way to access the JS Messenger
     private let jsMessengerActor: JSMessengerActor
+    /// A mechanism to log any debug messages
+    private let logger: MessengerLogger
 
     /// Initialize a new Messenger instance
     /// - Parameter options: Configuration options for the messenger
     /// - Throws: MessengerError if initialization fails
     public init(options: MessengerOptions<Message>) throws {
         guard let jsOptions = options.asJSValue else {
-            throw MessengerError.initializationFailed
+            throw MessengerError.failedToConvertOptionsToJSValue
         }
-        
+
         let jsMessenger = try JSValue.construct(
             className: "Messenger",
             inBundle: Bundle.module,
             withArguments: [jsOptions],
             inContext: SharedMessengerLayer.context,
-            withPolyfill: { SharedMessengerLayer.context.setupMessengerPolyfill() }
+            withPolyfill: { SharedMessengerLayer.context.setupMessengerPolyfill(logger: options.logger) }
         )
-
         self.jsMessengerActor = JSMessengerActor(jsMessenger)
+        self.logger = options.logger
     }
-    
+
     /// Send a message through the messenger
     /// - Parameter message: The message to send
     public func sendMessage(_ message: Message) { // TODO: decide if we should leave the Task part up to the consumer and make these async
@@ -47,11 +49,10 @@ public class Messenger<Message: BaseEvent> {
                 await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [messageString])
             }
         } catch {
-            // TODO: log this instead?
-            print("Failed to encode message: \(error)")
+            logger.log("Failed to encode message: \(error)")
         }
     }
-    
+
     /// Send a message as a JSON string
     /// - Parameter messageString: The message as a JSON string
     public func sendMessage(_ messageString: String) {
@@ -59,13 +60,12 @@ public class Messenger<Message: BaseEvent> {
             await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [messageString])
         }
     }
-    
-    /// Destroy the messenger instance and clean up resources. This MUST be called manually before the Messenger is de-init.
-    /// If it is not called, other Messengers will continue to expect messages from this Messenger.
-    ///
-    /// ⚠️ We can't run this in Swift's deinit because deinit does not support asynchronous code.
-    public func destroy() {
-        Task {
+
+    /// Destroy the messenger instance and clean up resources.
+    /// If this is not done, the interval will continue to send out beacons for this Messenger even when it doesn't exist anymore.
+    /// This is the equivalent to the manual `destroy()` on the JS layer.
+    deinit {
+        Task { [jsMessengerActor] in
             await jsMessengerActor.messenger.invokeMethod("destroy", withArguments: [])
         }
     }
@@ -76,8 +76,8 @@ public class Messenger<Message: BaseEvent> {
 /// The different types of errors that can occur when using the Messenger
 public enum MessengerError: Error, LocalizedError {
     /// Failed to initialize the JavaScript Messenger instance
-    case initializationFailed
-    
+    case failedToConvertOptionsToJSValue
+
     /// A localized description of the error
     public var errorDescription: String? {
         return "JavaScript Messenger source file not found"
@@ -87,18 +87,18 @@ public enum MessengerError: Error, LocalizedError {
 extension JSContext {
     /**
      Sets up polyfills for JavaScript APIs required by the Messenger implementation.
-     
+
      Provides setInterval, clearInterval, and console.log implementations for the JS Messenger
      used by the Swift wrapper, which will not have access to the browser APIs.
      (I.e. this is a polyfill for the JS Messenger.)
-     
+
      This method must be called before initializing any Messenger instances in this context.
      The polyfills enable:
      - `setInterval`: Registers repeating timers for periodic tasks (e.g., beacon messages)
      - `clearInterval`: Cancels active timers
      - `console.log`: Provides debug logging output
      */
-    func setupMessengerPolyfill() {
+    func setupMessengerPolyfill(logger: MessengerLogger) {
         let intervalManager = SharedMessengerLayer.syncIntervalManager
 
         // setInterval in JS registers a repeating job that happens every x milliseconds.
@@ -109,7 +109,7 @@ extension JSContext {
             let timerId = intervalManager.createTimer(callback: callback, delay: Int(delay))
             return JSValue(int32: Int32(timerId), in: self)
         }
-        
+
         // clearInterval in JS cancels the repeating job.
         // This callback MUST be synchronous. We can't pass async functions to the JS layer
         let clearInterval: @convention(block) (JSValue?) -> Void = { timerId in
@@ -117,19 +117,19 @@ extension JSContext {
             intervalManager.cancelTimer(id: Int(timerId))
         }
 
-        // TODO: log via plugin instead?
         // Add console.log polyfill
         let console: @convention(block) (JSValue?) -> Void = { (args) in
             if let args = args?.toArray() {
-                print("Swift DevTools, Debug mode:", args)
+                logger.log("Swift DevTools, Debug mode:", args)
             }
         }
-        
-        guard let jsSetInterval = JSValue(object: setInterval, in: self) else { return }
+
+        guard let jsSetInterval = JSValue(object: setInterval, in: self),
+              let jsClearInterval = JSValue(object: clearInterval, in: self),
+              let jsConsole = JSValue(object: console, in: self)
+        else { return }
         setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
-        guard let jsClearInterval = JSValue(object: clearInterval, in: self) else { return }
         setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
-        guard let jsConsole = JSValue(object: console, in: self) else { return }
         setObject(jsConsole, forKeyedSubscript: "console" as NSString)
     }
 }
