@@ -38,10 +38,10 @@ public extension JSValue {
         guard let script = try? String(contentsOf: url, encoding: .utf8) else {
             throw JSBaseError.failedToParseScript
         }
-
+        
         polyfill()
         context.evaluateScript(script)
-
+        
         guard let module = context.objectForKeyedSubscript(jsModule) else {
             throw JSBaseError.noSuchJSModule
         }
@@ -53,7 +53,7 @@ public extension JSValue {
         }
         return constructedClass
     }
-
+    
     /// A wrapper function that mainly catches "undefined" results and replaces them with nil.
     /// This wraps `invokeMethod`.
     /// 
@@ -68,8 +68,8 @@ public extension JSValue {
         guard let result, !result.isUndefined else { return nil }
         return result
     }
-
-
+    
+    
     /// Errors that can occur when trying to load a JS class that will be referenced by a Swift wrapper
     enum JSBaseError: Error {
         case noSuchFile

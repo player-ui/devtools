@@ -14,7 +14,7 @@ public actor SharedMessengerLayer {
     public nonisolated static let syncIntervalManager = SynchronousIntervalManager()
     /// Shared singleton instance for async interval manager
     nonisolated static let asyncIntervalManager = AsynchronousIntervalManager()
-
+    
     /// Reset all Messenger connections and events outstanding (bridges to JavaScript implementation).
     ///
     /// **Important:** This method calls the static `Messenger.reset()` method in JavaScript,
@@ -35,9 +35,9 @@ public actor SharedMessengerLayer {
 actor AsynchronousIntervalManager {
     var timers: [Int: DispatchSourceTimer] = [:]
     var timerCounter = 0
-
+    
     init() {}
-
+    
     /// Cancels an active timer
     ///
     /// - Parameter id: The timer ID returned from `createTimer`
@@ -47,7 +47,7 @@ actor AsynchronousIntervalManager {
             timers.removeValue(forKey: id)
         }
     }
-
+    
     /// Creates a new repeating timer with the given callback
     ///
     /// - Parameters:
@@ -60,20 +60,11 @@ actor AsynchronousIntervalManager {
         let onInterval = DispatchWorkItem { callback.call(withArguments: []) }
         timer.setEventHandler(handler: onInterval)
         timer.resume()
-
+        
         timerCounter += 1
         let timerId = timerCounter
         timers[timerId] = timer
         return timerId
-    }
-
-    // For testing only. Do not make this public. DO NOT use this directly.
-    func resetForTestingOnly() {
-        for timer in timers.values {
-            timer.cancel()
-        }
-        timers.removeAll()
-        timerCounter = 0
     }
 }
 
@@ -100,7 +91,7 @@ public class SynchronousIntervalManager {
         }
         DispatchSemaphore.intervals.wait()
     }
-
+    
     /// A sync wrapper for the async createTimer
     public func createTimer(callback: JSValue, delay: Int) -> Int {
         var timerId: Int = 0

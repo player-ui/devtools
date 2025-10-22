@@ -7,9 +7,6 @@ import Foundation
 /// Swift implementation of BaseEvent matching the TypeScript interface
 /// Generic protocol representing a base event with type, payload, and optional target
 public protocol BaseEvent: Codable {
-    // /// The string representation of the event type. This will be included in the message sent to the Messenger.
-    // associatedtype EventType: RawRepresentable where EventType.RawValue == String
-
     /// The payload type for this event
     associatedtype Payload: Codable
     
@@ -18,12 +15,15 @@ public protocol BaseEvent: Codable {
     
     /// Event payload
     var payload: Payload? { get }
-
+    
     /// Target ID
     var target: String? { get }
 }
 
 extension BaseEvent {
+    /* This is syntactic sugar to provide a nil-payload. If an Event
+     should have no associated payload (just a type & target), this allows
+     the user to avoid explicitly setting the payload to some random type. */
     public var payload: String? { nil }
 }
 
