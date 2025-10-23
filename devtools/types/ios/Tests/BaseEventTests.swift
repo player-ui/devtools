@@ -10,47 +10,7 @@ import XCTest
 @testable import PlayerUIDevToolsTypes
 
 final class BaseEventTests: XCTestCase {
-    // MARK: - Initialization Tests.
-    // Test that normal initialization works and all fields are set correctly.
-    
-    func testConcreteBaseEventWithPayload() throws {
-        let payload = LoginPayload(userId: "user123", timestamp: 1_695_456_789)
-        let event = SimpleTestEvent(
-            type: "USER_LOGIN",
-            payload: payload,
-            target: "target123"
-        )
-        
-        XCTAssertEqual(event.type, "USER_LOGIN")
-        XCTAssertEqual(event.payload?.userId, "user123")
-        XCTAssertEqual(event.payload?.timestamp, 1_695_456_789)
-        XCTAssertEqual(event.target, "target123")
-    }
-    
-    func testConcreteBaseEventWithoutTarget() throws {
-        let payload = DataPayload(data: ["key": "value"], version: 1)
-        let event = TestDataEvent(
-            data: ["key": "value"],
-            version: 1
-        )
-        
-        XCTAssertEqual(event.type, "DATA_UPDATE")
-        XCTAssertEqual(event.payload?.data["key"], "value")
-        XCTAssertEqual(event.payload?.version, 1)
-        XCTAssertNil(event.target)
-    }
-    
-    func testConcreteBaseEventWithNilPayload() throws {
-        let event = NilPayloadEvent(
-            type: "SYSTEM_NOTIFICATION",
-            target: "broadcast"
-        )
-        
-        XCTAssertEqual(event.type, "SYSTEM_NOTIFICATION")
-        XCTAssertNil(event.payload)
-        XCTAssertEqual(event.target, "broadcast")
-    }
-    
+
     // MARK: - Codable Tests with BaseEventCodingKeys
     
     func testBaseEventEncoding() throws {

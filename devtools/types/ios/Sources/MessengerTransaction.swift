@@ -5,7 +5,7 @@
 import Foundation
 
 /// A message with metaData attached to it. The metaData is added to all messages automatically by the `Messenger`.
-public struct MessengerTransaction<Message: BaseEvent>: Codable { // "Transaction" is already taken in Swift
+public struct MessengerTransaction<Message: BaseEvent>: Codable, Equatable { // "Transaction" is already taken in Swift
     /// The message itself
     public let message: Message
     /// MetaData, including the message ID, timestamp, etc.
