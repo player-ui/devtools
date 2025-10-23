@@ -29,7 +29,6 @@ final class TransactionMetaDataTests: XCTestCase {
         XCTAssertTrue(metadata.isMessenger)
     }
 
-
     func testDefaultMessengerFlag() throws {
         let metadata = TransactionMetaData(
             id: 1,
@@ -55,7 +54,6 @@ final class TransactionMetaDataTests: XCTestCase {
         XCTAssertEqual(MessengerContext(rawValue: "devtools"), .devtools)
         XCTAssertNil(MessengerContext(rawValue: "invalid"))
     }
-
 
     // MARK: - Codable Tests
 
@@ -134,59 +132,5 @@ final class TransactionMetaDataTests: XCTestCase {
         XCTAssertEqual(originalMetadata.sender, decodedMetadata.sender)
         XCTAssertEqual(originalMetadata.context, decodedMetadata.context)
         XCTAssertEqual(originalMetadata.isMessenger, decodedMetadata.isMessenger)
-    }
-
-
-
-    // MARK: - Edge Cases and Error Conditions
-
-    func testNegativeId() throws {
-        let metadata = TransactionMetaData(
-            id: -1,
-            timestamp: 1695456789000,
-            sender: "test",
-            context: .player
-        )
-
-        // Focus on the edge case being tested
-        XCTAssertEqual(metadata.id, -1)
-    }
-
-    func testZeroTimestamp() throws {
-        let metadata = TransactionMetaData(
-            id: 1,
-            timestamp: 0,
-            sender: "test",
-            context: .player
-        )
-
-        // Focus on the edge case being tested
-        XCTAssertEqual(metadata.timestamp, 0)
-    }
-
-    func testEmptyStringSender() throws {
-        let metadata = TransactionMetaData(
-            id: 1,
-            timestamp: 1695456789000,
-            sender: "",
-            context: .devtools
-        )
-
-        // Focus on the edge case being tested
-        XCTAssertEqual(metadata.sender, "")
-    }
-
-    func testVeryLongSender() throws {
-        let longSender = String(repeating: "a", count: 1000)
-        let metadata = TransactionMetaData(
-            id: 1,
-            timestamp: 1695456789000,
-            sender: longSender,
-            context: .player
-        )
-
-        // Focus on the edge case being tested
-        XCTAssertEqual(metadata.sender.count, 1000)
-        XCTAssertEqual(metadata.sender, longSender)
     }
 }

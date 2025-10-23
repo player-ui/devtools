@@ -6,7 +6,7 @@ import Foundation
 
 /// Swift implementation of BaseEvent matching the TypeScript interface
 /// Generic protocol representing a base event with type, payload, and optional target
-public protocol BaseEvent: Codable {
+public protocol BaseEvent: Codable, Equatable {
     /// The payload type for this event
     associatedtype Payload: Codable
     

@@ -38,7 +38,7 @@ public class MessengerOptions<Message: BaseEvent> {
     public let beaconIntervalMS: Int
 
     /// Debug mode (defaults to false)
-    public let debug: Bool
+    public let isDebug: Bool
 
     /// API to send messages
     public let sendMessage: (Message) async throws -> Void
@@ -55,9 +55,13 @@ public class MessengerOptions<Message: BaseEvent> {
     /// Handle failed message (optional)
     public let handleFailedMessage: ((MessengerTransaction<Message>) -> Void)?
 
+    /// The JSContext to construct any needed JSValues in
+    private let jsContext: JSContext
+
     /// Initialize MessengerOptions
     /// - Parameters:
     ///   - id: Required unique identifier
+    ///   - jsContext: The JSContext to construct any needed JSValues in
     ///   - context: Messenger context (player or devtools)
     ///   - logger: Logger instance for handling log output
     ///   - beaconIntervalMS: Beacon interval in milliseconds (defaults to 1000). This is how often this Messenger will
@@ -71,26 +75,28 @@ public class MessengerOptions<Message: BaseEvent> {
     ///   - handleFailedMessage: Optional failed message handler
     public init(
         id: String,
+        jsContext: JSContext,
         context: MessengerContext,
-        logger: MessengerLogger,
         beaconIntervalMS: Int = 1000,
-        debug: Bool = false,
+        isDebug: Bool = false,
+        logger: MessengerLogger,
         sendMessage: @escaping (Message) async throws -> Void,
         addListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
         removeListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
         messageCallback: @escaping (MessengerTransaction<Message>) -> Void,
         handleFailedMessage: ((MessengerTransaction<Message>) -> Void)? = nil
     ) {
+        self.id = id
+        self.jsContext = jsContext
+        self.context = context
+        self.logger = logger
+        self.beaconIntervalMS = beaconIntervalMS
+        self.isDebug = isDebug
         self.sendMessage = sendMessage
         self.addListener = addListener
         self.removeListener = removeListener
         self.messageCallback = messageCallback
-        self.context = context
-        self.id = id
-        self.beaconIntervalMS = beaconIntervalMS
-        self.debug = debug
         self.handleFailedMessage = handleFailedMessage
-        self.logger = logger
     }
 }
 
@@ -99,10 +105,10 @@ public extension MessengerOptions {
     /// Uses the shared JSContext from SharedMessengerLayer
     var asJSValue: JSValue? {
         var jsOptions: [String: Any] = [
-            "context": context.rawValue,
             "id": id,
+            "context": context.rawValue,
             "beaconIntervalMS": beaconIntervalMS,
-            "debug": debug,
+            "debug": isDebug,
             "sendMessage": sendMessageCallback as Any,
             "messageCallback": messageCallbackValue as Any,
             "addListener": addListenerCallback as Any,
@@ -114,16 +120,15 @@ public extension MessengerOptions {
             jsOptions["handleFailedMessage"] = failedMessageCallback
         }
 
-        return JSValue(object: jsOptions, in: SharedMessengerLayer.context)
+        return JSValue(object: jsOptions, in: jsContext)
     }
 
     // MARK: - Callback Creators
 
     /// The sendMessage callback that returns a Promise
     private var sendMessageCallback: JSValue? {
-        let context = SharedMessengerLayer.context
         let callback: @convention(block) (JSValue) -> JSValue? = { message in
-            return JSUtilities.createPromise(context: context) { resolve, reject in
+            return JSUtilities.createPromise(context: self.jsContext) { resolve, reject in
                 Task {
                     do {
                         guard let decodedMessage: Message = message.decode(withLogger: self.logger) else {
@@ -139,66 +144,61 @@ public extension MessengerOptions {
                 }
             }
         }
-        return JSValue(object: callback, in: context)
+        return JSValue(object: callback, in: jsContext)
     }
 
     /// The messageCallback that handles incoming messages
     private var messageCallbackValue: JSValue? {
-        let context = SharedMessengerLayer.context
         let callback: @convention(block) (JSValue) -> Void = { transaction in
             guard let decodedTransaction: MessengerTransaction<Message> = transaction.decode(withLogger: self.logger) else {
                 return
             }
             self.messageCallback(decodedTransaction)
         }
-        return JSValue(object: callback, in: context)
+        return JSValue(object: callback, in: jsContext)
     }
 
     /// The addListener callback
     private var addListenerCallback: JSValue? {
-        let context = SharedMessengerLayer.context
         let callback: @convention(block) (JSValue) -> Void = { jsCallback in
             self.addListener { transaction in
                 guard let encodedString = transaction.toJSONString(withLogger: self.logger) else { return }
                 jsCallback.call(withArguments: [encodedString])
             }
         }
-        return JSValue(object: callback, in: context)
+        return JSValue(object: callback, in: jsContext)
     }
 
     /// The removeListener callback
     private var removeListenerCallback: JSValue? {
-        let context = SharedMessengerLayer.context
         let callback: @convention(block) (JSValue) -> Void = { jsCallback in
             self.removeListener { transaction in
                 guard let encodedString = transaction.toJSONString(withLogger: self.logger) else { return }
                 jsCallback.call(withArguments: [encodedString])
             }
         }
-        return JSValue(object: callback, in: context)
+        return JSValue(object: callback, in: jsContext)
     }
 
     /// The logger object with log function
     private var loggerValue: [String: JSValue?] {
-        let context = SharedMessengerLayer.context
-        let logFunction: @convention(block) () -> Void = {
-            self.logger.log("Log called from JavaScript")
+        let logFunction: @convention(block) (JSValue) -> Void = { log in
+            guard !log.isUndefined, let logAsString = log.toString() else { return}
+            self.logger.log(logAsString)
         }
-        return ["log": JSValue(object: logFunction, in: context)]
+        return ["log": JSValue(object: logFunction, in: jsContext)]
     }
 
-    /// The handleFailedMessage callback if needed
+    /// The handleFailedMessage callback if one was provided
     private var failedMessageCallback: JSValue? {
         guard let handleFailedMessage else { return nil }
-
-        let context = SharedMessengerLayer.context
         let callback: @convention(block) (JSValue) -> Void = { transaction in
             guard let decodedTransaction: MessengerTransaction<Message> = transaction.decode(withLogger: self.logger) else {
                 return
             }
             handleFailedMessage(decodedTransaction)
         }
-        return JSValue(object: callback, in: context)
+        return JSValue(object: callback, in: jsContext)
     }
 }
 

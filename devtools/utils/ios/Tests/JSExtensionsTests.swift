@@ -1,5 +1,5 @@
 //
-// JSValueExtensionsTests.swift
+// JSExtensionsTests.swift
 //
 // Generated with Cursor by Koriann South - September 30, 2025
 
@@ -7,24 +7,18 @@ import XCTest
 import JavaScriptCore
 @testable import PlayerUIDevToolsUtils
 
-final class JSValueExtensionsTests: XCTestCase {
+final class JSExtensionsTests: XCTestCase {
 
     // MARK: - construct method tests
 
     func testConstructWithValidClassAndFile() throws {
         // Test constructing the Fancy class from the Utils bundle
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
-        let fancyInstance = try JSValue.construct(
+        let fancyInstance = try JSContext().construct(
             className: "Fancy",
             inModule: "Utils",
             fromFile: "Utils.native",
             inBundle: Bundle.module,
             withArguments: ["TestName"],
-            inContext: context
         )
 
         XCTAssertFalse(fancyInstance.isUndefined, "Fancy instance should not be undefined")
@@ -40,53 +34,35 @@ final class JSValueExtensionsTests: XCTestCase {
     }
 
     func testConstructWithNonExistentFile() {
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
-        XCTAssertThrowsError(try JSValue.construct(
+        XCTAssertThrowsError(try JSContext().construct(
             className: "TestClass",
             fromFile: "NonExistentFile",
             inBundle: Bundle.module,
-            inContext: context
         )) { error in
-            XCTAssertEqual(error as? JSValue.JSBaseError, .noSuchFile)
+            XCTAssertEqual(error as? JSBaseError, .noSuchFile)
         }
     }
 
     func testConstructWithNonExistentClass() {
         // Test trying to construct a class that doesn't exist in the Utils bundle
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
-        XCTAssertThrowsError(try JSValue.construct(
+        XCTAssertThrowsError(try JSContext().construct(
             className: "NonExistentClass",
             inModule: "Utils",
             fromFile: "Utils.native",
-            inBundle: Bundle.module,
-            inContext: context
+            inBundle: Bundle.module
         )) { error in
-            XCTAssertEqual(error as? JSValue.JSBaseError, .couldNotInstantiateClass)
+            XCTAssertEqual(error as? JSBaseError, .couldNotInstantiateClass)
         }
     }
 
     func testConstructWithArguments() throws {
         // Test that constructor arguments are passed correctly
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
-        let fancyInstance = try JSValue.construct(
+        let fancyInstance = try JSContext().construct(
             className: "Fancy",
             inModule: "Utils",
             fromFile: "Utils.native",
             inBundle: Bundle.module,
-            withArguments: ["ArgumentTest"],
-            inContext: context
+            withArguments: ["ArgumentTest"]
         )
 
         let name = fancyInstance.invokeClassMethod("getName")
@@ -95,18 +71,12 @@ final class JSValueExtensionsTests: XCTestCase {
 
     func testConstructWithMethodInvocation() throws {
         // Test a complete workflow: construct, invoke methods, verify state changes
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
-        let fancyInstance = try JSValue.construct(
+        let fancyInstance = try JSContext().construct(
             className: "Fancy",
             inModule: "Utils",
             fromFile: "Utils.native",
             inBundle: Bundle.module,
-            withArguments: ["WorkflowTest"],
-            inContext: context
+            withArguments: ["WorkflowTest"]
         )
 
         // Test initial state
@@ -127,15 +97,29 @@ final class JSValueExtensionsTests: XCTestCase {
         XCTAssertEqual(finalCount?.toInt32(), 8, "Count should be updated to 8")
     }
 
+    func testPolyfillIsAddedToContext() throws {
+        let context: JSContext = JSContext()
+        let _ = try context.construct(
+            className: "Fancy",
+            inModule: "Utils",
+            fromFile: "Utils.native",
+            inBundle: Bundle.module,
+            withArguments: ["WorkflowTest"],
+            withPolyfill: { context in
+                context.evaluateScript("var setInterval = function() {}")
+            }
+        )
+        XCTAssertFalse(
+            context.objectForKeyedSubscript("setInterval").isUndefined,
+            "setInterval should be defined"
+        )
+    }
+
     // MARK: - invokeClassMethod tests
 
     func testInvokeClassMethodWithValidMethod() {
         // Create a JSValue with a method to test
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
+        let context: JSContext = JSContext()
         let script = """
         var testObject = {
             testMethod: function(arg1, arg2) {
@@ -185,11 +169,7 @@ final class JSValueExtensionsTests: XCTestCase {
     }
 
     func testInvokeClassMethodWithNonExistentMethod() {
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
+        let context: JSContext = JSContext()
         let script = "var testObject = {};"
         context.evaluateScript(script)
         guard let testObject = context.objectForKeyedSubscript("testObject") else {
@@ -203,11 +183,7 @@ final class JSValueExtensionsTests: XCTestCase {
     }
 
     func testInvokeClassMethodWithArguments() {
-        guard let context = JSContext() else {
-            XCTFail("Failed to create JSContext")
-            return
-        }
-
+        let context: JSContext = JSContext()
         let script = """
         var testObject = {
             concatenate: function(str1, str2, separator) {

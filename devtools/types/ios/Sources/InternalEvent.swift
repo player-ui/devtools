@@ -25,7 +25,7 @@ public struct RequestLostEventsEvent: InternalEvent {
     public var target: String?
     public var payload: PayloadType?
     
-    public struct PayloadType: Codable {
+    public struct PayloadType: Codable, Equatable {
         public let messagesReceived: Int
     }
 }
@@ -36,7 +36,7 @@ public struct EventsBatchEvent<Message: InternalEvent>: InternalEvent {
     public var target: String?
     public var payload: PayloadType?
     
-    public struct PayloadType: Codable {
+    public struct PayloadType: Codable, Equatable {
         public let events: [MessengerTransaction<Message>]
     }
 }

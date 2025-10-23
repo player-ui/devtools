@@ -10,37 +10,37 @@ import PlayerUIDevToolsUtils
 
 /// Swift wrapper for the JavaScript Messenger implementation.
 /// Provides a native Swift API while delegating to the JS implementation.
-///
-/// ## ⚠️ Note
-/// All instances of Messenger will share the same JSContext
 public class Messenger<Message: BaseEvent> {
     /// A thread-safe way to access the JS Messenger
     private let jsMessengerActor: JSMessengerActor
-    /// A mechanism to log any debug messages
-    private let logger: MessengerLogger
+    /// A mechanism to log any debug messages on the Swift layer. If nil, no logging will be performed.
+    private let logger: MessengerLogger?
 
     /// Initialize a new Messenger instance
-    /// - Parameter options: Configuration options for the messenger
+    /// - Parameter options: The options to use for this instance
     /// - Throws: MessengerError if initialization fails
     public init(options: MessengerOptions<Message>) throws {
-        guard let jsOptions = options.asJSValue else {
+        // We can pull the jsContext from the MessengerOptions. This is helpful
+        // because the options and Messenger need to have the same context
+        guard let jsOptions = options.asJSValue, let context = jsOptions.context else {
             throw MessengerError.failedToConvertOptionsToJSValue
         }
 
-        let jsMessenger = try JSValue.construct(
+        // If the debug flag is set, we will log debug messages. Otherwise, we will not.
+        let logger = options.isDebug ? options.logger : nil
+        let jsMessenger = try context.construct(
             className: "Messenger",
             inBundle: Bundle.module,
             withArguments: [jsOptions],
-            inContext: SharedMessengerLayer.context,
-            withPolyfill: { SharedMessengerLayer.context.setupMessengerPolyfill(logger: options.logger) }
+            withPolyfill: { $0.setupMessengerPolyfill(logger: logger) }
         )
         self.jsMessengerActor = JSMessengerActor(jsMessenger)
-        self.logger = options.logger
+        self.logger = logger
     }
 
     /// Send a message through the messenger
     /// - Parameter message: The message to send
-    public func sendMessage(_ message: Message) { // TODO: decide if we should leave the Task part up to the consumer and make these async
+    public func sendMessage(_ message: Message) {
         do {
             let messageData = try JSONEncoder().encode(message)
             let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
@@ -49,7 +49,7 @@ public class Messenger<Message: BaseEvent> {
                 await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [messageString])
             }
         } catch {
-            logger.log("Failed to encode message: \(error)")
+            logger?.log("Failed to encode message: \(error)")
         }
     }
 
@@ -98,7 +98,7 @@ extension JSContext {
      - `clearInterval`: Cancels active timers
      - `console.log`: Provides debug logging output
      */
-    func setupMessengerPolyfill(logger: MessengerLogger) {
+    func setupMessengerPolyfill(logger: MessengerLogger?) {
         let intervalManager = SharedMessengerLayer.syncIntervalManager
 
         // setInterval in JS registers a repeating job that happens every x milliseconds.
@@ -120,7 +120,7 @@ extension JSContext {
         // Add console.log polyfill
         let console: @convention(block) (JSValue?) -> Void = { (args) in
             if let args = args?.toArray() {
-                logger.log("Swift DevTools, Debug mode:", args)
+                logger?.log("Swift DevTools:", args)
             }
         }
 
