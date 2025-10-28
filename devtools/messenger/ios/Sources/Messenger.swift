@@ -99,25 +99,7 @@ extension JSContext {
      - `console.log`: Provides debug logging output
      */
     func setupMessengerPolyfill(logger: MessengerLogger?) {
-        let intervalManager = SharedMessengerLayer.syncIntervalManager
-
-        // setInterval in JS registers a repeating job that happens every x milliseconds.
-        // This callback MUST be synchronous. We can't pass async functions to the JS layer
-        let setInterval: @convention(block) (JSValue?, JSValue?) -> JSValue? = { (callback, delay) in
-            guard let callback = callback,
-                  let delay = delay?.toInt32() else { return nil }
-            let timerId = intervalManager.createTimer(callback: callback, delay: Int(delay))
-            return JSValue(int32: Int32(timerId), in: self)
-        }
-
-        // clearInterval in JS cancels the repeating job.
-        // This callback MUST be synchronous. We can't pass async functions to the JS layer
-        let clearInterval: @convention(block) (JSValue?) -> Void = { timerId in
-            guard let timerId = timerId?.toInt32() else { return }
-            intervalManager.cancelTimer(id: Int(timerId))
-        }
-
-        // Add console.log polyfill
+        // A polyfill for console.log. This leverages the logger from the MessengerOptions
         let console: @convention(block) (JSValue?) -> Void = { (args) in
             if let args = args?.toArray() {
                 logger?.log("Swift DevTools:", args)
@@ -131,6 +113,32 @@ extension JSContext {
         setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
         setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
         setObject(jsConsole, forKeyedSubscript: "console" as NSString)
+    }
+
+    /// Registers a repeating job that happens every `delay` milliseconds .This is a Swift-native polyfill for JS's `setInterval`.
+    private var setInterval: @convention(block) (JSValue?, JSValue?) -> JSValue? {
+        { (callback, delay) in
+            guard let callback, let delayInt32 = delay?.toInt32() else { return nil }
+
+            let semaphore = DispatchSemaphore(value: 0)
+            var timerId: Int = 0
+            Task {
+                timerId = await SharedMessengerLayer.asyncIntervalManager
+                    .createTimer(callback: callback, delay: Int(delayInt32))
+                semaphore.signal()
+            }
+            semaphore.wait()
+
+            return JSValue(int32: Int32(timerId), in: self)
+        }
+    }
+
+    /// Cancels the repeating job. This is a Swift-native polyfill for JS's `clearInterval`.
+    private var clearInterval: @convention(block) (JSValue?) -> Void {
+        { timerId in
+            guard let timerId = timerId?.toInt32() else { return }
+            Task { await SharedMessengerLayer.asyncIntervalManager.cancelTimer(id: Int(timerId)) }
+        }
     }
 }
 

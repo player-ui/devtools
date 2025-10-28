@@ -9,8 +9,6 @@ import PlayerUIDevToolsTypes
 
 /// The shared details of all Swift Messengers.
 public class SharedMessengerLayer {
-    /// Shared singleton instance for sync interval manager
-    internal static let syncIntervalManager = SynchronousIntervalManager()
     /// Shared singleton instance for async interval manager
     internal static let asyncIntervalManager = AsynchronousIntervalManager()
 
@@ -65,42 +63,6 @@ actor AsynchronousIntervalManager {
     }
 }
 
-/// `SynchronousIntervalManager` wraps the async `AsynchronousIntervalManager` to allow synchronous access.
-///
-/// In order to avoid race conditions, the `AsynchronousIntervalManager` is a protected actor that prevents multiple threads
-/// from accessing it at once. This means we can only access `AsynchronousIntervalManager` values asynchronously.
-///
-/// However, the `AsynchronousIntervalManager` is the backbone of the poylfills we pass to the JSLayer. The polyfills are
-/// converted to Obj-C blocks using `@convention(block)` annotation. These blocks must be synchronous.
-///
-/// `SynchronousIntervalManager` wraps the async `AsynchronousIntervalManager` to allow synchronous access.
-/// This uses a semaphore to force Swift to wait for the async value.
-///
-/// ## ⚠️ Warning
-/// This isn't the best, but doesn't seem avoidable right now. In anticipation of a better strategy being introduced one day, I'm leaving the
-/// full actor implementation intact underneath.
-class SynchronousIntervalManager {
-    /// A sync wrapper for the async cancelTimer
-    func cancelTimer(id: Int) {
-        Task {
-            await SharedMessengerLayer.asyncIntervalManager.cancelTimer(id: id)
-            DispatchSemaphore.intervals.signal()
-        }
-        DispatchSemaphore.intervals.wait()
-    }
-
-    /// A sync wrapper for the async createTimer
-    func createTimer(callback: JSValue, delay: Int) -> Int {
-        var timerId: Int = 0
-        Task {
-            timerId = await SharedMessengerLayer.asyncIntervalManager.createTimer(callback: callback, delay: delay)
-            DispatchSemaphore.intervals.signal()
-        }
-        DispatchSemaphore.intervals.wait()
-        return timerId
-    }
-}
-
 private extension JSContext {
     /// A shorthand for accessing the static methods on the Messenger class
     func staticMessenger(logger: MessengerLogger?) -> JSValue? {
@@ -118,8 +80,4 @@ private extension DispatchQueue {
     /// The DispatchQueue to use for timer events mimicing JS's "interval" functionality.
     /// This will be used by the polyfills.
     static let intervals = DispatchQueue(label: "intervals")
-}
-
-private extension DispatchSemaphore {
-    static let intervals = DispatchSemaphore(value: 0)
 }

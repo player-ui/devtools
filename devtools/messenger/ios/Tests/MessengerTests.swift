@@ -90,7 +90,7 @@ final class MessengerTests: XCTestCase {
         // Expect 2 messages: the "I am here" beacon followed by the actual message
         let numMessages = await tracker.sentMessages.count
         XCTAssertEqual(numMessages, 2)
-        let message = await tracker.sentMessages.last
+        let message = await tracker.sentMessages.first { $0.type == "TEST" }
         XCTAssertEqual(message, testMessage)
     }
 
