@@ -355,7 +355,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     this.log(`disconnected - ${parsed.context}:${parsed.sender}`);
   }
 
-  public sendMessage(message: T | string) {
+  public sendMessage(message: T | string): Promise<void> {
     const parsed: T =
       typeof message === "string" ? JSON.parse(message) : message;
 
@@ -369,7 +369,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       connection.messagesSent += 1;
     }
 
-    this.options.sendMessage(msg).catch(() => {
+    return this.options.sendMessage(msg).catch(() => {
       this.options.handleFailedMessage?.(msg);
 
       this.log(

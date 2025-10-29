@@ -227,7 +227,7 @@ extension MessengerOptions {
         beaconIntervalMS: Int = 1000,
         isDebug: Bool = false,
         logger: MessengerLogger = MockLogger(),
-        sendMessage: @escaping (Message) async throws -> Void = { _ in },
+        sendMessage: @escaping (Message) async -> Void = { _ in },
         addListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void = { _ in },
         removeListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void = { _ in },
         messageCallback: @escaping (MessengerTransaction<Message>) -> Void = { _ in },

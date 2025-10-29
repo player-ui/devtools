@@ -13,8 +13,6 @@ import PlayerUIDevToolsUtils
 public class Messenger<Message: BaseEvent> {
     /// A thread-safe way to access the JS Messenger
     private let jsMessengerActor: JSMessengerActor
-    /// A mechanism to log any debug messages on the Swift layer. If nil, no logging will be performed.
-    private let logger: MessengerLogger?
 
     /// Initialize a new Messenger instance
     /// - Parameter options: The options to use for this instance
@@ -35,29 +33,42 @@ public class Messenger<Message: BaseEvent> {
             withPolyfill: { $0.setupMessengerPolyfill(logger: logger) }
         )
         self.jsMessengerActor = JSMessengerActor(jsMessenger)
-        self.logger = logger
     }
 
-    /// Send a message through the messenger
+    /// Send a message through the messenger.
+    ///
     /// - Parameter message: The message to send
-    public func sendMessage(_ message: Message) {
-        do {
-            let messageData = try JSONEncoder().encode(message)
-            let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
-
-            Task {
-                await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [messageString])
-            }
-        } catch {
-            logger?.log("Failed to encode message: \(error)")
-        }
+    public func sendMessage(_ message: Message) async throws {
+        let messageData = try JSONEncoder().encode(message)
+        let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
+        try await send(message: messageString)
     }
 
-    /// Send a message as a JSON string
-    /// - Parameter messageString: The message as a JSON string
-    public func sendMessage(_ messageString: String) {
-        Task {
-            await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [messageString])
+    /// Send a message as a string
+    ///
+    /// - Parameter messageString: The message
+    public func sendMessage(_ messageString: String) async throws {
+        try await send(message: messageString)
+    }
+
+    /// Helper to actually send the message.
+    private func send(message: String) async throws {
+        guard let promise = await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [message]),
+              !promise.isUndefined
+        else {
+            throw MessengerError.didNotReceiveJSPromise
+        }
+
+        // This is a wrapper that allows us to wait for the then/catch callbacks from the JS Promise
+        try await withCheckedThrowingContinuation { continuation in
+            let onResolve: @convention(block) () -> Void = { continuation.resume() }
+            let onReject: @convention(block) () -> Void = {
+                continuation.resume(throwing: MessengerError.failedToSendMessage)
+            }
+
+            promise
+                .invokeMethod("then", withArguments: [onResolve])
+                .invokeMethod("catch", withArguments: [onReject])
         }
     }
 
@@ -78,9 +89,20 @@ public enum MessengerError: Error, LocalizedError {
     /// Failed to initialize the JavaScript Messenger instance
     case failedToConvertOptionsToJSValue
 
+    case didNotReceiveJSPromise
+
+    case failedToSendMessage
+
     /// A localized description of the error
     public var errorDescription: String? {
-        return "JavaScript Messenger source file not found"
+        switch self {
+        case .failedToConvertOptionsToJSValue:
+            return "Failed to convert Swift native options to JS options"
+        case .didNotReceiveJSPromise:
+            return "Failed to send message: JS messenger did not return Promise"
+        case .failedToSendMessage:
+            return "Failed to send message: propagated JS error"
+        }
     }
 }
 

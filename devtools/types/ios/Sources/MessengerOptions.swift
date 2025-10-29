@@ -40,13 +40,19 @@ public class MessengerOptions<Message: BaseEvent> {
     /// Debug mode (defaults to false)
     public let isDebug: Bool
 
-    /// API to send messages
-    public let sendMessage: (Message) async throws -> Void
+    /// API to send messages.
+    ///
+    /// The JS layer expects a Promise. So this can be an async function, which we convert to a Promise under the hood.
+    public let sendMessage: (Message) async -> Void
 
-    /// API to add a listener
+    /// API to add a listener.
+    ///
+    /// This must be synchronous, because the JS layer expects a sync callback. It can call "fire-and-forget" Tasks though.
     public let addListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
 
-    /// API to remove a listener
+    /// API to remove a listener.
+    ///
+    /// This must be synchronous, because the JS layer expects a sync callback. It can call "fire-and-forget" Tasks though.
     public let removeListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
 
     /// Callback to handle messages
@@ -80,7 +86,7 @@ public class MessengerOptions<Message: BaseEvent> {
         beaconIntervalMS: Int = 1000,
         isDebug: Bool = false,
         logger: MessengerLogger,
-        sendMessage: @escaping (Message) async throws -> Void,
+        sendMessage: @escaping (Message) async -> Void,
         addListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
         removeListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
         messageCallback: @escaping (MessengerTransaction<Message>) -> Void,
@@ -130,17 +136,12 @@ public extension MessengerOptions {
         let callback: @convention(block) (JSValue) -> JSValue? = { message in
             return JSUtilities.createPromise(context: self.jsContext) { resolve, reject in
                 Task {
-                    do {
-                        guard let decodedMessage: Message = message.decode(withLogger: self.logger) else {
-                            reject("Failed to decode message")
-                            return
-                        }
-                        try await self.sendMessage(decodedMessage)
-                        resolve()
-                    } catch {
-                        self.logger.log("Failed to send message:", error)
-                        reject(error.localizedDescription)
+                    guard let decodedMessage: Message = message.decode(withLogger: self.logger) else {
+                        reject("Failed to decode message")
+                        return
                     }
+                    await self.sendMessage(decodedMessage)
+                    resolve()
                 }
             }
         }
