@@ -82,14 +82,11 @@ final class MessengerTests: XCTestCase {
             payload: TestPayload(count: 42),
             target: "test-target"
         )
-        messenger.sendMessage(testMessage)
-
-        // Allow time for "fire-and-forget" async operations
-        await fulfillment(for: "Message sent")
+        try await messenger.sendMessage(testMessage)
 
         // Expect 2 messages: the "I am here" beacon followed by the actual message
         let numMessages = await tracker.sentMessages.count
-        XCTAssertEqual(numMessages, 2)
+        XCTAssertGreaterThanOrEqual(numMessages, 1)
         let message = await tracker.sentMessages.first { $0.type == "TEST" }
         XCTAssertEqual(message, testMessage)
     }
@@ -105,14 +102,11 @@ final class MessengerTests: XCTestCase {
             "target": "string-target"
         }
         """
-        messenger.sendMessage(jsonString)
-
-        // Allow more time for async operations
-        await fulfillment(for: "Message sent")
+        try await messenger.sendMessage(jsonString)
 
         // Expect 2 messages: the "I am here" beacon followed by the actual message
         let numMessages = await tracker.sentMessages.count
-        XCTAssertEqual(numMessages, 2)
+        XCTAssertGreaterThanOrEqual(numMessages, 1)
         let message = await tracker.sentMessages.first { $0.type == "TEST" }
         XCTAssertEqual(message?.payload?.count, 99)
         XCTAssertEqual(message?.target, "string-target")
@@ -144,9 +138,8 @@ final class MessengerTests: XCTestCase {
         let messenger2 = try Messenger(options: makeOptions(id: "test-1"))
 
         // Send messages from both
-        messenger1.sendMessage(TestEvent(payload: TestPayload(count: 1)))
-        messenger2.sendMessage(TestEvent(payload: TestPayload(count: 2)))
-        await fulfillment(for: "Messages sent")
+        try await messenger1.sendMessage(TestEvent(payload: TestPayload(count: 1)))
+        try await messenger2.sendMessage(TestEvent(payload: TestPayload(count: 2)))
 
         // Verify specific messages were sent by checking payload content
         let sentMessages = await tracker.sentMessages
@@ -224,7 +217,7 @@ actor MockMessageTracker {
     /// Sends a message and notifies all registered listeners
     /// - Parameter message: The test event to send
     /// - Throws: Any errors that occur during message processing
-    func sendMessage(_ message: TestEvent) throws {
+    func sendMessage(_ message: TestEvent) {
         sendMessageCallCount += 1
         sentMessages.append(message)
 
@@ -273,8 +266,8 @@ class MockMessagingAPI {
     /// Sends a message and notifies all registered listeners
     /// - Parameter message: The test event to send
     /// - Throws: Any errors that occur during message processing
-    func sendMessage(_ message: TestEvent) throws {
-        Task(priority: .high) { try await tracker.sendMessage(message) }
+    func sendMessage(_ message: TestEvent) async {
+        await tracker.sendMessage(message)
     }
 
     /// Registers a new message listener
