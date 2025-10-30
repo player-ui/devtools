@@ -7,14 +7,13 @@ load("@rules_pkg//:pkg.bzl", "pkg_zip")
 # TODO: Change these to be appropriate for your project
 prefix = "PlayerUIDevTools"
 default_dependencies = [
-  "@swiftpkg_playerui_swift_package//:PlayerUI",
-  "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
+  "@swiftpkg_playerui_swift_package//:PlayerUI"
 ]
 default_test_dependencies = []
 test_host = "//ios/demo:DemoApp"
 
-def ios_plugin(name, resources = [], deps = [], test_deps = []):
-  """Packages source files, creates swift library and tests for an iOS PlayerUI plugin.
+def ios_library(name, resources = [], deps = [], test_deps = []):
+  """Packages source files, creates swift library and tests for an iOS PlayerUI library.
   This is entirely for testing and the demo app. This will not be used for release builds.
 
   Args:
@@ -22,8 +21,8 @@ def ios_plugin(name, resources = [], deps = [], test_deps = []):
       Targets created by this macro prefix the name with `prefix` specified in this file
     resources: Any resources to include in a resource bundle
       This will create a Bundle.module shim as well automatically
-    deps: Dependencies for the plugin
-    test_deps: Dependencies for the tests of this plugin
+    deps: Dependencies for the library
+    test_deps: Dependencies for the tests of this library
   """
   ios_pipeline(
       name = prefix + name,

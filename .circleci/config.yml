@@ -9,12 +9,35 @@ parameters:
     default: false
 
 orbs:
+  macos: circleci/macos@2.5.4
+  # android: circleci/android@3.1.0
   codecov: codecov/codecov@5.4.3
 
 executors:
   base:
     docker:
       - image: docker.io/playerui/bazel-docker-slim:9
+    working_directory: ~/devtools
+    resource_class: large
+    environment:
+      TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+  minimal:
+    docker:
+      - image: cimg/base:current
+    working_directory: ~/devtools
+    resource_class: medium
+    environment:
+      TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+  ios:
+    working_directory: ~/devtools
+    resource_class: m4pro.medium
+    macos:
+      xcode: 16.4.0
+    environment:
+      TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+  android:
+    machine:
+      image: android:2024.04.1
     working_directory: ~/devtools
     resource_class: medium
     environment:
@@ -26,40 +49,39 @@ commands:
     steps:
       - attach_workspace:
           at: ~/devtools
-
       - restore_cache:
           keys:
-            - devtools-{{ .Branch }}-{{ .Revision }}
-            - devtools-{{ .Branch }}
-            - devtools-main
+            - v1-bazel-cache-core-{{ .Branch }}-{{ .Revision }}
+            - v1-bazel-cache-core-{{ .Branch }}
+            - v1-bazel-cache-core-main
+            - gem-v1-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - gem-v1-{{ arch }}-main-{{ checksum "Gemfile.lock" }}
 
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:hUAWVYdfSW5ml6ufbfyEHUcuPwUJ88xVhsZc21b2lA8"
+
+      - run: mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run: echo "//registry.npmjs.com/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      - run: echo -e $GPG_KEY | gpg --import --batch
+      - run: git config --global user.name "Intuit Service"
+      - run: git config --global user.email "opensource-svc@intuit.com"
+      - run: |
+          echo -e $GPG_KEY | gpg --import --batch
+          echo -e "pinentry-mode loopback\npassphrase $DEPLOY_MAVEN_GPG_PASSPHRASE" > ~/.gnupg/gpg.conf
       - run: |
           source ~/.bashrc
+          bundle install
           npx auto shipit --only-graduate-with-release-label -vv
-  check_branch_status:
-    description: "Check if the branch is clean after the build"
-    steps:
-      - run:
-          name: Check branch status
-          command: |
-            if [[ -n "$(git status --porcelain)" ]]; then 
-              echo "Error: The branch is not clean after the build. Please run the build locally and commit any changes."
-              exit 1
-            else
-              echo "The branch is clean after the build."
-            fi
 
 jobs:
   setup:
-    executor: base
+    executor: minimal
     steps:
       - checkout
 
       - restore_cache:
           keys:
-            - devtools-{ { checksum "package.json" }}
+            - v1-dependencies-{ { checksum "package.json" }}
 
       - persist_to_workspace:
           root: .
@@ -67,7 +89,7 @@ jobs:
             - .
 
   bazelrc:
-    executor: base
+    executor: minimal
     steps:
       - attach_workspace:
           at: ~/devtools
@@ -75,6 +97,26 @@ jobs:
           echo "build --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
           echo "test --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
           echo "coverage --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
+          echo "common --remote_upload_local_results" >> .bazelrc.local
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  bazelrc_fork:
+    executor: minimal
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+      - run: |
+          echo "build --bes_results_url=''" >> .bazelrc.local
+          echo "build --bes_backend=''" >> .bazelrc.local
+          echo "build --remote_cache=''" >> .bazelrc.local
+          echo "test --bes_results_url=''" >> .bazelrc.local
+          echo "test --bes_backend=''" >> .bazelrc.local
+          echo "test --remote_cache=''" >> .bazelrc.local
+          echo "coverage --bes_results_url=''" >> .bazelrc.local
+          echo "coverage --bes_backend=''" >> .bazelrc.local
+          echo "coverage --remote_cache=''" >> .bazelrc.local
       - persist_to_workspace:
           root: .
           paths:
@@ -86,18 +128,82 @@ jobs:
       - attach_workspace:
           at: ~/devtools
 
-      - run: bazel build --config=ci -- //...
+      - run: bazel build --config=ci -- $(bazel query 'filter("native_bundle$", //...)')
 
       - save_cache:
           paths:
             - node_modules
-          key: devtools-{{ checksum "package.json" }}
+          key: v1-dependencies-{ { checksum "package.json" }}
 
       - persist_to_workspace:
           root: .
           paths:
             - .
-      - check_branch_status
+
+  build_ios:
+    executor: ios
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+
+      - run:
+          name: Homebrew Dependencies
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install bazelisk lcov
+
+      - macos/preboot-simulator:
+          version: "18.5"
+          platform: "iOS"
+          device: "iPhone 16 Pro"
+
+      - run: bazel build --config=ci-mac -- //ios/demo:DemoApp
+
+      - run:
+          name: Test Prebuild
+          command: |
+            bazel build \
+              --config=ci-mac \
+              $(bazel query "kind('ios_unit_test|ios_ui_test|.*SwiftLint', //...)")
+      - run:
+          name: Tests
+          command: |
+            bazel coverage \
+              --config=ci-mac \
+              --jobs=1 \
+              --experimental_use_llvm_covmap \
+              --combined_report=lcov \
+              --test_output=all \
+              --test_timeout=1800 \
+              $(bazel query "kind('ios_unit_test|ios_ui_test', //...)")
+      - run:
+          name: Lint
+          command: |
+            bazel test \
+              --config=ci-mac \
+              $(bazel query "attr(name, '.*SwiftLint', //...)")
+
+      - run:
+          when: always
+          command: |
+            RESULTS_DIR=_test_results
+            find -L ./bazel-testlogs -name test.xml | while read line
+            do
+              mkdir -p $RESULTS_DIR/$(dirname $line)
+              cp $line $RESULTS_DIR/$(dirname $line)
+            done
+      - run:
+          when: always
+          command: |
+            mkdir -p _ios_coverage/lcov
+            cp -r $(bazel info output_path)/_coverage/_coverage_report.dat _ios_coverage/lcov/
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - _ios_coverage
+
+      - store_test_results:
+          path: _test_results
 
   test:
     executor: base
@@ -105,30 +211,106 @@ jobs:
       - attach_workspace:
           at: ~/devtools
 
-      - restore_cache:
-          keys:
-            - devtools-{{ .Branch }}-{{ .Revision }}
-            - devtools-{{ .Branch }}
-            - devtools-main
+      - run: bazel build --config=ci -- $(bazel query 'kind(".*_test", //...) except filter("ios|swiftui|android", //...)')
 
-      - run: |
-          bazel coverage --config=ci ...
+      - run: bazel test --config=ci -- $(bazel query 'kind(".*_test", //...) except filter("ios|swiftui|android", //...)')
 
-      - codecov/upload:
-          files: ./bazel-out/_coverage/_coverage_report.dat
+      - run:
+          when: always
+          command: |
+            RESULTS_DIR=_test_results
+            find -L ./bazel-testlogs -name test.xml | while read line
+            do
+              mkdir -p $RESULTS_DIR/$(dirname $line)
+              cp $line $RESULTS_DIR/$(dirname $line)
+            done
 
-  maybe_release:
+      - store_test_results:
+          path: _test_results
+
+  android_test:
+    executor: android
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/devtools
+
+      - run:
+          name: Install Bazel
+          command: |
+            wget -q https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-amd64 -O bazelisk && \
+            chmod +x bazelisk && \
+            sudo mkdir /opt/bazelisk-v1.11.0 && \
+            sudo mv bazelisk /opt/bazelisk-v1.11.0 && \
+            sudo ln -s /opt/bazelisk-v1.11.0/bazelisk /usr/local/bin/bazel
+
+      - run: ./scripts/android-ci-bazel-test.sh //android/demo:android_instrumentation_test
+
+      - run:
+          when: always
+          command: |
+            RESULTS_DIR=_test_results
+            find -L ./bazel-testlogs -name test.xml | while read line
+            do
+              mkdir -p $RESULTS_DIR/$(dirname $line)
+              cp $line $RESULTS_DIR/$(dirname $line)
+            done
+
+      - store_test_results:
+          path: _test_results
+
+      - store_artifacts:
+          path: screenshots
+
+  coverage:
     executor: base
     steps:
-      - run: echo "Should I release? (<< pipeline.parameters.should_release >>)"
-      - when:
-          condition: << pipeline.parameters.should_release >>
-          steps:
-            - auto_shipit
+      - attach_workspace:
+          at: ~/devtools
+
+      - restore_cache:
+          keys:
+            - v1-bazel-cache-core-{{ .Branch }}-{{ .Revision }}
+            - v1-bazel-cache-core-{{ .Branch }}
+            - v1-bazel-cache-core-main
+
+      - run: |
+          BUNDLE_TARGETS=$(bazel query "kind(.*_test, //...) except filter('android|ios|swiftui', //...)" --output label 2>/dev/null | tr '\n' ' ')
+          bazel coverage --config=ci -- $BUNDLE_TARGETS
+
+      - run:
+          when: always
+          command: |
+            RESULTS_DIR=_test_results
+            find -L ./bazel-testlogs -name test.xml | while read line
+            do
+              mkdir -p $RESULTS_DIR/$(dirname $line)
+              cp $line $RESULTS_DIR/$(dirname $line)
+            done
+
+      - store_test_results:
+          path: _test_results
+
+      - codecov/upload:
+          files: ./bazel-out/_coverage/_coverage_report.dat,./_ios_coverage/lcov/_coverage_report.dat
+
+  # maybe_release:
+  #   executor: base
+  #   steps:
+  #     - attach_workspace:
+  #         at: ~/devtools
+  #     - run: echo "Should I release? (<< pipeline.parameters.should_release >>)"
+  #     - when:
+  #         condition: << pipeline.parameters.should_release >>
+  #         steps:
+  #           - auto_shipit
 
   release:
     executor: base
     steps:
+      - attach_workspace:
+          at: ~/devtools
       - auto_shipit
 
 workflows:
@@ -142,13 +324,21 @@ workflows:
                 - /version-.*/
             tags:
               ignore: /.*/
-
       - bazelrc:
           filters:
             branches:
-              ignore: /pull\/.*/
+              ignore:
+                - /pull\/.*/
           context:
-            - BuildTools
+            - Build
+          requires:
+            - setup
+
+      - bazelrc_fork:
+          filters:
+            branches:
+              only:
+                - /pull\/.*/
           requires:
             - setup
 
@@ -169,6 +359,27 @@ workflows:
                 - /pull\/.*/
           requires:
             - setup
+            - bazelrc_fork
+
+      - build_ios:
+          name: build-ios-trunk
+          filters:
+            branches:
+              ignore:
+                - /pull\/.*/
+          requires:
+            - bazelrc
+            - build-trunk
+
+      - build_ios:
+          name: build-ios-fork
+          filters:
+            branches:
+              only:
+                - /pull\/.*/
+          requires:
+            - build-fork
+            - bazelrc_fork
 
       # - maybe_release:
       #     filters:
@@ -179,6 +390,7 @@ workflows:
       #       - Publish
       #     requires:
       #       - build-trunk
+      #       - build-ios-trunk
 
       - test:
           name: test-trunk
@@ -194,9 +406,51 @@ workflows:
           filters:
             branches:
               only:
-                - /pull\/.*./
+                - /pull\/.*/
           requires:
             - build-fork
+
+      # - android_test:
+      #     name: android-test-trunk
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - /pull\/.*/
+      #     context:
+      #       - Build
+      #     requires:
+      #       - build-trunk
+
+      # - android_test:
+      #     name: android-test-fork
+      #     context:
+      #       - BuildFork
+      #     filters:
+      #       branches:
+      #         only:
+      #           - /pull\/.*/
+      #     requires:
+      #       - build-fork
+
+      - coverage:
+          name: coverage-trunk
+          filters:
+            branches:
+              ignore:
+                - /pull\/.*/
+          requires:
+            - build-trunk
+            - build-ios-trunk
+
+      - coverage:
+          name: coverage-fork
+          filters:
+            branches:
+              only:
+                - /pull\/.*/
+          requires:
+            - build-fork
+            - build-ios-fork
 
   build_and_test_main:
     when:
@@ -210,7 +464,7 @@ workflows:
                 - /version-.*/
       - bazelrc:
           context:
-            - BuildTools
+            - Build
           requires:
             - setup
 
@@ -218,15 +472,28 @@ workflows:
           requires:
             - bazelrc
 
-      - test:
+      - build_ios:
           requires:
             - build
 
-      # - release:
+      # - android_test:
       #     context:
-      #       - Publish
+      #       - Build
       #     requires:
-      #       - test
+      #       - build
+
+      - coverage:
+          requires:
+            - build
+            - build_ios
+
+      - release:
+          context:
+            - Publish
+          requires:
+            # - android_test
+            - coverage
+            - build_ios
 
   full_release:
     when:
@@ -234,22 +501,34 @@ workflows:
     jobs:
       - setup
 
+      - bazelrc:
+          context:
+            - Build
+          requires:
+            - setup
+
       - build:
           requires:
             - setup
 
-      - bazelrc:
-          context:
-            - BuildTools
-          requires:
-            - setup
-
-      - test:
+      - build_ios:
           requires:
             - bazelrc
 
-      # - release:
+      # - android_test:
       #     context:
-      #       - Publish
+      #       - Build
       #     requires:
-      #       - test
+      #       - build
+
+      - coverage:
+          requires:
+            - build
+
+      - release:
+          context:
+            - Publish
+          requires:
+            # - android_test
+            - coverage
+            - build_ios

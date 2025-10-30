@@ -9,8 +9,8 @@ tsup_config(name = "tsup_config")
 vitest_config(name = "vitest_config")
 
 js_pipeline(
-    package_name = "@player-devtools/types",
-    deps = [
-        "//:node_modules/@player-ui/types",
-    ],
+    package_name = "@player-devtools/utils-test-do-not-export",
+    deps = ["//:node_modules/@swc/core",],
+    native_bundle = "Utils",
+    private = True,
 )

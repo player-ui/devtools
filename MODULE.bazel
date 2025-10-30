@@ -76,6 +76,7 @@ use_repo(
     swift_deps,
     "swift_package",  # Not sure what this is for, but it is required
     "swiftpkg_playerui_swift_package",
+    "swiftpkg_swift_hooks",
     "swiftpkg_swiftlint",
     "swiftpkg_viewinspector",
 )

@@ -1,0 +1,16 @@
+set fallback    # Lets us call stuff from parent justfile
+
+test:
+    bazel test \
+        $(bazel query "kind('ios_unit_test|ios_ui_test', //...)")
+
+# Build the demo app for a physical device. This requires an appropriate provisioning profile
+# to be added at ios/demo/ProvisioningProfile. E.g. ios/demo/ProvisioningProfile/example.mobileprovision
+build_phys:
+    bazel build //ios/demo:DemoApp --ios_multi_cpus=arm64
+    echo "Use this IPA to install the app on a physical device: /bazel-bin/ios/demo/DemoApp.ipa"
+
+# Run the demo app on a physical device. This requires an appropriate provisioning profile
+# to be added at ios/demo/ProvisioningProfile. E.g. ios/demo/ProvisioningProfile/example.mobileprovision
+run_phys:
+    bazel run //ios/demo:DemoApp --ios_multi_cpus=arm64

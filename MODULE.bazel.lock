@@ -801,7 +801,7 @@
         "bzlTransitiveDigest": "+z+pZIYCLcHGxGMADT76Mme+Sq6/ptcE1QGsNUmgRZ4=",
         "usagesDigest": "5pbtf6zJZFcAPQSnlUBJd2OrZb5MXjZr++YZ1avmxOQ=",
         "recordedFileInputs": {
-          "@@//ios/demo/Package.resolved": "0a379d5a37316beb774e62f9dd77a2360c43bdb9b581f900471857539049a1e9"
+          "@@//ios/demo/Package.resolved": "09ead33163f9017743a4055a7811be530a8339417e909a941e59e43d3dc66527"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -813,13 +813,35 @@
               "package": "/ios/demo/Package.swift"
             }
           },
+          "swiftpkg_swift_hooks": {
+            "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
+            "attributes": {
+              "bazel_package_name": "swiftpkg_swift_hooks",
+              "commit": "5f3136ac2a3c27aa469e3f9a1222b15080d431d3",
+              "remote": "https://github.com/intuit/swift-hooks.git",
+              "version": "0.1.0",
+              "env": {},
+              "env_inherit": [],
+              "init_submodules": false,
+              "recursive_init_submodules": true,
+              "patch_args": [
+                "-p0"
+              ],
+              "patch_cmds": [],
+              "patch_cmds_win": [],
+              "patch_tool": "",
+              "patches": [],
+              "publicly_expose_all_targets": false,
+              "replace_scm_with_registry": false
+            }
+          },
           "swiftpkg_playerui_swift_package": {
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_playerui_swift_package",
-              "commit": "1973de37eb4446d62ea62ff689643e1ad02d69b3",
+              "commit": "4ddfe6ceeaaaeb70f6d4316eb2937545faac5447",
               "remote": "https://github.com/player-ui/playerui-swift-package.git",
-              "version": "0.12.0",
+              "version": "0.14.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -839,9 +861,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swiftlint",
-              "commit": "625792423014cc49b0a1e5a1a5c0d6b8b3de10f9",
+              "commit": "cc6fbaf355caf9ebe02c1b631a8edaa6df9145c5",
               "remote": "https://github.com/realm/SwiftLint.git",
-              "version": "0.59.1",
+              "version": "0.61.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -861,9 +883,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_viewinspector",
-              "commit": "a6fcac8485bc8f57b2d2b55bb6d97138e8659e4b",
+              "commit": "e9a06346499a3a889165647e3f23f8a7b2609a1c",
               "remote": "https://github.com/nalexn/viewinspector.git",
-              "version": "0.10.2",
+              "version": "0.10.3",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -927,9 +949,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_sourcekitten",
-              "commit": "453f75b8a3bb2c3596c0d2dd422c289788233a22",
+              "commit": "731ffe6a35344a19bab00cdca1c952d5b4fee4d8",
               "remote": "https://github.com/jpsim/SourceKitten.git",
-              "version": "0.37.1",
+              "version": "0.37.2",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -967,35 +989,13 @@
               "replace_scm_with_registry": false
             }
           },
-          "swiftpkg_swift_hooks": {
-            "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
-            "attributes": {
-              "bazel_package_name": "swiftpkg_swift_hooks",
-              "commit": "5f3136ac2a3c27aa469e3f9a1222b15080d431d3",
-              "remote": "https://github.com/intuit/swift-hooks.git",
-              "version": "0.1.0",
-              "env": {},
-              "env_inherit": [],
-              "init_submodules": false,
-              "recursive_init_submodules": true,
-              "patch_args": [
-                "-p0"
-              ],
-              "patch_cmds": [],
-              "patch_cmds_win": [],
-              "patch_tool": "",
-              "patches": [],
-              "publicly_expose_all_targets": false,
-              "replace_scm_with_registry": false
-            }
-          },
           "swiftpkg_swift_syntax": {
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swift_syntax",
-              "commit": "1103c45ece4f7fe160b8f75b4ea1ee2e5fac1841",
+              "commit": "21b3b45635decd1a0b89968f81b6d9a93128f773",
               "remote": "https://github.com/swiftlang/swift-syntax.git",
-              "version": "601.0.0",
+              "version": "602.0.0-prerelease-2025-08-11",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -1059,9 +1059,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_yams",
-              "commit": "3d6871d5b4a5cd519adf233fbb576e0a2af71c17",
+              "commit": "d41ba4e7164c0838c6d48351f7575f7f762151fe",
               "remote": "https://github.com/jpsim/Yams.git",
-              "version": "5.4.0",
+              "version": "6.1.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -1080,6 +1080,7 @@
         },
         "moduleExtensionMetadata": {
           "explicitRootModuleDirectDeps": [
+            "swiftpkg_swift_hooks",
             "swiftpkg_playerui_swift_package",
             "swiftpkg_swiftlint",
             "swiftpkg_viewinspector",
@@ -1104,6 +1105,125 @@
             "rules_swift_package_manager+",
             "cgrindel_bazel_starlib",
             "cgrindel_bazel_starlib+"
+          ]
+        ]
+      }
+    },
+    "@@rules_xcodeproj+//xcodeproj:extensions.bzl%internal": {
+      "general": {
+        "bzlTransitiveDigest": "kH4BrVCFHiI09x+0a3TOJpG+SQkYOdzJyhxHl+ZeHN0=",
+        "usagesDigest": "Dh77Az+jI27CQt4k3xDdgHvDrPJrHGw2XrcX+E6SSQI=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "rules_xcodeproj_generated": {
+            "repoRuleId": "@@rules_xcodeproj+//xcodeproj:repositories.bzl%generated_files_repo",
+            "attributes": {}
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "rules_xcodeproj+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
+    "@@rules_xcodeproj+//xcodeproj:extensions.bzl%non_module_deps": {
+      "general": {
+        "bzlTransitiveDigest": "kH4BrVCFHiI09x+0a3TOJpG+SQkYOdzJyhxHl+ZeHN0=",
+        "usagesDigest": "U4MZxUyqRv34ZTYnXayQIJM2vEgjvB69TetWDcYtGsA=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "rules_xcodeproj_legacy_index_import": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "build_file_content": "load(\"@bazel_skylib//rules:native_binary.bzl\", \"native_binary\")\n\nnative_binary(\n    name = \"index_import\",\n    src = \"index-import\",\n    out = \"index-import\",\n    visibility = [\"//visibility:public\"],\n)\n",
+              "canonical_id": "index-import-5.8.0.1",
+              "sha256": "28c1ffa39d99e74ed70623899b207b41f79214c498c603915aef55972a851a15",
+              "url": "https://github.com/MobileNativeFoundation/index-import/releases/download/5.8.0.1/index-import.tar.gz"
+            }
+          },
+          "rules_xcodeproj_index_import": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "build_file_content": "load(\"@bazel_skylib//rules:native_binary.bzl\", \"native_binary\")\n\nnative_binary(\n    name = \"index_import\",\n    src = \"index-import\",\n    out = \"index-import\",\n    visibility = [\"//visibility:public\"],\n)\n",
+              "canonical_id": "index-import-6.1.0.1",
+              "sha256": "9a54fc1674af6031125a9884480a1e31e1bcf48b8f558b3e8bcc6b6fcd6e8b61",
+              "url": "https://github.com/MobileNativeFoundation/index-import/releases/download/6.1.0.1/index-import.tar.gz"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "rules_xcodeproj+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
+    "@@swiftlint+//bazel:extensions.bzl%extra_rules": {
+      "general": {
+        "bzlTransitiveDigest": "bQaIwIVfdP8t32ZvwG0ZM8y3N7Q6hhlgHsz7avAKFFs=",
+        "usagesDigest": "jGC0K54Ctu94xi3kzH4//qjUi+OsxCLDYZYr+8Gvw9E=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "swiftlint_extra_rules": {
+            "repoRuleId": "@@swiftlint+//bazel:deps.bzl%extra_swift_sources",
+            "attributes": {}
+          }
+        },
+        "recordedRepoMappingEntries": []
+      }
+    },
+    "@@swiftlint+//bazel:repos.bzl%swiftlint_repos_bzlmod": {
+      "general": {
+        "bzlTransitiveDigest": "ybtEcu8rTdsEUtWwFQ8KM7Hu15+gEIpAicMLP7zs8KE=",
+        "usagesDigest": "tZS+6cNJAy71LmcQ2aqmNv08uAzm2wt/GnF/v1J6ZLk=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "swiftlint_com_github_scottrhoyt_swifty_text_table": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "b77d403db9f33686caeb2a12986997fb02a0819e029e669c6b9554617c4fd6ae",
+              "build_file": "@@swiftlint+//bazel:SwiftyTextTable.BUILD",
+              "strip_prefix": "SwiftyTextTable-0.9.0",
+              "url": "https://github.com/scottrhoyt/SwiftyTextTable/archive/refs/tags/0.9.0.tar.gz"
+            }
+          },
+          "com_github_johnsundell_collectionconcurrencykit": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "9083fe6f8b4f820bfb5ef5c555b31953116f158ec113e94c6406686e78da34aa",
+              "build_file": "@@swiftlint+//bazel:CollectionConcurrencyKit.BUILD",
+              "strip_prefix": "CollectionConcurrencyKit-0.2.0",
+              "url": "https://github.com/JohnSundell/CollectionConcurrencyKit/archive/refs/tags/0.2.0.tar.gz"
+            }
+          },
+          "com_github_krzyzanowskim_cryptoswift": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "69b23102ff453990d03aff4d3fabd172d0667b2b3ed95730021d60a0f8d50d14",
+              "build_file": "@@swiftlint+//bazel:CryptoSwift.BUILD",
+              "strip_prefix": "CryptoSwift-1.8.4",
+              "url": "https://github.com/krzyzanowskim/CryptoSwift/archive/refs/tags/1.8.4.tar.gz"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "swiftlint+",
+            "bazel_tools",
+            "bazel_tools"
           ]
         ]
       }

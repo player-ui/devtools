@@ -14,5 +14,7 @@ js_pipeline(
         ":node_modules/@player-devtools/types",
         "//:node_modules/@types/node",
         "//:node_modules/tiny-uid",
+        "//:node_modules/@swc/core",
     ],
+    native_bundle = "Messenger",
 )

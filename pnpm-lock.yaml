@@ -355,16 +355,16 @@ importers:
     dependencies:
       '@player-devtools/messenger':
         specifier: workspace:*
-        version: link:../messenger
+        version: link:../messenger/core
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../types
+        version: link:../types/core
 
-  devtools/messenger:
+  devtools/messenger/core:
     dependencies:
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../types
+        version: link:../../types/core
 
   devtools/plugins/desktop/basic:
     dependencies:
@@ -373,16 +373,16 @@ importers:
         version: link:../common
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../../../types
+        version: link:../../../types/core
 
   devtools/plugins/desktop/common:
     dependencies:
       '@player-devtools/messenger':
         specifier: workspace:*
-        version: link:../../../messenger
+        version: link:../../../messenger/core
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../../../types
+        version: link:../../../types/core
 
   devtools/plugins/desktop/profiler:
     dependencies:
@@ -391,7 +391,7 @@ importers:
         version: link:../common
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../../../types
+        version: link:../../../types/core
 
   devtools/plugins/mobile/flipper-desktop-client:
     dependencies:
@@ -400,9 +400,13 @@ importers:
         version: link:../../../client
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../../../types
+        version: link:../../../types/core
 
-  devtools/types: {}
+  devtools/types/core: {}
+
+  devtools/utils/ios/Resources/core: {}
+
+  helpers/mocks: {}
 
 packages:
 

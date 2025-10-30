@@ -1,15 +1,16 @@
 packages:
   - cli
   - docs/*
-  - devtools/types
+  - devtools/types/core
   - devtools/plugins/mobile/flipper-desktop-client
   - devtools/plugins/desktop/common
   - devtools/plugins/desktop/basic
   - devtools/plugins/desktop/profiler
-  - devtools/messenger
+  - devtools/messenger/core
   - devtools/client
+  - devtools/utils/ios/Resources/core
   - helpers/mocks
-
+  
 onlyBuiltDependencies:
   - esbuild
   - husky
