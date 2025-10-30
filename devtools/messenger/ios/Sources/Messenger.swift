@@ -44,7 +44,7 @@ public class Messenger<Message: BaseEvent> {
         try await send(message: messageString)
     }
 
-    /// Send a message as a string
+    /// Send a message as a JSON string
     ///
     /// - Parameter messageString: The message
     public func sendMessage(_ messageString: String) async throws {
@@ -62,13 +62,7 @@ public class Messenger<Message: BaseEvent> {
         // This is a wrapper that allows us to wait for the then/catch callbacks from the JS Promise
         try await withCheckedThrowingContinuation { continuation in
             let onResolve: @convention(block) () -> Void = { continuation.resume() }
-            let onReject: @convention(block) () -> Void = {
-                continuation.resume(throwing: MessengerError.failedToSendMessage)
-            }
-
-            promise
-                .invokeMethod("then", withArguments: [onResolve])
-                .invokeMethod("catch", withArguments: [onReject])
+            promise.invokeMethod("then", withArguments: [onResolve])
         }
     }
 
@@ -145,9 +139,10 @@ extension JSContext {
             let semaphore = DispatchSemaphore(value: 0)
             var timerId: Int = 0
             Task {
+                // Use defer to ensure the thread is freed even if the Task is cancelled or fails
+                defer { semaphore.signal() }
                 timerId = await SharedMessengerLayer.asyncIntervalManager
                     .createTimer(callback: callback, delay: Int(delayInt32))
-                semaphore.signal()
             }
             semaphore.wait()
 
