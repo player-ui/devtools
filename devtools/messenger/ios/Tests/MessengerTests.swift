@@ -112,8 +112,6 @@ final class MessengerTests: XCTestCase {
         XCTAssertEqual(message?.target, "string-target")
     }
 
-    // MARK: - Error Handling Tests
-
     func testLogsWhenDebugTrue() async throws {
         let _ = try Messenger(options: makeOptions(isDebug: true))
         await fulfillment(for: "Logs sent, if enabled", delay: 0.5)
@@ -146,6 +144,20 @@ final class MessengerTests: XCTestCase {
         let sentCounts = sentMessages.compactMap { $0.payload?.count }
         XCTAssertTrue(sentCounts.contains(1), "Message from messenger1 should be sent")
         XCTAssertTrue(sentCounts.contains(2), "Message from messenger2 should be sent")
+    }
+
+    /// Check that `sendMessage(_ messageString:)` throws an error if the message is not a valid JSON string
+    func testInvalidJsonThrows() async throws {
+        let messenger = try Messenger(options: defaultOptions)
+
+        var isErrorThrown = false
+        do {
+            try await messenger.sendMessage("undefined")
+        } catch {
+            XCTAssertEqual(error.localizedDescription, "Failed to send message: JS messenger did not return Promise")
+            isErrorThrown = true
+        }
+        XCTAssert(isErrorThrown, "Error was not thrown as expected")
     }
 }
 
