@@ -13,5 +13,6 @@ xcodeproj(
         "//devtools/messenger/ios:PlayerUIDevToolsMessengerTests",
         "//devtools/utils/ios:PlayerUIDevToolsUtilsTests",
         "//devtools/types/ios:PlayerUIDevToolsTypesTests",
+        "//devtools/plugin/ios:PlayerUIDevToolsDevtoolsPluginViewInspectorTests",
     ],
 )

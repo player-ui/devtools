@@ -46,6 +46,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.11.2"),
+        .package(url:"https://github.com/chiragramani/SwiftFlipper.git", from: "0.1.0"),
     ],
     targets: [messengerPlugin]
 )

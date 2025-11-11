@@ -20,11 +20,15 @@ public protocol MessengerLogger {
     func log(_ args: Any...)
 }
 
+/// A message that can be sent or received by the Messenger. This includes messages with transaction metaData
+public typealias Message = [String: Any]
+public typealias MessageListener = ([String: Any]) -> Void
+
 /// Swift implementation of MessengerOptions matching the TypeScript interface
 ///
 /// ## ⚠️ Note
 /// All instances of MessengerOptions will share the same JSContext
-public class MessengerOptions<Message: BaseEvent> {
+public class MessengerOptions {
     /// Unique id (required)
     public let id: String
 
@@ -48,18 +52,18 @@ public class MessengerOptions<Message: BaseEvent> {
     /// API to add a listener.
     ///
     /// This must be synchronous, because the JS layer expects a sync callback. It can call "fire-and-forget" Tasks though.
-    public let addListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
+    public let addListener: (@escaping MessageListener) -> Void
 
     /// API to remove a listener.
     ///
     /// This must be synchronous, because the JS layer expects a sync callback. It can call "fire-and-forget" Tasks though.
-    public let removeListener: (@escaping (MessengerTransaction<Message>) -> Void) -> Void
+    public let removeListener: (@escaping MessageListener) -> Void
 
     /// Callback to handle messages
-    public let messageCallback: (MessengerTransaction<Message>) -> Void
+    public let messageCallback: MessageListener
 
     /// Handle failed message (optional)
-    public let handleFailedMessage: ((MessengerTransaction<Message>) -> Void)?
+    public let handleFailedMessage: MessageListener?
 
     /// The JSContext to construct any needed JSValues in
     private let jsContext: JSContext
@@ -87,10 +91,10 @@ public class MessengerOptions<Message: BaseEvent> {
         isDebug: Bool = false,
         logger: MessengerLogger,
         sendMessage: @escaping (Message) async -> Void,
-        addListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
-        removeListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void,
-        messageCallback: @escaping (MessengerTransaction<Message>) -> Void,
-        handleFailedMessage: ((MessengerTransaction<Message>) -> Void)? = nil
+        addListener: @escaping (@escaping MessageListener) -> Void,
+        removeListener: @escaping (@escaping MessageListener) -> Void,
+        messageCallback: @escaping MessageListener,
+        handleFailedMessage: MessageListener? = nil
     ) {
         self.id = id
         self.jsContext = jsContext
@@ -133,14 +137,14 @@ public extension MessengerOptions {
 
     /// The sendMessage callback that returns a Promise
     private var sendMessageCallback: JSValue? {
-        let callback: @convention(block) (JSValue) -> JSValue? = { message in
+        let callback: @convention(block) (JSValue) -> JSValue? = { jsValue in
             return JSUtilities.createPromise(context: self.jsContext) { resolve, reject in
                 Task {
-                    guard let decodedMessage: Message = message.decode(withLogger: self.logger) else {
+                    guard let dict = jsValue.toDictionary(), let message = dict as? Message else{
                         reject("Failed to decode message")
                         return
                     }
-                    await self.sendMessage(decodedMessage)
+                    await self.sendMessage(message)
                     resolve()
                 }
             }
@@ -150,11 +154,9 @@ public extension MessengerOptions {
 
     /// The messageCallback that handles incoming messages
     private var messageCallbackValue: JSValue? {
-        let callback: @convention(block) (JSValue) -> Void = { transaction in
-            guard let decodedTransaction: MessengerTransaction<Message> = transaction.decode(withLogger: self.logger) else {
-                return
-            }
-            self.messageCallback(decodedTransaction)
+        let callback: @convention(block) (JSValue) -> Void = { jsValue in
+            guard let message = jsValue.asMessage else { return }
+            self.messageCallback(message)
         }
         return JSValue(object: callback, in: jsContext)
     }
@@ -162,10 +164,8 @@ public extension MessengerOptions {
     /// The addListener callback
     private var addListenerCallback: JSValue? {
         let callback: @convention(block) (JSValue) -> Void = { jsCallback in
-            self.addListener { transaction in
-                guard let encodedString = transaction.toJSONString(withLogger: self.logger) else { return }
-                jsCallback.call(withArguments: [encodedString])
-            }
+            let listener: MessageListener = { jsCallback.call(withArguments: [$0]) }
+            self.addListener(listener)
         }
         return JSValue(object: callback, in: jsContext)
     }
@@ -173,10 +173,8 @@ public extension MessengerOptions {
     /// The removeListener callback
     private var removeListenerCallback: JSValue? {
         let callback: @convention(block) (JSValue) -> Void = { jsCallback in
-            self.removeListener { transaction in
-                guard let encodedString = transaction.toJSONString(withLogger: self.logger) else { return }
-                jsCallback.call(withArguments: [encodedString])
-            }
+            let listener: MessageListener = { jsCallback.call(withArguments: [$0]) }
+            self.removeListener(listener)
         }
         return JSValue(object: callback, in: jsContext)
     }
@@ -193,50 +191,18 @@ public extension MessengerOptions {
     /// The handleFailedMessage callback if one was provided
     private var failedMessageCallback: JSValue? {
         guard let handleFailedMessage else { return nil }
-        let callback: @convention(block) (JSValue) -> Void = { transaction in
-            guard let decodedTransaction: MessengerTransaction<Message> = transaction.decode(withLogger: self.logger) else {
-                return
-            }
-            handleFailedMessage(decodedTransaction)
+        let callback: @convention(block) (JSValue) -> Void = { jsValue in
+            guard let message = jsValue.asMessage else { return }
+            handleFailedMessage(message)
         }
         return JSValue(object: callback, in: jsContext)
     }
 }
 
-// MARK: - JSValue Extensions
-
 extension JSValue {
-    /// Decode a JSValue into a Swift type that works with the Swit Messenger
-    /// - Parameter withLogger: Optional logger for error reporting
-    func decode<T: Codable>(withLogger logger: MessengerLogger? = nil) -> T? {
-        guard let obj = toObject() else {
-            logger?.log("Failed to decode \(T.self) from JSValue: message is not a valid object")
-            return nil
-        }
-
-        do {
-            // Serialize the JSValue to JSON and decode a Swift value from that
-            let data = try JSONSerialization.data(withJSONObject: obj)
-            return try JSONDecoder().decode(T.self, from: data)
-        } catch {
-            logger?.log("Failed to decode \(T.self) from JSValue:", error)
-            return nil
-        }
-    }
-}
-
-// MARK: - Codable Extensions
-
-extension Encodable {
-    /// Convert a Codable object to a JSON string
-    /// - Parameter withLogger: Optional logger for error reporting
-    func toJSONString(withLogger logger: MessengerLogger? = nil) -> String? {
-        do {
-            let data = try JSONEncoder().encode(self)
-            return String(data: data, encoding: .utf8)
-        } catch {
-            logger?.log("Failed to encode \(type(of: self)) to JSON string:", error)
-            return nil
-        }
+    /// Convert the JSValue to the Message type
+    var asMessage: Message? {
+        guard let dict = toDictionary() else { return nil }
+        return dict as? Message
     }
 }

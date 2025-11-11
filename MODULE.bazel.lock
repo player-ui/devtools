@@ -3798,7 +3798,7 @@
         "bzlTransitiveDigest": "+z+pZIYCLcHGxGMADT76Mme+Sq6/ptcE1QGsNUmgRZ4=",
         "usagesDigest": "5pbtf6zJZFcAPQSnlUBJd2OrZb5MXjZr++YZ1avmxOQ=",
         "recordedFileInputs": {
-          "@@//ios/demo/Package.resolved": "09ead33163f9017743a4055a7811be530a8339417e909a941e59e43d3dc66527"
+          "@@//ios/demo/Package.resolved": "8ffe4f745fa69620ce361db93f9953f1aa8a08f3e9f905f2ddc51c81c46e451c"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -3854,13 +3854,35 @@
               "replace_scm_with_registry": false
             }
           },
+          "swiftpkg_swiftflipper": {
+            "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
+            "attributes": {
+              "bazel_package_name": "swiftpkg_swiftflipper",
+              "commit": "23ab427d3dd076e14f0028e30d174e004a2faa00",
+              "remote": "https://github.com/chiragramani/SwiftFlipper.git",
+              "version": "",
+              "env": {},
+              "env_inherit": [],
+              "init_submodules": false,
+              "recursive_init_submodules": true,
+              "patch_args": [
+                "-p0"
+              ],
+              "patch_cmds": [],
+              "patch_cmds_win": [],
+              "patch_tool": "",
+              "patches": [],
+              "publicly_expose_all_targets": false,
+              "replace_scm_with_registry": false
+            }
+          },
           "swiftpkg_swiftlint": {
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swiftlint",
-              "commit": "cc6fbaf355caf9ebe02c1b631a8edaa6df9145c5",
+              "commit": "da9d742874d88f6d5d0f7b315d1fcf12655f2311",
               "remote": "https://github.com/realm/SwiftLint.git",
-              "version": "0.61.0",
+              "version": "0.62.2",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -3942,6 +3964,28 @@
               "replace_scm_with_registry": false
             }
           },
+          "swiftpkg_flipperpluginutils": {
+            "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
+            "attributes": {
+              "bazel_package_name": "swiftpkg_flipperpluginutils",
+              "commit": "f68ac6cc7954867b4ea9d9fa13be5995174c4929",
+              "remote": "https://github.com/chiragramani/FlipperPluginUtils",
+              "version": "",
+              "env": {},
+              "env_inherit": [],
+              "init_submodules": false,
+              "recursive_init_submodules": true,
+              "patch_args": [
+                "-p0"
+              ],
+              "patch_cmds": [],
+              "patch_cmds_win": [],
+              "patch_tool": "",
+              "patches": [],
+              "publicly_expose_all_targets": false,
+              "replace_scm_with_registry": false
+            }
+          },
           "swiftpkg_sourcekitten": {
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
@@ -3968,9 +4012,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swift_argument_parser",
-              "commit": "309a47b2b1d9b5e991f36961c983ecec72275be3",
+              "commit": "cdd0ef3755280949551dc26dee5de9ddeda89f54",
               "remote": "https://github.com/apple/swift-argument-parser.git",
-              "version": "1.6.1",
+              "version": "1.6.2",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -3990,9 +4034,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swift_syntax",
-              "commit": "21b3b45635decd1a0b89968f81b6d9a93128f773",
+              "commit": "6673b05995983461eef015c4768f1483c245db22",
               "remote": "https://github.com/swiftlang/swift-syntax.git",
-              "version": "602.0.0-prerelease-2025-08-11",
+              "version": "603.0.0-prerelease-2025-09-15",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -4056,9 +4100,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_yams",
-              "commit": "d41ba4e7164c0838c6d48351f7575f7f762151fe",
+              "commit": "51b5127c7fb6ffac106ad6d199aaa33c5024895f",
               "remote": "https://github.com/jpsim/Yams.git",
-              "version": "6.1.0",
+              "version": "6.2.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -4079,6 +4123,7 @@
           "explicitRootModuleDirectDeps": [
             "swiftpkg_swift_hooks",
             "swiftpkg_playerui_swift_package",
+            "swiftpkg_swiftflipper",
             "swiftpkg_swiftlint",
             "swiftpkg_viewinspector",
             "swift_package"

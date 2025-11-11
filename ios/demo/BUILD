@@ -13,10 +13,10 @@ swift_library(
         "@swiftpkg_playerui_swift_package//:PlayerUI",
         "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
         "@swiftpkg_swift_hooks//:SwiftHooks",
+        "@swiftpkg_swiftflipper//:SwiftFlipper",
 
         # These are the components under development.
-        "//devtools/messenger/ios:PlayerUIDevToolsMessenger",
-        "//devtools/types/ios:PlayerUIDevToolsTypes",
+        "//devtools/plugin/ios:PlayerUIDevToolsDevtoolsPlugin",
     ]
 )
 

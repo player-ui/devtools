@@ -1,6 +1,8 @@
 import SwiftUI
 import PlayerUI
 import PlayerUISwiftUI
+import SwiftFlipper
+import PlayerUIDevToolsDevtoolsPlugin
 
 @main
 struct BazelApp: App {
@@ -14,7 +16,7 @@ struct BazelApp: App {
                     PluginDemos(model: model, demos: demosFromMocks)
                 }
             } else {
-                /* Not implementing since this is just for the demo app. */
+                // Fallback on earlier versions
             }
         }
     }
@@ -46,17 +48,36 @@ struct BazelApp: App {
     }
 }
 
-/// View model for the demo app. Used to debounce the search query input.
-class DemoViewModel: ObservableObject {
+/// View model for the demo app
+@MainActor class DemoViewModel: ObservableObject {
+    private let flipperClient = FlipperClient(connectionConfig: .init(), plugins: [])
+    private let flipperPlugin = DevtoolsFlipperPlugin()
+
+    // Published properties must be updated on the main actor. This is a SwiftUI requirement
+    @Published var messages: [String] = []
+
+    // -- Used to debounce the search query input. -- //
     // The input in the search field
     @Published var searchQuery = ""
     // The search query to use for filtering. This is updated on a debounce schedule
     @Published var debouncedSearchQuery = ""
 
     init() {
+        flipperClient.connectToFlipper()
+        flipperClient.addPlugin(flipperPlugin)
+        flipperPlugin.addListener(onMessageReceived(_:))
+
         self.$searchQuery
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .assign(to: &$debouncedSearchQuery)
+    }
+
+    func onMessageReceived(_ message: [String: Any]) {
+        // Keep up to 200 messages at a time
+        if self.messages.count > 200 {
+            self.messages = self.messages.suffix(199)
+        }
+        self.messages.append("Message received: \(message)")
     }
 }
 

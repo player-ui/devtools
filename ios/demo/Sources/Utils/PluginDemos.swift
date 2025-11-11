@@ -7,6 +7,8 @@
 
 import SwiftUI
 import PlayerUI
+import PlayerUIDevToolsDevtoolsPlugin
+import PlayerUIDevToolsTypes
 
 struct PluginDemos: View {
     @ObservedObject var model: DemoViewModel
@@ -92,7 +94,13 @@ enum Flow {
 extension [NativePlugin] {
     /// The list of all plugins to load in a demo, if none are specifically provided.
     static let defaults: [NativePlugin] = [
-        // TODO: Add all plugins here
-        // No plugins defined yet for devtools
+        DevtoolsPlayerPlugin(options: .init(playerID: "", handler: DemoDevtoolsHandler()))
     ]
+}
+
+struct DemoDevtoolsHandler: DevtoolsHandler {
+    var isActive: Bool = true
+    func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {
+        print("TEST received interaction: \(interaction)")
+    }
 }

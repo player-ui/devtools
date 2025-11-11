@@ -10,14 +10,17 @@ import PlayerUIDevToolsUtils
 
 /// Swift wrapper for the JavaScript Messenger implementation.
 /// Provides a native Swift API while delegating to the JS implementation.
-public class Messenger<Message: BaseEvent> {
+public class Messenger {
     /// A thread-safe way to access the JS Messenger
     private let jsMessengerActor: JSMessengerActor
+
+    /// This object in a format that JS can understand. DO NOT attempt to call methods on this directly.
+    public let jsCompatible: JSValue
 
     /// Initialize a new Messenger instance
     /// - Parameter options: The options to use for this instance
     /// - Throws: MessengerError if initialization fails
-    public init(options: MessengerOptions<Message>) throws {
+    public init(options: MessengerOptions) throws {
         // We can pull the jsContext from the MessengerOptions. This is helpful
         // because the options and Messenger need to have the same context
         guard let jsOptions = options.asJSValue, let context = jsOptions.context else {
@@ -33,15 +36,14 @@ public class Messenger<Message: BaseEvent> {
             withPolyfill: { $0.setupMessengerPolyfill(logger: logger) }
         )
         self.jsMessengerActor = JSMessengerActor(jsMessenger)
+        self.jsCompatible = jsMessenger
     }
 
     /// Send a message through the messenger.
     ///
     /// - Parameter message: The message to send
     public func sendMessage(_ message: Message) async throws {
-        let messageData = try JSONEncoder().encode(message)
-        let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
-        try await send(message: messageString)
+        try await send(message: message)
     }
 
     /// Send a message as a JSON string
@@ -52,7 +54,9 @@ public class Messenger<Message: BaseEvent> {
     }
 
     /// Helper to actually send the message.
-    private func send(message: String) async throws {
+    /// Usually, we want to avoid `Any`. However, the JS function accepts `[Any]` as arguments.
+    /// So in this case, it's... okay.
+    private func send(message: Any) async throws {
         guard let promise = await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [message]),
               !promise.isUndefined
         else {

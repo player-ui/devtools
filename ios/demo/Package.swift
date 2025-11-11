@@ -3,8 +3,19 @@
 
 import PackageDescription
 
-// These are the dependencies for the demo app + testing. They are not used by the plugins themselves.
-// This will NOT be used for any releases.
+// ⚠️⚠️⚠️⚠️⚠️⚠️⚠️ //
+// NOTE: When this file is changed, navigate to the directory of this file and run the 
+// following commands for the changes to take effect:
+// swift package update
+// bazel mod tidy
+// ⚠️⚠️⚠️⚠️⚠️⚠️⚠️ //
+
+/* SPM doesn't isolate dependencies that are not used by products. So relying on a tool, like 
+SwiftLint, a consuming user will still need to resolve that even though they would not use 
+it. This can cause conflicts for packages not used by the product at runtime
+
+So this file is used to generate dependencies for bazel so we can keep the actual 
+Package.swift clean since the spm rules for bazel only work from a Package.swift */
 let package = Package(
     name: "DemoBazelDependencies",
     platforms: [
@@ -16,6 +27,7 @@ let package = Package(
         // Just copy it over.
         .package(url: "https://github.com/intuit/swift-hooks.git", from: "0.1.0"),
         .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.11.2"),
+        .package(url:"https://github.com/chiragramani/SwiftFlipper.git", branch: "0.1"),
 
         // Formatting Dependencies
         .package(url: "https://github.com/realm/SwiftLint.git", from: "0.54.0"), // REQUIRED. Do not remove.
