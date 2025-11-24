@@ -1,8 +1,10 @@
 import SwiftUI
+import Combine
 import PlayerUI
 import PlayerUISwiftUI
 import SwiftFlipper
 import PlayerUIDevToolsDevtoolsPlugin
+import PlayerUIReferenceAssets
 
 @main
 struct BazelApp: App {
@@ -23,13 +25,19 @@ struct BazelApp: App {
 
     // These demos just load the mocks directly with the basic asset plugin added
     private var demosFromMocks: [Demo] {
-        guard let mocksPath = Bundle.mocks?.resourcePath else { return [] }
+        guard let mocksPath = Bundle.mocks?.resourcePath else {
+            return []
+        }
         let paths = getFlowPaths(from: mocksPath)
         return paths.map { path in
-            let relativePath = String(path
+            var relativePath = String(path
                 .dropFirst(mocksPath.count) // Remove the absolute path
                 .dropLast(5) // Remove the ".json"
             )
+            // Remove leading slash if present
+            if relativePath.hasPrefix("/") {
+                relativePath = String(relativePath.dropFirst())
+            }
             return Demo(name: relativePath, flows: [.file(relativePath)])
         }
     }
@@ -49,12 +57,9 @@ struct BazelApp: App {
 }
 
 /// View model for the demo app
-@MainActor class DemoViewModel: ObservableObject {
+class DemoViewModel: ObservableObject {
     private let flipperClient = FlipperClient(connectionConfig: .init(), plugins: [])
     private let flipperPlugin = DevtoolsFlipperPlugin()
-
-    // Published properties must be updated on the main actor. This is a SwiftUI requirement
-    @Published var messages: [String] = []
 
     // -- Used to debounce the search query input. -- //
     // The input in the search field
@@ -63,21 +68,19 @@ struct BazelApp: App {
     @Published var debouncedSearchQuery = ""
 
     init() {
-        flipperClient.connectToFlipper()
         flipperClient.addPlugin(flipperPlugin)
+        flipperClient.connectToFlipper()
         flipperPlugin.addListener(onMessageReceived(_:))
 
-        self.$searchQuery
+        $searchQuery
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .assign(to: &$debouncedSearchQuery)
     }
 
     func onMessageReceived(_ message: [String: Any]) {
-        // Keep up to 200 messages at a time
-        if self.messages.count > 200 {
-            self.messages = self.messages.suffix(199)
+        Task {
+            print("DEVTOOLS DEMO: '\(message)'")
         }
-        self.messages.append("Message received: \(message)")
     }
 }
 

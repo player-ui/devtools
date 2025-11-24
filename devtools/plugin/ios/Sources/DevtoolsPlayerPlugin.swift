@@ -27,7 +27,8 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
 
     public init(options: DevtoolsPluginOptions) {
         self.options = options
-        super.init(fileName: "DevtoolsPlugin.native", pluginName: "DevtoolsPlugin")
+        // TODO: try loading a different JS file?
+        super.init(fileName: "DevtoolsPlugin.native", pluginName: "DevtoolsPlugin.DevtoolsPlugin")
     }
 
     public func apply<P>(player: P) where P: HeadlessPlayer {
@@ -53,10 +54,10 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
             player.logger.e(error)
         }
 
-        player.hooks?.state.tap { state in
-            // TODO: wtf is happening here on android?
-            let temp: BaseFlowState = .init(status: .completed)
-        }
+//        player.hooks?.state.tap { state in
+//            // TODO: what is happening here on android?
+//            let temp: BaseFlowState = .init(status: .completed)
+//        }
     }
 
     public override func getUrlForFile(fileName: String) -> URL? {
@@ -65,7 +66,7 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
 
     public override func getArguments() -> [Any] { [options.jsCompatible] }
 
-    func registerMessenger(messenger: Messenger) -> Unsubscribe {
+    private func registerMessenger(messenger: Messenger) -> Unsubscribe {
         let unsubscribe = pluginRef?.invokeMethod("registerMessenger", withArguments: [messenger.jsCompatible])
         return { unsubscribe?.call(withArguments: []) }
     }

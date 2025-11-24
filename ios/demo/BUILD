@@ -12,6 +12,7 @@ swift_library(
         # DO NOT put packages that require XCTest here (i.e. UI test dependencies).
         "@swiftpkg_playerui_swift_package//:PlayerUI",
         "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
+        "@swiftpkg_playerui_swift_package//:PlayerUIReferenceAssets",
         "@swiftpkg_swift_hooks//:SwiftHooks",
         "@swiftpkg_swiftflipper//:SwiftFlipper",
 

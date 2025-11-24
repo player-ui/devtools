@@ -44,6 +44,8 @@
     "@player-ui/player": "0.12.0-next.1",
     "@player-ui/pubsub-plugin": "0.12.0-next.1",
     "@player-ui/react": "0.12.0-next.1",
+    "@player-ui/reference-assets-cli-preset": "0.12.0-next.1",
+    "@player-ui/reference-assets-plugin-components": "0.12.0-next.1",
     "@player-ui/reference-assets-plugin-react": "0.12.0-next.1",
     "@player-ui/storybook": "0.11.2",
     "@player-ui/types": "0.12.0-next.1",
