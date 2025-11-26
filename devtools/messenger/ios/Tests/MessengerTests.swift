@@ -54,7 +54,7 @@ final class MessengerTests: XCTestCase {
 
         // Check that the messenger has been registered with the interval manager
         await fulfillment(for: "Initialized")
-        let numTimers = await SharedMessengerLayer.asyncIntervalManager.timers.count
+        let numTimers = SharedMessengerLayer.asyncIntervalManager.timerCount
         XCTAssertEqual(numTimers, 1)
 
         // Prevents the de-init from triggering and unregistering the messenger
@@ -72,7 +72,7 @@ final class MessengerTests: XCTestCase {
         // So the deinit should have triggered and "destroy"ed this Messenger,
         // removing it from the timers
         await fulfillment(for: "Deinited")
-        let numTimers = await SharedMessengerLayer.asyncIntervalManager.timers.count
+        let numTimers = SharedMessengerLayer.asyncIntervalManager.timerCount
         XCTAssertEqual(numTimers, 0)
     }
 

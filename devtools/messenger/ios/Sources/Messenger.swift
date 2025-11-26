@@ -57,7 +57,7 @@ public class Messenger {
     /// Usually, we want to avoid `Any`. However, the JS function accepts `[Any]` as arguments.
     /// So in this case, it's... okay.
     private func send(message: Any) async throws {
-        guard let promise = await jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [message]),
+        guard let promise = jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [message]),
               !promise.isUndefined
         else {
             throw MessengerError.didNotReceiveJSPromise
@@ -74,9 +74,7 @@ public class Messenger {
     /// If this is not done, the interval will continue to send out beacons for this Messenger even when it doesn't exist anymore.
     /// This is the equivalent to the manual `destroy()` on the JS layer.
     deinit {
-        Task { [jsMessengerActor] in
-            await jsMessengerActor.messenger.invokeMethod("destroy", withArguments: [])
-        }
+        jsMessengerActor.messenger.invokeMethod("destroy", withArguments: [])
     }
 }
 
@@ -140,15 +138,9 @@ extension JSContext {
         { (callback, delay) in
             guard let callback, let delayInt32 = delay?.toInt32() else { return nil }
 
-            let semaphore = DispatchSemaphore(value: 0)
-            var timerId: Int = 0
-            Task {
-                // Use defer to ensure the thread is freed even if the Task is cancelled or fails
-                defer { semaphore.signal() }
-                timerId = await SharedMessengerLayer.asyncIntervalManager
-                    .createTimer(callback: callback, delay: Int(delayInt32))
-            }
-            semaphore.wait()
+            // Now synchronous - no blocking!
+            let timerId = SharedMessengerLayer.asyncIntervalManager
+                .createTimer(callback: callback, delay: Int(delayInt32))
 
             return JSValue(int32: Int32(timerId), in: self)
         }
@@ -158,13 +150,13 @@ extension JSContext {
     private var clearInterval: @convention(block) (JSValue?) -> Void {
         { timerId in
             guard let timerId = timerId?.toInt32() else { return }
-            Task { await SharedMessengerLayer.asyncIntervalManager.cancelTimer(id: Int(timerId)) }
+            SharedMessengerLayer.asyncIntervalManager.cancelTimer(id: Int(timerId))
         }
     }
 }
 
-/// A wrapper for the JSValue needed by the Messenger. The compiler will enforce thread-safety for actors.
-actor JSMessengerActor {
+/// A wrapper for the JSValue needed by the Messenger.
+class JSMessengerActor {
     let messenger: JSValue
 
     init(_ messenger: JSValue) {

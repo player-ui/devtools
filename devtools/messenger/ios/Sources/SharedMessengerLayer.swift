@@ -27,9 +27,10 @@ public class SharedMessengerLayer {
 /// Manages JavaScript timer storage and lifecycle. This is shared across all Messengers.
 ///
 /// This is used for to provide the  "interval" functions / polyfills for the JS layer.
-actor AsynchronousIntervalManager {
-    var timers: [Int: DispatchSourceTimer] = [:]
-    var timerCounter = 0
+final class AsynchronousIntervalManager {
+    private var timers: [Int: DispatchSourceTimer] = [:]
+    private var timerCounter = 0
+    private let lock = NSLock()
 
     init() {}
 
@@ -37,6 +38,9 @@ actor AsynchronousIntervalManager {
     ///
     /// - Parameter id: The timer ID returned from `createTimer`
     func cancelTimer(id: Int) {
+        lock.lock()
+        defer { lock.unlock() }
+
         if let timer = timers[id] {
             timer.cancel()
             timers.removeValue(forKey: id)
@@ -50,6 +54,9 @@ actor AsynchronousIntervalManager {
     ///   - delay: Interval in milliseconds between timer fires
     /// - Returns: Unique timer ID that can be used to cancel the timer
     func createTimer(callback: JSValue, delay: Int) -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+
         let timer = DispatchSource.makeTimerSource(queue: .intervals)
         timer.schedule(deadline: .now(), repeating: .milliseconds(delay))
         let onInterval = DispatchWorkItem { callback.call(withArguments: []) }
@@ -60,6 +67,14 @@ actor AsynchronousIntervalManager {
         let timerId = timerCounter
         timers[timerId] = timer
         return timerId
+    }
+
+    /// Returns the current number of active timers
+    /// - Returns: The count of active timers
+    internal var timerCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return timers.count
     }
 }
 
