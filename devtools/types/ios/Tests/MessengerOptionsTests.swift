@@ -14,10 +14,13 @@ final class MessengerOptionsTests: XCTestCase {
     // Mainly tests for asJSValue since that's the main functionality of MessengerOptions
 
     func testAsJSValueConvertsSimplePropertiesCorrectly() throws {
-        let options = MessengerOptions<TestEvent>(
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
             context: .devtools,
             beaconIntervalMS: 3000,
-            isDebug: true, // false tests can lead to false positives, so test true
+            isDebug: true,
+            logger: MockLogger(),
             sendMessage: { _ in },
             addListener: { _ in },
             removeListener: { _ in },
@@ -34,7 +37,16 @@ final class MessengerOptionsTests: XCTestCase {
 
     func testAsJSValueConvertsLoggerCorrectly() {
         let logger = MockLogger()
-        let options = MessengerOptions<TestEvent>(logger: logger)
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
+            context: .devtools,
+            logger: logger,
+            sendMessage: { _ in },
+            addListener: { _ in },
+            removeListener: { _ in },
+            messageCallback: { _ in }
+        )
         let jsOptions = options.asJSValue
 
         // Test that the logger function can be called and the message is logged
@@ -46,22 +58,27 @@ final class MessengerOptionsTests: XCTestCase {
     }
 
     func testAsJSValueConvertsSendMessageCorrectly() {
-        var actualMessage: TestEvent?
+        var actualMessage: Message?
         var isSendMessageTriggered = false
-        let options = MessengerOptions<TestEvent>(
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
+            context: .devtools,
+            logger: MockLogger(),
             sendMessage: { message in
                 actualMessage = message
                 isSendMessageTriggered = true
-            }
+            },
+            addListener: { _ in },
+            removeListener: { _ in },
+            messageCallback: { _ in }
         )
         let jsOptions = options.asJSValue
 
         // Test that the function can be called and the callback is executed
-        let expectedMessage = TestEvent(payload: "test")
-        let arg = [
-            "type": expectedMessage.type,
-            "payload": expectedMessage.payload,
-            "target": expectedMessage.target
+        let arg: [String: Any] = [
+            "type": "TEST",
+            "payload": "test"
         ]
         jsOptions?.objectForKeyedSubscript("sendMessage")
             .call(withArguments: [arg])
@@ -70,81 +87,91 @@ final class MessengerOptionsTests: XCTestCase {
         wait(for: "Message sent")
 
         XCTAssert(isSendMessageTriggered)
-        XCTAssertEqual(actualMessage, expectedMessage)
+        XCTAssertNotNil(actualMessage)
+        XCTAssertEqual(actualMessage?["type"] as? String, "TEST")
+        XCTAssertEqual(actualMessage?["payload"] as? String, "test")
     }
 
     func testAddListener() throws {
-        var isListeneredRegistered = false
-        var isListenerCalled = false
-        var capturedCallback: ((MTransaction) -> Void)?
+        var isListenerRegistered = false
+        var capturedCallback: MessageListener?
 
-        guard let options = MessengerOptions(
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
+            context: .devtools,
+            logger: MockLogger(),
+            sendMessage: { _ in },
             addListener: { callback in
-                isListeneredRegistered = true
+                isListenerRegistered = true
                 capturedCallback = callback
-            }
-        ).asJSValue else {
+            },
+            removeListener: { _ in },
+            messageCallback: { _ in }
+        )
+
+        guard let jsOptions = options.asJSValue else {
             XCTFail("Could not convert options to JSValue")
             return
         }
 
         // For keeping track of the callback registered
-        var actualCallbackArgument: MTransaction?
+        var isListenerCalled = false
+        var actualCallbackArgument: Message?
         let listener: @convention(block) (JSValue) -> Void = { arg in
             isListenerCalled = true
-            do {
-                let data = Data(arg.toString().utf8)
-                actualCallbackArgument = try JSONDecoder().decode(
-                    MTransaction.self,
-                    from: data
-                )
-            } catch {
-                XCTFail("Could not decode callback: \(error)")
-            }
+            actualCallbackArgument = arg.toDictionary() as? Message
         }
-        let jsCallbackValue = JSValue(object: listener, in: options.context)
+        let jsCallbackValue = JSValue(object: listener, in: .shared)
 
         // Call the addListener function with the mock callback.
-        // This should populated "capturedCallback" with the appopriate callback
-        options.objectForKeyedSubscript("addListener")
+        // This should populate "capturedCallback" with the appropriate callback
+        jsOptions.objectForKeyedSubscript("addListener")
             .call(withArguments: [jsCallbackValue as Any])
 
         // Verify that addListener was called
-        XCTAssert(isListeneredRegistered)
+        XCTAssert(isListenerRegistered)
 
         // Simulate a message being received by calling the captured callback
-        capturedCallback?(.simple)
+        let testMessage: Message = ["type": "test", "payload": "data"]
+        capturedCallback?(testMessage)
 
-        // Verify that the JS callback was invoked with the transaction data
+        // Verify that the JS callback was invoked with the message data
         wait(for: "JS callback invoked")
         XCTAssertTrue(isListenerCalled)
-        XCTAssertEqual(actualCallbackArgument, .simple)
+        XCTAssertNotNil(actualCallbackArgument)
     }
 
-    /// Check that:
-    /// 1. removeListener is triggered through the JS layer
-    /// 2. removeListener is called with a valid Swift callback even when called from the JS layer
     func testRemoveListener() {
         var isListenerRegistered = false
-        var isListenerCalled = false
-        var capturedCallback: ((MessengerTransaction<TestEvent>) -> Void)?
+        var capturedCallback: MessageListener?
 
-        guard let options = MessengerOptions<TestEvent>(
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
+            context: .devtools,
+            logger: MockLogger(),
+            sendMessage: { _ in },
+            addListener: { _ in },
             removeListener: { callback in
                 isListenerRegistered = true
                 capturedCallback = callback
-            }
-        ).asJSValue else {
+            },
+            messageCallback: { _ in }
+        )
+
+        guard let jsOptions = options.asJSValue else {
             XCTFail("Could not convert options to JSValue")
             return
         }
 
         // Call the removeListener function with a mock callback
+        var isListenerCalled = false
         let listener: @convention(block) (JSValue) -> Void = { _ in
             isListenerCalled = true
         }
-        let arg = JSValue(object: listener, in: options.context)
-        options.objectForKeyedSubscript("removeListener")
+        let arg = JSValue(object: listener, in: .shared)
+        jsOptions.objectForKeyedSubscript("removeListener")
             .call(withArguments: [arg as Any])
 
         // Verify that removeListener was called
@@ -152,141 +179,83 @@ final class MessengerOptionsTests: XCTestCase {
         XCTAssertNotNil(capturedCallback)
 
         // Simulate a listener being removed by calling the captured callback
-        capturedCallback?(.simple)
+        let testMessage: Message = ["type": "test"]
+        capturedCallback?(testMessage)
 
         // Verify that the JS callback was invoked
         wait(for: "Callback invoked")
         XCTAssertTrue(isListenerCalled)
     }
 
-    /// Check that:
-    /// 1. The messageCallback is triggered through the JS layer
-    /// 2. The messageCallback receives a valid Swift transaction even when called from the JS layer
     func testMessageCallback() {
         var isCalled = false
-        var argumentReceived: MTransaction?
+        var argumentReceived: Message?
 
-        guard let options = MessengerOptions<TestEvent>(
-            messageCallback: { transaction in
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
+            context: .devtools,
+            logger: MockLogger(),
+            sendMessage: { _ in },
+            addListener: { _ in },
+            removeListener: { _ in },
+            messageCallback: { message in
                 isCalled = true
-                argumentReceived = transaction
+                argumentReceived = message
             }
-        ).asJSValue else {
+        )
+
+        guard let jsOptions = options.asJSValue else {
             XCTFail("Could not convert options to JSValue")
             return
         }
 
-        // Call the handleFailedMessage callback with the test value
-        let expectedArgument = MTransaction.simple
-        let arg: [String: Any] = .simple
-        options.objectForKeyedSubscript("messageCallback")
-            .call(withArguments: [arg as Any])
+        // Call the messageCallback with a test message
+        let testMessage: [String: Any] = ["type": "test", "payload": "data"]
+        jsOptions.objectForKeyedSubscript("messageCallback")
+            .call(withArguments: [testMessage as Any])
 
-        // Verify that the callback was invoked with the correct transaction
+        // Verify that the callback was invoked with the correct message
         wait(for: "Callback invoked")
         XCTAssertTrue(isCalled)
-        XCTAssertEqual(argumentReceived, expectedArgument)
+        XCTAssertNotNil(argumentReceived)
+        XCTAssertEqual(argumentReceived?["type"] as? String, "test")
     }
 
-    /// Check that:
-    /// 1. The handleFailedMessage is triggered through the JS layer
-    /// 2. The handleFailedMessage receives a valid Swift transaction even when called from the JS layer
     func testHandleFailedMessage() {
         var isCalled = false
-        var argumentReceived: MTransaction?
+        var argumentReceived: Message?
 
-        guard let options = MessengerOptions<TestEvent>(
-            handleFailedMessage: { transaction in
+        let options = MessengerOptions(
+            id: "test-id",
+            jsContext: .shared,
+            context: .devtools,
+            logger: MockLogger(),
+            sendMessage: { _ in },
+            addListener: { _ in },
+            removeListener: { _ in },
+            messageCallback: { _ in },
+            handleFailedMessage: { message in
                 isCalled = true
-                argumentReceived = transaction
+                argumentReceived = message
             }
-        ).asJSValue else {
+        )
+
+        guard let jsOptions = options.asJSValue else {
             XCTFail("Could not convert options to JSValue")
             return
         }
 
+        // Call the handleFailedMessage callback with a test message
+        let testMessage: [String: Any] = ["type": "failed", "error": "test error"]
+        jsOptions.objectForKeyedSubscript("handleFailedMessage")
+            .call(withArguments: [testMessage as Any])
 
-        // Call the handleFailedMessage callback with the test value
-        let expectedArgument = MTransaction.simple
-        let arg: [String: Any] = .simple
-        options.objectForKeyedSubscript("handleFailedMessage")
-            .call(withArguments: [arg as Any])
-
-        // Verify that the callback was invoked with the correct transaction
+        // Verify that the callback was invoked with the correct message
         wait(for: "Callback invoked")
         XCTAssertTrue(isCalled)
-        XCTAssertEqual(argumentReceived, expectedArgument)
-    }
-}
-
-extension MessengerOptions {
-    /// Convenience init for testing. Provides a default ID and JSContext
-    convenience init(
-        id: String = "test-id",
-        context: MessengerContext = .devtools,
-        beaconIntervalMS: Int = 1000,
-        isDebug: Bool = false,
-        logger: MessengerLogger = MockLogger(),
-        sendMessage: @escaping (Message) async -> Void = { _ in },
-        addListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void = { _ in },
-        removeListener: @escaping (@escaping (MessengerTransaction<Message>) -> Void) -> Void = { _ in },
-        messageCallback: @escaping (MessengerTransaction<Message>) -> Void = { _ in },
-        handleFailedMessage: ((MessengerTransaction<Message>) -> Void)? = nil
-    ) {
-        self.init(
-            id: id,
-            jsContext: .shared,
-            context: context,
-            beaconIntervalMS: beaconIntervalMS,
-            isDebug: isDebug,
-            logger: logger,
-            sendMessage: sendMessage,
-            addListener: addListener,
-            removeListener: removeListener,
-            messageCallback: messageCallback,
-            handleFailedMessage: handleFailedMessage
-        )
-    }
-}
-
-typealias MTransaction = MessengerTransaction<TestEvent>
-extension MTransaction {
-    static let simple = MTransaction(
-        message: .init(type: "test"),
-        metaData: .init(
-            id: 1234,
-            timestamp: 5678,
-            sender: "test",
-            context: .player,
-            isMessenger: true
-        )
-    )
-}
-
-extension [String: Any] {
-    static let simple: Self = [
-        "type": "test",
-        "id": 1234,
-        "timestamp": 5678,
-        "sender": "test",
-        "context": "player",
-        "_messenger_": true,
-    ]
-}
-
-// MARK: - Test Event Types
-
-struct TestEvent: BaseEvent {
-    typealias Payload = String
-
-    let type: String
-    let payload: String?
-    let target: String?
-
-    init(type: String = "TEST", payload: String? = nil, target: String? = nil) {
-        self.type = type
-        self.payload = payload
-        self.target = target
+        XCTAssertNotNil(argumentReceived)
+        XCTAssertEqual(argumentReceived?["type"] as? String, "failed")
     }
 }
 

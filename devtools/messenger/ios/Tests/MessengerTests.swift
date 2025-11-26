@@ -14,16 +14,16 @@ import JavaScriptCore
 final class MessengerTests: XCTestCase {
 
     let jsContext: JSContext = JSContext()
-    var tracker: MockMessageTracker = MockMessageTracker()
+    var tracker: MockMessageStore = MockMessageStore()
     var mockAPI: MockMessagingAPI!
     var mockLogger: MockLogger!
 
-    var defaultOptions: MessengerOptions<TestEvent> { makeOptions() }
+    var defaultOptions: MessengerOptions { makeOptions() }
 
     func makeOptions(
         id: String = "test-id",
         isDebug: Bool = false
-    ) -> MessengerOptions<TestEvent> {
+    ) -> MessengerOptions {
         MessengerOptions(
             id: id,
             jsContext: jsContext,
@@ -78,17 +78,19 @@ final class MessengerTests: XCTestCase {
 
     func testSendMessage() async throws {
         let messenger = try Messenger(options: defaultOptions)
-        let testMessage = TestEvent(
-            payload: TestPayload(count: 42),
-            target: "test-target"
-        )
-        try await messenger.sendMessage(testMessage)
+        try await messenger.sendMessage(.testMessage)
 
         // Expect 2 messages: the "I am here" beacon followed by the actual message
         let numMessages = await tracker.sentMessages.count
         XCTAssertGreaterThanOrEqual(numMessages, 1)
-        let message = await tracker.sentMessages.first { $0.type == "TEST" }
-        XCTAssertEqual(message, testMessage)
+        let message = await tracker.sentMessages.first { $0["type"] as? String == "TEST" }
+        XCTAssertNotNil(message)
+        XCTAssertEqual(message?["target"] as? String, "test-target")
+        if let payload = message?["payload"] as? [String: Any] {
+            XCTAssertEqual(payload["count"] as? Int, 42)
+        } else {
+            XCTFail("Payload not found")
+        }
     }
 
     func testSendMessageAsString() async throws {
@@ -107,9 +109,14 @@ final class MessengerTests: XCTestCase {
         // Expect 2 messages: the "I am here" beacon followed by the actual message
         let numMessages = await tracker.sentMessages.count
         XCTAssertGreaterThanOrEqual(numMessages, 1)
-        let message = await tracker.sentMessages.first { $0.type == "TEST" }
-        XCTAssertEqual(message?.payload?.count, 99)
-        XCTAssertEqual(message?.target, "string-target")
+        let message = await tracker.sentMessages.first { $0["type"] as? String == "TEST" }
+        XCTAssertNotNil(message)
+        XCTAssertEqual(message?["target"] as? String, "string-target")
+        if let payload = message?["payload"] as? [String: Any] {
+            XCTAssertEqual(payload["count"] as? Int, 99)
+        } else {
+            XCTFail("Payload not found")
+        }
     }
 
     func testLogsWhenDebugTrue() async throws {
@@ -136,12 +143,12 @@ final class MessengerTests: XCTestCase {
         let messenger2 = try Messenger(options: makeOptions(id: "test-1"))
 
         // Send messages from both
-        try await messenger1.sendMessage(TestEvent(payload: TestPayload(count: 1)))
-        try await messenger2.sendMessage(TestEvent(payload: TestPayload(count: 2)))
+        try await messenger1.sendMessage(.testMessageWithCount(1))
+        try await messenger2.sendMessage(.testMessageWithCount(2))
 
         // Verify specific messages were sent by checking payload content
         let sentMessages = await tracker.sentMessages
-        let sentCounts = sentMessages.compactMap { $0.payload?.count }
+        let sentCounts = sentMessages.compactMap { ($0["payload"] as? [String: Any])?["count"] as? Int }
         XCTAssertTrue(sentCounts.contains(1), "Message from messenger1 should be sent")
         XCTAssertTrue(sentCounts.contains(2), "Message from messenger2 should be sent")
     }
@@ -161,34 +168,31 @@ final class MessengerTests: XCTestCase {
     }
 }
 
-// MARK: - Test Event Types
+// MARK: - Test Message Helpers
 
-/// A test event type used for unit testing the Messenger
-struct TestEvent: BaseEvent {
-    typealias Payload = TestPayload
+extension Message {
+    /// Standard test message with count of 42
+    static let testMessage: Message = [
+        "type": "TEST",
+        "payload": ["count": 42],
+        "target": "test-target"
+    ]
 
-    let type: String
-    let payload: TestPayload?
-    let target: String?
-
-    init(type: String = "TEST", payload: TestPayload? = nil, target: String? = nil) {
-        self.type = type
-        self.payload = payload
-        self.target = target
+    /// Create a test message with a specific count
+    static func testMessageWithCount(_ count: Int) -> Message {
+        return [
+            "type": "TEST",
+            "payload": ["count": count]
+        ]
     }
-}
-
-/// A test payload structure for testing message serialization
-struct TestPayload: Codable, Equatable {
-    let count: Int
 }
 
 // MARK: - Mock Implementations
 
 /// Mock logger implementation for testing
 class MockLogger: MessengerLogger {
-    let tracker: MockMessageTracker
-    init(tracker: MockMessageTracker) {
+    let tracker: MockMessageStore
+    init(tracker: MockMessageStore) {
         self.tracker = tracker
     }
 
@@ -204,16 +208,18 @@ class MockLogger: MessengerLogger {
 
 /// Mock messaging API for testing Messenger functionality
 /// This is an actor to ensure that all of the values are kept thread-safe.
-actor MockMessageTracker {
+/// An actor that tracks messages, listeners, and logs for Messenger tests.
+/// This can be used as a mock message store for assertions and state tracking.
+actor MockMessageStore {
     /// Array of all logged messages for test assertions
     private(set) var loggedMessages: [String] = []
-    private(set) var sentMessages: [TestEvent] = []
-    private(set) var listeners: [(MessengerTransaction<TestEvent>) -> Void] = []
+    private(set) var sentMessages: [Message] = []
+    private(set) var listeners: [MessageListener] = []
     private(set) var sendMessageCallCount = 0
     private(set) var addListenerCallCount = 0
     private(set) var removeListenerCallCount = 0
     /// Messages received by `messageCallback`
-    private(set) var incomingMessages: [MessengerTransaction<TestEvent>] = []
+    private(set) var incomingMessages: [Message] = []
 
     /// Resets all tracked state and counters
     func reset() {
@@ -227,27 +233,16 @@ actor MockMessageTracker {
     }
 
     /// Sends a message and notifies all registered listeners
-    /// - Parameter message: The test event to send
-    /// - Throws: Any errors that occur during message processing
-    func sendMessage(_ message: TestEvent) {
+    /// - Parameter message: The message to send
+    func sendMessage(_ message: Message) {
         sendMessageCallCount += 1
         sentMessages.append(message)
-
-        let metadata = TransactionMetaData(
-            id: sendMessageCallCount,
-            timestamp: Int(Date().timeIntervalSince1970 * 1000),
-            sender: "mock-sender",
-            context: .player,
-            isMessenger: true
-        )
-
-        let transaction = MessengerTransaction<TestEvent>(message: message, metaData: metadata)
-        listeners.forEach { $0(transaction) }
+        listeners.forEach { $0(message) }
     }
 
     /// Registers a new message listener
     /// - Parameter callback: The callback to invoke when messages are received
-    func addListener(_ callback: @escaping (MessengerTransaction<TestEvent>) -> Void) {
+    func addListener(_ callback: @escaping MessageListener) {
         addListenerCallCount += 1
         listeners.append(callback)
     }
@@ -255,7 +250,7 @@ actor MockMessageTracker {
     /// Removes a message listener
     /// In a real implementation, we'd remove the specific callback. For testing purposes, we'll just track the call count
     /// - Parameter callback: The callback to remove from the listeners list
-    func removeListener(_ callback: @escaping (MessengerTransaction<TestEvent>) -> Void) {
+    func removeListener(_ callback: @escaping MessageListener) {
         removeListenerCallCount += 1
     }
 
@@ -269,29 +264,29 @@ actor MockMessageTracker {
 ///
 /// This allows us to access the isolated values. We use high priority tasks to ensure the tasks happen asap
 class MockMessagingAPI {
-    private let tracker: MockMessageTracker
+    private let tracker: MockMessageStore
 
-    init(tracker: MockMessageTracker) {
+    init(tracker: MockMessageStore) {
         self.tracker = tracker
     }
 
     /// Sends a message and notifies all registered listeners
-    /// - Parameter message: The test event to send
+    /// - Parameter message: The message to send
     /// - Throws: Any errors that occur during message processing
-    func sendMessage(_ message: TestEvent) async {
+    func sendMessage(_ message: Message) async {
         await tracker.sendMessage(message)
     }
 
     /// Registers a new message listener
     /// - Parameter callback: The callback to invoke when messages are received
-    func addListener(_ callback: @escaping (MessengerTransaction<TestEvent>) -> Void) {
+    func addListener(_ callback: @escaping MessageListener) {
         Task(priority: .high) { await tracker.addListener(callback) }
     }
 
     /// Removes a message listener
     /// In a real implementation, we'd remove the specific callback. For testing purposes, we'll just track the call count
     /// - Parameter callback: The callback to remove from the listeners list
-    func removeListener(_ callback: @escaping (MessengerTransaction<TestEvent>) -> Void) {
+    func removeListener(_ callback: @escaping MessageListener) {
         Task(priority: .high) { await tracker.removeListener(callback) }
     }
 }

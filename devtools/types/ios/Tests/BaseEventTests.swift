@@ -210,13 +210,13 @@ struct DataPayload: Codable, Equatable {
 }
 
 // Concrete test event implementations matching the new BaseEvent protocol
-struct SimpleTestEvent: BaseEvent {
+struct SimpleTestEvent: BaseEvent, Codable {
     typealias Payload = LoginPayload
-    
+
     let type: String
     let payload: LoginPayload?
     let target: String?
-    
+
     init(type: String, payload: LoginPayload?, target: String? = nil) {
         self.type = type
         self.payload = payload
@@ -224,13 +224,13 @@ struct SimpleTestEvent: BaseEvent {
     }
 }
 
-struct NilPayloadEvent: BaseEvent {
+struct NilPayloadEvent: BaseEvent, Codable {
     typealias Payload = String
-    
+
     let type: String
     let payload: String?
     let target: String?
-    
+
     init(type: String, target: String? = nil) {
         self.type = type
         self.payload = nil
@@ -238,13 +238,13 @@ struct NilPayloadEvent: BaseEvent {
     }
 }
 
-struct ComplexPayloadEvent: BaseEvent {
+struct ComplexPayloadEvent: BaseEvent, Codable {
     typealias Payload = ComplexPayload
-    
+
     let type: String
     let payload: ComplexPayload?
     let target: String?
-    
+
     init(type: String, payload: ComplexPayload?, target: String? = nil) {
         self.type = type
         self.payload = payload

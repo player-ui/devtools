@@ -3,7 +3,7 @@ import Combine
 import PlayerUI
 import PlayerUISwiftUI
 import SwiftFlipper
-import PlayerUIDevToolsDevtoolsPlugin
+import PlayerUIDevToolsPlugins
 import PlayerUIReferenceAssets
 
 @main

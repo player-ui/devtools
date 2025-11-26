@@ -15,12 +15,12 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
 
     /// The id of the plugin
     public var pluginID: String? {
-        get { pluginRef?.invokeMethod("pluginID", withArguments: []).toString() }
+        get { pluginRef?.forProperty("pluginID")?.toString() }
     }
 
     /// The id of the player
     public var playerID: String? {
-        get { pluginRef?.invokeMethod("playerID", withArguments: []).toString() }
+        get { pluginRef?.forProperty("playerID")?.toString() }
     }
 
     // TODO: do we need the store to be public?
@@ -75,17 +75,52 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
 public struct DevtoolsPluginOptions {
     let playerID: String
     let handler: DevtoolsHandler
+    let pluginData: PluginData
 
-    public init(playerID: String, handler: DevtoolsHandler) {
+    public init(playerID: String, handler: DevtoolsHandler, pluginData: PluginData? = nil) {
         self.playerID = playerID
         self.handler = handler
+        self.pluginData = pluginData ?? PluginData(
+            id: "default-plugin",
+            version: "1.0.0",
+            name: "DevTools Plugin",
+            description: "DevTools Plugin",
+            flow: [:]
+        )
     }
 
     /// Format the options into a type JS can parse
     var jsCompatible: [String: Any] {
         [
             "playerID": playerID,
-            "handler": handler.jsCompatible
+            "handler": handler.jsCompatible,
+            "pluginData": pluginData.jsCompatible
+        ]
+    }
+}
+
+public struct PluginData {
+    let id: String
+    let version: String
+    let name: String
+    let description: String
+    let flow: [String: Any]
+
+    public init(id: String, version: String, name: String, description: String, flow: [String: Any]) {
+        self.id = id
+        self.version = version
+        self.name = name
+        self.description = description
+        self.flow = flow
+    }
+
+    var jsCompatible: [String: Any] {
+        [
+            "id": id,
+            "version": version,
+            "name": name,
+            "description": description,
+            "flow": flow
         ]
     }
 }
