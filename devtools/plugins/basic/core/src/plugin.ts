@@ -1,4 +1,4 @@
-import { DevtoolsPlugin, DevtoolsPluginOptions, genDataChangeTransaction } from "@player-devtools/plugin";
+import { DevtoolsPlugin, DevtoolsPluginOptions, genDataChangeTransaction, generateUUID } from "@player-devtools/plugin";
 import type { DevtoolsPluginInteractionEvent, PluginData} from "@player-devtools/types";
 import type {
     DataController,
@@ -204,7 +204,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
         if (!evaluator) {
             return {
-                id: this.generateUUID(),
+                id: generateUUID(),
                 severity: "error",
                 result: "Expression evaluator not available",
                 expression,
@@ -221,14 +221,14 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
             const evaluatorResult = evaluator.evaluate(expression);
 
             return {
-                id: this.generateUUID(),
+                id: generateUUID(),
                 result: evaluatorResult,
                 expression,
             };
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error ?? "Something went wrong");
             return {
-                id: this.generateUUID(),
+                id: generateUUID(),
                 severity: "error",
                 result: message,
                 expression,
