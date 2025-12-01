@@ -10,6 +10,7 @@ import PlayerUI
 import PlayerUIDevToolsPlugins
 import PlayerUIDevToolsTypes
 import PlayerUIReferenceAssets
+import PlayerUIDevToolsBasicPlugin
 
 struct PluginDemos: View {
     @ObservedObject var model: DemoViewModel
@@ -96,13 +97,6 @@ extension [NativePlugin] {
     /// The list of all plugins to load in a demo, if none are specifically provided.
     static let defaults: [NativePlugin] = [
         ReferenceAssetsPlugin(),
-        DevtoolsPlayerPlugin(options: .init(playerID: "demo-player", handler: DemoDevtoolsHandler()))
+        BasicDevtoolsPlugin(id: "demo")
     ]
-}
-
-struct DemoDevtoolsHandler: DevtoolsHandler {
-    var isActive: Bool = true
-    func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {
-        print("DEVTOOLS DEMO: received interaction: \(interaction)")
-    }
 }

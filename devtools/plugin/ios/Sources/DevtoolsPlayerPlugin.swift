@@ -6,7 +6,7 @@ import PlayerUIDevToolsMessenger
 import PlayerUILogger
 
 /// A Player Plugin that provides DevTools capabilities via Flipper
-public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
+open class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
     /// Configuration for this plugin
     let options: DevtoolsPluginOptions
 
@@ -23,11 +23,8 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
         get { pluginRef?.forProperty("playerID")?.toString() }
     }
 
-    // TODO: do we need the store to be public?
-
     public init(options: DevtoolsPluginOptions) {
         self.options = options
-        // TODO: try loading a different JS file?
         super.init(fileName: "DevtoolsPlugin.native", pluginName: "DevtoolsPlugin.DevtoolsPlugin")
     }
 
@@ -75,27 +72,24 @@ public class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
 public struct DevtoolsPluginOptions {
     let playerID: String
     let handler: DevtoolsHandler
-    let pluginData: PluginData
+    let pluginData: PluginData?
 
     public init(playerID: String, handler: DevtoolsHandler, pluginData: PluginData? = nil) {
         self.playerID = playerID
         self.handler = handler
-        self.pluginData = pluginData ?? PluginData(
-            id: "default-plugin",
-            version: "1.0.0",
-            name: "DevTools Plugin",
-            description: "DevTools Plugin",
-            flow: [:]
-        )
+        self.pluginData = pluginData
     }
 
     /// Format the options into a type JS can parse
-    var jsCompatible: [String: Any] {
-        [
+    public var jsCompatible: [String: Any] {
+        var dict: [String: Any] = [
             "playerID": playerID,
-            "handler": handler.jsCompatible,
-            "pluginData": pluginData.jsCompatible
+            "handler": handler.jsCompatible
         ]
+        if let pluginData {
+            dict["pluginData"] = pluginData.jsCompatible
+        }
+        return dict
     }
 }
 
