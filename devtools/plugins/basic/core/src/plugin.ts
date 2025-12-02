@@ -69,14 +69,21 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     overrideFlow?: Player["start"];
 
     apply(player: Player): void {
-        if (!this.checkIfDevtoolsIsActive()) return;
+        console.log("DEBUG [BasicDevtoolsPlugin]: apply() called");
+        if (!this.checkIfDevtoolsIsActive()) {
+            console.log("DEBUG [BasicDevtoolsPlugin]: DevTools is not active, returning early");
+            return;
+        }
 
+        console.log("DEBUG [BasicDevtoolsPlugin]: DevTools is active, setting up plugin");
         this.options.pluginData.flow.data!.playerConfig = {
             version: player.getVersion(),
             plugins: player.getPlugins().map((plugin) => plugin.name),
         };
 
+        console.log("DEBUG [BasicDevtoolsPlugin]: Calling super.apply()");
         super.apply(player);
+        console.log("DEBUG [BasicDevtoolsPlugin]: super.apply() completed");
 
         const playerID = this.playerID;
 
@@ -104,8 +111,11 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         // this.store.dispatch(transaction);
 
         // Data
+        console.log("DEBUG [BasicDevtoolsPlugin]: Tapping dataController hook");
         player.hooks.dataController.tap(this.name, (dataController) => {
+            console.log("DEBUG [BasicDevtoolsPlugin]: dataController hook called");
             dataController.hooks.onUpdate.tap(this.name, (updates) => {
+                console.log("DEBUG [BasicDevtoolsPlugin]: dataController.onUpdate hook called");
                 // TODO: Do I even need to store this anymore?
                 this.data = produce(this.data, (draft) => {
                     updates.forEach(({ binding, newValue }) => {
@@ -136,8 +146,10 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // Logs
+        console.log("DEBUG [BasicDevtoolsPlugin]: Tapping logger.log hook");
         this.logger = new WeakRef(player.logger);
         player.logger.hooks.log.tap(this.name, (severity, message) => {
+            console.log("DEBUG [BasicDevtoolsPlugin]: logger.log hook called");
             this.logs = [...this.logs, { severity, message }];
 
             const state = this.store.getState();
@@ -161,7 +173,9 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // Flow
+        console.log("DEBUG [BasicDevtoolsPlugin]: Tapping onStart hook");
         player.hooks.onStart.tap(this.name, (f) => {
+            console.log("DEBUG [BasicDevtoolsPlugin]: onStart hook called");
             this.flow = JSON.parse(JSON.stringify(f));
 
             const state = this.store.getState();
@@ -185,12 +199,16 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // View
+        console.log("DEBUG [BasicDevtoolsPlugin]: Tapping view hook");
         player.hooks.view.tap(this.name, (view) => {
+            console.log("DEBUG [BasicDevtoolsPlugin]: view hook called");
             this.view = new WeakRef(view);
         });
 
         // Expression evaluator
+        console.log("DEBUG [BasicDevtoolsPlugin]: Tapping expressionEvaluator hook");
         player.hooks.expressionEvaluator.tap(this.name, (evaluator) => {
+            console.log("DEBUG [BasicDevtoolsPlugin]: expressionEvaluator hook called");
             this.expressionEvaluator = new WeakRef(evaluator);
         });
 

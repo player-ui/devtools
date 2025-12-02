@@ -6,27 +6,9 @@ import PlayerUIDevToolsMessenger
 import PlayerUILogger
 
 /// A Player Plugin that provides DevTools capabilities via Flipper
-open class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
-    /// Configuration for this plugin
-    let options: DevtoolsPluginOptions
-
+open class DevtoolsPlayerPlugin: BaseDevtoolsPlayerPlugin, NativePlugin {
     /// Our connection to the flipper server
     private let flipperPlugin = DevtoolsFlipperPlugin()
-
-    /// The id of the plugin
-    public var pluginID: String? {
-        get { pluginRef?.forProperty("pluginID")?.toString() }
-    }
-
-    /// The id of the player
-    public var playerID: String? {
-        get { pluginRef?.forProperty("playerID")?.toString() }
-    }
-
-    public init(options: DevtoolsPluginOptions) {
-        self.options = options
-        super.init(fileName: "DevtoolsPlugin.native", pluginName: "DevtoolsPlugin.DevtoolsPlugin")
-    }
 
     public func apply<P>(player: P) where P: HeadlessPlayer {
         guard let jsContext = context else {
@@ -57,16 +39,37 @@ open class DevtoolsPlayerPlugin: JSBasePlugin, NativePlugin {
 //        }
     }
 
+    private func registerMessenger(messenger: Messenger) -> Unsubscribe {
+        let unsubscribe = pluginRef?.invokeMethod("registerMessenger", withArguments: [messenger.jsCompatible])
+        return { unsubscribe?.call(withArguments: []) }
+    }
+}
+
+/// A Player Plugin that provides DevTools capabilities via Flipper
+open class BaseDevtoolsPlayerPlugin: JSBasePlugin { // TODO: split out to different folders
+    /// Configuration for this plugin
+    let options: DevtoolsPluginOptions
+
+    /// The id of the plugin
+    public var pluginID: String? {
+        get { pluginRef?.forProperty("pluginID")?.toString() }
+    }
+
+    /// The id of the player
+    public var playerID: String? {
+        get { pluginRef?.forProperty("playerID")?.toString() }
+    }
+
+    public init(options: DevtoolsPluginOptions) {
+        self.options = options
+        super.init(fileName: "DevtoolsPlugin.native", pluginName: "DevtoolsPlugin.DevtoolsPlugin")
+    }
+
     public override func getUrlForFile(fileName: String) -> URL? {
         Bundle.module.url(forResource: fileName, withExtension: "js")
     }
 
     public override func getArguments() -> [Any] { [options.jsCompatible] }
-
-    private func registerMessenger(messenger: Messenger) -> Unsubscribe {
-        let unsubscribe = pluginRef?.invokeMethod("registerMessenger", withArguments: [messenger.jsCompatible])
-        return { unsubscribe?.call(withArguments: []) }
-    }
 }
 
 public struct DevtoolsPluginOptions {

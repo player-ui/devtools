@@ -97,6 +97,7 @@ extension [NativePlugin] {
     /// The list of all plugins to load in a demo, if none are specifically provided.
     static let defaults: [NativePlugin] = [
         ReferenceAssetsPlugin(),
+        PolyfillPlugin(),
         BasicDevtoolsPlugin(id: "demo")
     ]
 }

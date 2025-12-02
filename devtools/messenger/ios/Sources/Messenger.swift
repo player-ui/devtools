@@ -28,12 +28,12 @@ public class Messenger {
         }
 
         // If the debug flag is set, we will log debug messages. Otherwise, we will not.
-        let logger = options.isDebug ? options.logger : nil
+        let logger = options.isDebug ? options.logger : nil // TODO: make this actually do something again
         let jsMessenger = try context.construct(
             className: "Messenger",
             inBundle: Bundle.module,
             withArguments: [jsOptions],
-            withPolyfill: { $0.setupMessengerPolyfill(logger: logger) }
+            withPolyfill: { _ in /* TODO: remove this set up */ }
         )
         self.jsMessengerActor = JSMessengerActor(jsMessenger)
         self.jsCompatible = jsMessenger
@@ -98,59 +98,6 @@ public enum MessengerError: Error, LocalizedError {
             return "Failed to send message: JS messenger did not return Promise"
         case .failedToSendMessage:
             return "Failed to send message: propagated JS error"
-        }
-    }
-}
-
-extension JSContext {
-    /**
-     Sets up polyfills for JavaScript APIs required by the Messenger implementation.
-
-     Provides setInterval, clearInterval, and console.log implementations for the JS Messenger
-     used by the Swift wrapper, which will not have access to the browser APIs.
-     (I.e. this is a polyfill for the JS Messenger.)
-
-     This method must be called before initializing any Messenger instances in this context.
-     The polyfills enable:
-     - `setInterval`: Registers repeating timers for periodic tasks (e.g., beacon messages)
-     - `clearInterval`: Cancels active timers
-     - `console.log`: Provides debug logging output
-     */
-    func setupMessengerPolyfill(logger: MessengerLogger?) {
-        // A polyfill for console.log. This leverages the logger from the MessengerOptions
-        let console: @convention(block) (JSValue?) -> Void = { (args) in
-            if let args = args?.toArray() {
-                logger?.log("Swift DevTools:", args)
-            }
-        }
-
-        guard let jsSetInterval = JSValue(object: setInterval, in: self),
-              let jsClearInterval = JSValue(object: clearInterval, in: self),
-              let jsConsole = JSValue(object: console, in: self)
-        else { return }
-        setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
-        setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
-        setObject(jsConsole, forKeyedSubscript: "console" as NSString)
-    }
-
-    /// Registers a repeating job that happens every `delay` milliseconds .This is a Swift-native polyfill for JS's `setInterval`.
-    private var setInterval: @convention(block) (JSValue?, JSValue?) -> JSValue? {
-        { (callback, delay) in
-            guard let callback, let delayInt32 = delay?.toInt32() else { return nil }
-
-            // Now synchronous - no blocking!
-            let timerId = SharedMessengerLayer.asyncIntervalManager
-                .createTimer(callback: callback, delay: Int(delayInt32))
-
-            return JSValue(int32: Int32(timerId), in: self)
-        }
-    }
-
-    /// Cancels the repeating job. This is a Swift-native polyfill for JS's `clearInterval`.
-    private var clearInterval: @convention(block) (JSValue?) -> Void {
-        { timerId in
-            guard let timerId = timerId?.toInt32() else { return }
-            SharedMessengerLayer.asyncIntervalManager.cancelTimer(id: Int(timerId))
         }
     }
 }

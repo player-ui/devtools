@@ -2,16 +2,17 @@ import PlayerUI
 import Foundation
 import PlayerUIDevToolsPlugins
 
-
 /// A Player Plugin that provides DevTools capabilities via Flipper
-open class BasicDevtoolsCoreWrapper: JSBasePlugin {
+open class BaseBasicDevtoolsPlugin: JSBasePlugin { // TODO: revisit all the names
     /// Configuration for this plugin
     let options: DevtoolsPluginOptions
 
     public init(playerID: String, handler: DevtoolsHandler) {
+        print("DEBUG [BasicDevtoolsCoreWrapper]: Initializing with playerID: \(playerID), handler active: \(handler.isActive)")
         // PluginData is nil. The core basic plugin provides its own plugin data
         self.options = .init(playerID: playerID, handler: handler)
         super.init(fileName: "BasicDevtoolsPlugin.native", pluginName: "BasicDevtoolsPlugin.BasicDevtoolsPlugin")
+        print("DEBUG [BasicDevtoolsCoreWrapper]: Initialization complete")
     }
 
     public override func getUrlForFile(fileName: String) -> URL? {

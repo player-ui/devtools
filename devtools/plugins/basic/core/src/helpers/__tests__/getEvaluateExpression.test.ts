@@ -2,8 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { getEvaluateExpression } from "../getEvaluateExpression";
 import type { Evaluation } from "../../types";
 
-vi.mock("uuid", () => ({
-  v4: () => "test-uuid",
+vi.mock("@player-devtools/plugin", () => ({
+  generateUUID: () => "test-uuid",
 }));
 
 const getMockExpressionEvaluator = (

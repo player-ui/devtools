@@ -42,7 +42,7 @@ js_pipeline(
     srcs = glob(
         ["src/**"],
         ["src/content/**"],
-    ) + ["content"],
+    ),
     native_bundle = "BasicDevtoolsPlugin",
     deps = [
         ":node_modules/@player-devtools/messenger",
@@ -51,10 +51,8 @@ js_pipeline(
         "//:node_modules/@devtools-ui/plugin",
         "//:node_modules/@player-ui/player",
         "//:node_modules/@swc/core",
-        "//:node_modules/@types/uuid",
         "//:node_modules/dequal",
         "//:node_modules/dset",
         "//:node_modules/immer",
-        "//:node_modules/uuid",
     ],
 )
