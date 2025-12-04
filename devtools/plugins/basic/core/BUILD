@@ -42,7 +42,7 @@ js_pipeline(
     srcs = glob(
         ["src/**"],
         ["src/content/**"],
-    ),
+    ) + [":content"], # This is the generated DSL content
     native_bundle = "BasicDevtoolsPlugin",
     deps = [
         ":node_modules/@player-devtools/messenger",
@@ -50,6 +50,7 @@ js_pipeline(
         ":node_modules/@player-devtools/types",
         "//:node_modules/@devtools-ui/plugin",
         "//:node_modules/@player-ui/player",
+        "//:node_modules/@types/react",
         "//:node_modules/@swc/core",
         "//:node_modules/dequal",
         "//:node_modules/dset",

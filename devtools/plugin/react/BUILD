@@ -15,6 +15,7 @@ js_pipeline(
         ":node_modules/@player-devtools/plugin",
         ":node_modules/@player-devtools/types",
         "//:node_modules/@player-ui/react",
+        "//:node_modules/@types/react",
         "//:node_modules/js-flipper",
         "//:node_modules/react",
     ],
