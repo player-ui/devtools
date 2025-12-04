@@ -29,6 +29,7 @@ public extension JSContext {
         fromFile fileName: String? = nil,
         inBundle bundle: Bundle,
         withArguments args: [Any] = [],
+        // TODO: remove polyfill
         withPolyfill polyfill: @escaping (JSContext) -> Void = { _ in }
     ) throws -> JSValue {
         let jsModule = jsModule ?? className
@@ -63,12 +64,27 @@ public extension JSValue {
     /// ## 🛑 WARNING
     /// While this method is public, it is only intended to be used within DevTools.
     /// Please exercise caution when using this extension outside of DevTools.
-    func invokeClassMethod(
+    func invokeMethodSafely(
         _ method: String,
         withArguments arguments: [Any] = []
     ) -> JSValue? {
-        let result = invokeMethod(method, withArguments: arguments)
-        guard let result, !result.isUndefined else { return nil }
+        guard let function = objectForKeyedSubscript(method) else {
+            // TODO: replace with logger?
+            print("[JS SUGAR] Could not find function with name '\(method)'")
+            return nil
+        }
+
+        guard !function.isUndefined && !function.isNull else {
+            print("[JS SUGAR] Function with name '\(method)' is undefined or null")
+            return nil
+        }
+
+        guard let result = function.call(withArguments: arguments),
+              !result.isUndefined
+        else {
+            print("[JS SUGAR] Found function with name '\(method)' but could not call it with arguments=\(arguments)")
+            return nil
+        }
         return result
     }
 }

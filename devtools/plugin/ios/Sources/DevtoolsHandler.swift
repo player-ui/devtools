@@ -10,21 +10,15 @@ import PlayerUIDevToolsTypes
 
 public protocol DevtoolsHandler {
     /// Whether devtools is active or not
-    var isActive: Bool { get set }
+    var isActive: Bool { get }
 
+    /// Process messages received
     func processInteraction(interaction: Message)
-
-    /// Used to handle messages from errors/warnings/etc during debugging
-    func log(message: String)
 }
 
 extension DevtoolsHandler {
-    // If the user does not supply a logger, this one that does nothing
-    // will be provided for them
-    public func log(message: String) {}
-
     /// Format the handler into a JS compatible format
-    var jsCompatible: [String: Any] {
+    func jsCompatible(context: JSContext) -> [String: Any] {
         let isActiveFn: @convention(block) () -> Bool = { return self.isActive }
         let processInteractionFn: @convention(block) (JSValue) -> Void = {  jsValue in
             /// Rather than converting this to a strict type, do a minor check to ensure it's of the correct event type
@@ -35,14 +29,9 @@ extension DevtoolsHandler {
             else { return }
             self.processInteraction(interaction: interaction)
         }
-        let logFn: @convention(block) (JSValue) -> Void = {
-            guard let message = $0.toString() else { return }
-            self.log(message: message)
-        }
         return [
-            "checkIfDevtoolsIsActive": isActiveFn,
-            "processInteraction": processInteractionFn,
-            "log": logFn
+            "checkIfDevtoolsIsActive": JSValue(object: isActiveFn, in: context) as Any,
+            "processInteraction": JSValue(object: processInteractionFn, in: context) as Any
         ]
     }
 }

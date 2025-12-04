@@ -9,10 +9,10 @@ typealias Reducer<State, Action> = (State, Action) -> State
 typealias Dispatch<Action> = (Action) -> Void
 typealias Subscriber<State> = (State) -> Void
 typealias Subscribe<State> = (Subscriber<State>) -> Unsubscribe
-typealias Unsubscribe = () -> Void
+public typealias Unsubscribe = () -> Void
 
 /// Used to store values
-struct Store<State, Action> {
+struct Store<State, Action> { // TODO: remove if unused
     /// The state of the plugin
     let state: State
     /// Subscribe to changes in the store
@@ -20,7 +20,3 @@ struct Store<State, Action> {
     /// Take a certain action?
     let dispatch: Dispatch<Action> // TODO: make comments more accurate?
 }
-
-// TODO: do we need this?
-/// Used to store values related to the Plugin
-//typealias PluginStore = Store<S>

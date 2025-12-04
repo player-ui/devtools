@@ -31,16 +31,23 @@ public class PolyfillPlugin: NativePlugin {
         guard let context = player.jsPlayerReference?.context else { return }
         self.context = context
 
-        let console: @convention(block) (JSValue?) -> Void = { (args) in
-            if let args = args?.toArray() {
-                player.logger.d("Swift DevTools:", args)
-            }
+        // Use print because the logger might not exist yet
+        // Also, we can't actually polyfill console exactly. This has a limit of
+        // 5 arguments
+        let console: @convention(block) (JSValue?, JSValue?, JSValue?, JSValue?, JSValue?) -> Void = { arg1, arg2, arg3, arg4, arg5 in
+            let args = [arg1, arg2, arg3, arg4, arg5]
+                .compactMap { $0 }
+                .filter { !$0.isUndefined }
+                .compactMap { $0.toString() }
+            print("[CORE] \(args.joined(separator: " "))")
         }
 
         guard let jsSetInterval = JSValue(object: context.setInterval, in: context),
               let jsClearInterval = JSValue(object: context.clearInterval, in: context),
               let jsConsole = JSValue(object: console, in: context)
-        else { return }
+        else {
+            return
+        }
         context.setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
         context.setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
         context.setObject(["log": jsConsole], forKeyedSubscript: "console" as NSString)

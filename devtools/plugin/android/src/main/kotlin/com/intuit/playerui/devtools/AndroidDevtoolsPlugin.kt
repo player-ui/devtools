@@ -54,7 +54,7 @@ public abstract class AndroidDevtoolsPlugin<T : DevtoolsPlugin> : DevtoolsHandle
         messenger.apply(corePlugin.node.runtime)
         corePlugin.registerMessenger(messenger)
         corePlugin.apply(androidPlayer.player)
-
+N 
         androidPlayer.hooks.state.tap("AndroidDevtoolsPlugin") { state ->
             if (state is ReleasedState) {
                 // messenger and core plugin are already gone at this point

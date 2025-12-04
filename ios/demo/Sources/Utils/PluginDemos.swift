@@ -11,6 +11,7 @@ import PlayerUIDevToolsPlugins
 import PlayerUIDevToolsTypes
 import PlayerUIReferenceAssets
 import PlayerUIDevToolsBasicPlugin
+import PlayerUIPrintLoggerPlugin
 
 struct PluginDemos: View {
     @ObservedObject var model: DemoViewModel
@@ -98,6 +99,7 @@ extension [NativePlugin] {
     static let defaults: [NativePlugin] = [
         ReferenceAssetsPlugin(),
         PolyfillPlugin(),
+        PrintLoggerPlugin(level: .debug),
         BasicDevtoolsPlugin(id: "demo")
     ]
 }

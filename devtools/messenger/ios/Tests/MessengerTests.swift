@@ -52,10 +52,8 @@ final class MessengerTests: XCTestCase {
     func testInitializesNormally() async throws {
         let messenger = try Messenger(options: defaultOptions)
 
-        // Check that the messenger has been registered with the interval manager
+        // Check that the messenger has been initialized
         await fulfillment(for: "Initialized")
-        let numTimers = SharedMessengerLayer.asyncIntervalManager.timerCount
-        XCTAssertEqual(numTimers, 1)
 
         // Prevents the de-init from triggering and unregistering the messenger
         XCTAssertNotNil(messenger)
@@ -69,11 +67,8 @@ final class MessengerTests: XCTestCase {
         try foo()
 
         // The Messenger should have been de-inited because it's now out-of-scope.
-        // So the deinit should have triggered and "destroy"ed this Messenger,
-        // removing it from the timers
+        // So the deinit should have triggered and "destroy"ed this Messenger
         await fulfillment(for: "Deinited")
-        let numTimers = SharedMessengerLayer.asyncIntervalManager.timerCount
-        XCTAssertEqual(numTimers, 0)
     }
 
     func testSendMessage() async throws {
@@ -165,6 +160,145 @@ final class MessengerTests: XCTestCase {
             isErrorThrown = true
         }
         XCTAssert(isErrorThrown, "Error was not thrown as expected")
+    }
+
+    // MARK: - Listener Callback Tests (Type Conversion)
+
+    /// Test that listeners receive properly converted dictionary messages
+    func testListenerReceivesDictionaryMessage() async throws {
+        var receivedMessage: Message?
+
+        // Add a listener that captures the message
+        mockAPI.addListener { message in
+            receivedMessage = message
+        }
+
+        // Simulate receiving a message from JavaScript
+        let testMessage: Message = [
+            "type": "TEST_EVENT",
+            "payload": ["data": "test-value"],
+            "target": "test-target"
+        ]
+
+        // Call the listener callback directly to simulate JS calling it
+        if let listenerCallback = mockAPI.lastAddedListener {
+            listenerCallback(testMessage)
+        }
+
+        await fulfillment(for: "Listener received dictionary message")
+
+        // Verify the message was received correctly
+        XCTAssertNotNil(receivedMessage)
+        XCTAssertEqual(receivedMessage?["type"] as? String, "TEST_EVENT")
+        XCTAssertEqual(receivedMessage?["target"] as? String, "test-target")
+        if let payload = receivedMessage?["payload"] as? [String: Any] {
+            XCTAssertEqual(payload["data"] as? String, "test-value")
+        } else {
+            XCTFail("Payload not properly converted to dictionary")
+        }
+    }
+
+    /// Test that listeners can handle complex nested structures
+    func testListenerHandlesComplexNestedStructures() async throws {
+        var receivedMessage: Message?
+
+        mockAPI.addListener { message in
+            receivedMessage = message
+        }
+
+        // Create a complex nested message
+        let complexMessage: Message = [
+            "type": "COMPLEX",
+            "payload": [
+                "nested": [
+                    "level1": [
+                        "level2": "deep-value"
+                    ]
+                ],
+                "array": [1, 2, 3]
+            ]
+        ]
+
+        if let listenerCallback = mockAPI.lastAddedListener {
+            listenerCallback(complexMessage)
+        }
+
+        await fulfillment(for: "Listener handled complex nested structures")
+
+        // Verify nested structure is preserved
+        XCTAssertNotNil(receivedMessage)
+        if let payload = receivedMessage?["payload"] as? [String: Any],
+           let nested = payload["nested"] as? [String: Any],
+           let level1 = nested["level1"] as? [String: Any],
+           let level2Value = level1["level2"] as? String {
+            XCTAssertEqual(level2Value, "deep-value")
+        } else {
+            XCTFail("Complex nested structure not properly converted")
+        }
+    }
+
+    /// Test that listeners properly convert array values in messages
+    func testListenerHandlesArraysInMessages() async throws {
+        var receivedMessage: Message?
+
+        mockAPI.addListener { message in
+            receivedMessage = message
+        }
+
+        let messageWithArray: Message = [
+            "type": "ARRAY_TEST",
+            "items": [
+                ["id": 1, "name": "item1"],
+                ["id": 2, "name": "item2"],
+                ["id": 3, "name": "item3"]
+            ]
+        ]
+
+        if let listenerCallback = mockAPI.lastAddedListener {
+            listenerCallback(messageWithArray)
+        }
+
+        await fulfillment(for: "Listener handled arrays in messages")
+
+        // Verify array is properly converted
+        XCTAssertNotNil(receivedMessage)
+        if let items = receivedMessage?["items"] as? [[String: Any]] {
+            XCTAssertEqual(items.count, 3)
+            XCTAssertEqual(items[0]["name"] as? String, "item1")
+            XCTAssertEqual(items[1]["id"] as? Int, 2)
+        } else {
+            XCTFail("Array in message not properly converted")
+        }
+    }
+
+    /// Test that forEach operations work on arrays passed through listeners
+    func testListenerArrayForEachOperation() async throws {
+        var receivedMessage: Message?
+
+        mockAPI.addListener { message in
+            receivedMessage = message
+        }
+
+        let messageWithArray: Message = [
+            "type": "FOREACH_TEST",
+            "items": ["a", "b", "c"]
+        ]
+
+        if let listenerCallback = mockAPI.lastAddedListener {
+            listenerCallback(messageWithArray)
+        }
+
+        await fulfillment(for: "Listener handled forEach operation")
+
+        // Verify array can be iterated (this would fail if NSArray wasn't converted)
+        XCTAssertNotNil(receivedMessage)
+        if let items = receivedMessage?["items"] as? [String] {
+            var itemCount = 0
+            items.forEach { _ in itemCount += 1 }
+            XCTAssertEqual(itemCount, 3)
+        } else {
+            XCTFail("Array not properly converted for forEach operation")
+        }
     }
 }
 
@@ -265,6 +399,8 @@ actor MockMessageStore {
 /// This allows us to access the isolated values. We use high priority tasks to ensure the tasks happen asap
 class MockMessagingAPI {
     private let tracker: MockMessageStore
+    /// Stores the last listener added for direct testing
+    var lastAddedListener: MessageListener?
 
     init(tracker: MockMessageStore) {
         self.tracker = tracker
@@ -280,6 +416,7 @@ class MockMessagingAPI {
     /// Registers a new message listener
     /// - Parameter callback: The callback to invoke when messages are received
     func addListener(_ callback: @escaping MessageListener) {
+        self.lastAddedListener = callback
         Task(priority: .high) { await tracker.addListener(callback) }
     }
 

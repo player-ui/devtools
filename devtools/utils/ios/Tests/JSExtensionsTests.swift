@@ -24,11 +24,11 @@ final class JSExtensionsTests: XCTestCase {
         XCTAssertFalse(fancyInstance.isUndefined, "Fancy instance should not be undefined")
 
         // Test that we can call methods on the constructed instance
-        let name = fancyInstance.invokeClassMethod("getName")
+        let name = fancyInstance.invokeMethodSafely("getName")
         XCTAssertNotNil(name, "getName should return a value")
         XCTAssertEqual(name?.toString(), "TestName", "getName should return the constructor argument")
 
-        let initialCount = fancyInstance.invokeClassMethod("getCount")
+        let initialCount = fancyInstance.invokeMethodSafely("getCount")
         XCTAssertNotNil(initialCount, "getCount should return a value")
         XCTAssertEqual(initialCount?.toInt32(), 0, "Initial count should be 0")
     }
@@ -65,7 +65,7 @@ final class JSExtensionsTests: XCTestCase {
             withArguments: ["ArgumentTest"]
         )
 
-        let name = fancyInstance.invokeClassMethod("getName")
+        let name = fancyInstance.invokeMethodSafely("getName")
         XCTAssertEqual(name?.toString(), "ArgumentTest", "Constructor argument should be passed correctly")
     }
 
@@ -80,20 +80,20 @@ final class JSExtensionsTests: XCTestCase {
         )
 
         // Test initial state
-        let initialCount = fancyInstance.invokeClassMethod("getCount")
+        let initialCount = fancyInstance.invokeMethodSafely("getCount")
         XCTAssertEqual(initialCount?.toInt32(), 0, "Initial count should be 0")
 
         // Test method that modifies state (addToCount doesn't return a value)
-        let addResult = fancyInstance.invokeClassMethod("addToCount", withArguments: [5])
+        let addResult = fancyInstance.invokeMethodSafely("addToCount", withArguments: [5])
         XCTAssertNil(addResult, "addToCount should return undefined/nil")
 
         // Verify state change
-        let newCount = fancyInstance.invokeClassMethod("getCount")
+        let newCount = fancyInstance.invokeMethodSafely("getCount")
         XCTAssertEqual(newCount?.toInt32(), 5, "Count should be updated to 5")
 
         // Test multiple additions
-        _ = fancyInstance.invokeClassMethod("addToCount", withArguments: [3])
-        let finalCount = fancyInstance.invokeClassMethod("getCount")
+        _ = fancyInstance.invokeMethodSafely("addToCount", withArguments: [3])
+        let finalCount = fancyInstance.invokeMethodSafely("getCount")
         XCTAssertEqual(finalCount?.toInt32(), 8, "Count should be updated to 8")
     }
 
@@ -138,7 +138,7 @@ final class JSExtensionsTests: XCTestCase {
         }
 
         // Test successful method invocation
-        let result = testObject.invokeClassMethod("testMethod", withArguments: [5, 3])
+        let result = testObject.invokeMethodSafely("testMethod", withArguments: [5, 3])
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.toInt32(), 8)
     }
@@ -164,7 +164,7 @@ final class JSExtensionsTests: XCTestCase {
         }
 
         // Test that undefined results return nil
-        let result = testObject.invokeClassMethod("undefinedMethod")
+        let result = testObject.invokeMethodSafely("undefinedMethod")
         XCTAssertNil(result)
     }
 
@@ -178,7 +178,7 @@ final class JSExtensionsTests: XCTestCase {
         }
 
         // Test that non-existent methods return nil
-        let result = testObject.invokeClassMethod("nonExistentMethod")
+        let result = testObject.invokeMethodSafely("nonExistentMethod")
         XCTAssertNil(result)
     }
 
@@ -199,7 +199,7 @@ final class JSExtensionsTests: XCTestCase {
         }
 
         // Test method with multiple arguments
-        let result = testObject.invokeClassMethod("concatenate", withArguments: ["Hello", "World", " "])
+        let result = testObject.invokeMethodSafely("concatenate", withArguments: ["Hello", "World", " "])
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.toString(), "Hello World")
     }

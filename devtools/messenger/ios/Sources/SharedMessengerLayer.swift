@@ -17,7 +17,8 @@ public class SharedMessengerLayer {
     ///
     /// This can't live on Messenger because generic types cannot have static functions
     static func reset(context: JSContext, logger: MessengerLogger?) {
-        context.staticMessenger(logger: logger)?.invokeMethod("reset", withArguments: [])
+        _ = context.staticMessenger(logger: logger)?
+            .invokeMethodSafely("reset")
     }
 }
 

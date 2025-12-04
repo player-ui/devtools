@@ -57,8 +57,8 @@ public class Messenger {
     /// Usually, we want to avoid `Any`. However, the JS function accepts `[Any]` as arguments.
     /// So in this case, it's... okay.
     private func send(message: Any) async throws {
-        guard let promise = jsMessengerActor.messenger.invokeMethod("sendMessage", withArguments: [message]),
-              !promise.isUndefined
+        guard let promise = jsMessengerActor.messenger
+            .invokeMethodSafely("sendMessage", withArguments: [message])
         else {
             throw MessengerError.didNotReceiveJSPromise
         }
@@ -66,7 +66,11 @@ public class Messenger {
         // This is a wrapper that allows us to wait for the then/catch callbacks from the JS Promise
         try await withCheckedThrowingContinuation { continuation in
             let onResolve: @convention(block) () -> Void = { continuation.resume() }
-            promise.invokeMethod("then", withArguments: [onResolve])
+            guard let context = promise.context else {
+                return continuation.resume(throwing: MessengerError.didNotReceiveJSPromise)
+            }
+            let jsResolve = JSValue(object: onResolve, in: context)
+            _ = promise.invokeMethodSafely("then", withArguments: [jsResolve as Any])
         }
     }
 
@@ -74,7 +78,7 @@ public class Messenger {
     /// If this is not done, the interval will continue to send out beacons for this Messenger even when it doesn't exist anymore.
     /// This is the equivalent to the manual `destroy()` on the JS layer.
     deinit {
-        jsMessengerActor.messenger.invokeMethod("destroy", withArguments: [])
+        _ = jsMessengerActor.messenger.invokeMethodSafely("destroy")
     }
 }
 

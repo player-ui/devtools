@@ -25,7 +25,9 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
         }
     }
 
-    public func didDisconnect() { flipperConnection = nil }
+    public func didDisconnect() {
+        flipperConnection = nil
+    }
 
     public func sendMessage(_ message: Message) {
         flipperConnection?.send(method: "message::plugin", params: message)
@@ -36,6 +38,7 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
     }
 
     func removeListener(_ listener: @escaping MessageListener) {
+        print("DEBUG [iOS DevtoolsFlipperPlugin]: removeListener() called")
         /* TODO: we can't compare listeners directly on ios.
          Implement workaround. E.g. register listeners by ID? */
     }

@@ -50,11 +50,14 @@ final class MessengerOptionsTests: XCTestCase {
         let jsOptions = options.asJSValue
 
         // Test that the logger function can be called and the message is logged
+        // The logger is wrapped to convert variadic arguments to an array,
+        // so when JavaScript calls logger.log("msg1", "msg2"), it becomes logger.log(["msg1", "msg2"])
         let logMessage = "test log message"
         jsOptions?.objectForKeyedSubscript("logger")
             .objectForKeyedSubscript("log")
             .call(withArguments: [logMessage])
-        XCTAssertEqual(logger.loggedMessages, [logMessage])
+        // The array is converted to a string representation
+        XCTAssertEqual(logger.loggedMessages, ["[\"test log message\"]"])
     }
 
     func testAsJSValueConvertsSendMessageCorrectly() {

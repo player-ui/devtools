@@ -13,6 +13,7 @@ swift_library(
         "@swiftpkg_playerui_swift_package//:PlayerUI",
         "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
         "@swiftpkg_playerui_swift_package//:PlayerUIReferenceAssets",
+        "@swiftpkg_playerui_swift_package//:PlayerUIPrintLoggerPlugin",
         "@swiftpkg_swift_hooks//:SwiftHooks",
         "@swiftpkg_swiftflipper//:SwiftFlipper",
 
