@@ -66,23 +66,25 @@ public extension JSValue {
     /// Please exercise caution when using this extension outside of DevTools.
     func invokeMethodSafely(
         _ method: String,
-        withArguments arguments: [Any] = []
-    ) -> JSValue? {
+        withArguments arguments: [Any] = [],
+        file: String = #file,
+        line: Int = #line
+    ) -> JSValue? { // TODO: replace with player logger?
         guard let function = objectForKeyedSubscript(method) else {
             // TODO: replace with logger?
-            print("[JS SUGAR] Could not find function with name '\(method)'")
+            print("[JS SAFETY] Error in '\(file)' on line \(line). Could not find function with name '\(method)'")
             return nil
         }
 
         guard !function.isUndefined && !function.isNull else {
-            print("[JS SUGAR] Function with name '\(method)' is undefined or null")
+            print("[JS SAFETY] Error in '\(file)' on line \(line). Function with name '\(method)' is undefined or null")
             return nil
         }
 
         guard let result = function.call(withArguments: arguments),
-              !result.isUndefined
+              !result.isNull
         else {
-            print("[JS SUGAR] Found function with name '\(method)' but could not call it with arguments=\(arguments)")
+            print("[JS SAFETY] Error in '\(file)' on line \(line). Found function with name '\(method)' but could not call it with arguments=\(arguments)")
             return nil
         }
         return result

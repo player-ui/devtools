@@ -91,17 +91,22 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     this.id = options.id || uid();
     this.beaconIntervalMS = options.beaconIntervalMS || 1000;
 
+    console.log(`[MESSENGER] Initialized messenger with id=${this.id}, context=${this.options.context}`);
+
     // start beacon interval:
     this.beaconInterval = setInterval(
       this.beacon.bind(this),
       this.beaconIntervalMS,
     );
 
+    console.log(`[MESSENGER] Started beacon interval with ${this.beaconIntervalMS}ms`);
+
     // bind message handler:
     this.handleMessage = this._handleMessage.bind(this);
 
     // add listener:
     this.options.addListener(this.handleMessage);
+    console.log(`[MESSENGER] Added listener for incoming messages`);
   }
 
   private log(message: string) {
@@ -179,6 +184,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   /** there is no persistent layer bookkeeping connections,
    * so beacon to inform others of its presence */
   private beacon() {
+    console.log(`[MESSENGER] Sending beacon from ${this.id}`);
     this.options.sendMessage(
       this.addTransactionMetadata({
         type: "MESSENGER_BEACON",
@@ -191,12 +197,16 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const parsed: Transaction<T> =
       typeof transaction === "string" ? JSON.parse(transaction) : transaction;
 
+    console.log(`[MESSENGER] Received message type=${(parsed as BaseEvent<string, unknown>).type}, sender=${parsed.sender}, context=${parsed.context}`);
+
     const isFromMessenger = parsed._messenger_;
     const isFromSelf = parsed.sender === this.id;
     const isFromSameContext = parsed.context === this.options.context;
     const isTargetingOthers = parsed.target ? parsed.target !== this.id : false;
     const connection = this.getConnection(parsed.sender);
     const isKnownConnection = Boolean(connection);
+
+    console.log(`[MESSENGER] Message filters: isFromMessenger=${isFromMessenger}, isFromSelf=${isFromSelf}, isFromSameContext=${isFromSameContext}, isTargetingOthers=${isTargetingOthers}, isKnownConnection=${isKnownConnection}`);
 
     if (
       !isFromMessenger ||
@@ -205,6 +215,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       isTargetingOthers ||
       (isKnownConnection && parsed.type === "MESSENGER_BEACON")
     ) {
+      console.log(`[MESSENGER] Message filtered out, returning early`);
       return;
     }
 
@@ -359,6 +370,8 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const parsed: T =
       typeof message === "string" ? JSON.parse(message) : message;
 
+    console.log(`[MESSENGER] Sending message type=${(parsed as BaseEvent<string, unknown>).type} from ${this.id}`);
+
     this.addEvent(parsed);
 
     const target = parsed.target || null;
@@ -372,6 +385,8 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     return this.options.sendMessage(msg).catch(() => {
       this.options.handleFailedMessage?.(msg);
 
+      console.log(`[MESSENGER] Failed to send message type=${(parsed as BaseEvent<string, unknown>).type} from ${this.id} to ${target || "all"}`);
+
       this.log(
         `failed to send message: ${
           (parsed as BaseEvent<string, unknown>).type
@@ -381,11 +396,15 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   }
 
   public destroy() {
+    console.log(`[MESSENGER] Destroying messenger ${this.id}`);
+
     if (this.beaconInterval) {
       clearInterval(this.beaconInterval);
+      console.log(`[MESSENGER] Cleared beacon interval`);
     }
 
     this.options.removeListener(this.handleMessage);
+    console.log(`[MESSENGER] Removed listener`);
 
     Object.keys(Messenger.connections).forEach((connection) => {
       const event: DisconnectEvent = {
@@ -398,6 +417,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     });
 
     Messenger.reset();
+    console.log(`[MESSENGER] Messenger ${this.id} destroyed`);
     this.log("destroyed");
   }
 

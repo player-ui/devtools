@@ -27,8 +27,7 @@ public class Messenger {
             throw MessengerError.failedToConvertOptionsToJSValue
         }
 
-        // If the debug flag is set, we will log debug messages. Otherwise, we will not.
-        let logger = options.isDebug ? options.logger : nil // TODO: make this actually do something again
+        // TODO: Actually do something with logger + debug option
         let jsMessenger = try context.construct(
             className: "Messenger",
             inBundle: Bundle.module,

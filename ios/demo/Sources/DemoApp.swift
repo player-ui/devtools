@@ -59,7 +59,7 @@ struct BazelApp: App {
 /// View model for the demo app
 class DemoViewModel: ObservableObject {
     private let flipperClient = FlipperClient(connectionConfig: .init(), plugins: [])
-    private let flipperPlugin = DevtoolsFlipperPlugin()
+    let flipperPlugin = DevtoolsFlipperPlugin()
 
     // -- Used to debounce the search query input. -- //
     // The input in the search field

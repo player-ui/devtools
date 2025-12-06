@@ -48,9 +48,11 @@ open class BaseBasicDevtoolsPlugin: JSBasePlugin, BaseDevtoolsPlugin {
         var isActive = true
 
         func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {
+            print("[DEVTOOLS] processInteraction called with: \(interaction)")
         }
 
         func log(message: String) {
+            print("[DEVTOOLS] log: \(message)")
         }
     }
 }

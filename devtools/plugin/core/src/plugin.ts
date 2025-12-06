@@ -74,16 +74,23 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     }
 
     registerMessenger(messenger: Messenger<ExtensionSupportedEvents>): Unsubscribe {
+        console.log("[registerMessenger] Entering registerMessenger.");
+
         // Propagate new messages from state to devtools via the messenger
         let lastMessageIndex = -1;
         return this.store.subscribe(({ messages }) => {
+            console.log("[registerMessenger] Checking for new messages to send.");
             const start = lastMessageIndex + 1;
             if (messages.length > start) {
                 const newlyAdded = messages.slice(start);
                 lastMessageIndex = messages.length - 1;
+                console.log(`[registerMessenger] Sending ${newlyAdded.length} new message(s) via messenger.`);
                 for (const msg of newlyAdded) {
+                    console.log("[registerMessenger] Sending message:", msg);
                     messenger.sendMessage(msg);
                 }
+            } else {
+                console.log("[DevtoolsPlugin] No new messages to send.");
             }
         })
     }

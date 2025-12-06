@@ -20,31 +20,50 @@ struct PluginDemos: View {
     @State private var filteredDemos: [Demo] = []
 
     var body: some View {
-        List {
-            Section("Mocks") {
-                let demosToShow = filteredDemos.isEmpty ? demos : filteredDemos
-                ForEach(demosToShow, id: \.name) { demo in
-                    NavigationLink {
-                        FlowManagerView(
-                            flowSequence: demo.flows,
-                            navTitle: demo.navTitle,
-                            plugins: demo.plugins
-                        )
-                    } label: {
-                        Text(demo.name)
-                    }
-                }
-            }
-        }
-        .searchable(text: $model.searchQuery)
-        .autocorrectionDisabled()
-        .textInputAutocapitalization(.never)
-        .onChange(of: model.debouncedSearchQuery) { searchQuery in
-            filteredDemos = demos.filter { demo in
-                demo.name.localizedCaseInsensitiveContains(searchQuery)
-            }
+        if let demo = demos.first {
+            FlowManagerView(
+                flowSequence: demo.flows,
+                navTitle: demo.navTitle,
+                plugins: getPlugins()
+            )
         }
     }
+
+    private func getPlugins() -> [NativePlugin] {
+        [
+            ReferenceAssetsPlugin(),
+            PolyfillPlugin(),
+            PrintLoggerPlugin(level: .debug),
+            BasicDevtoolsPlugin(id: "demo", flipperPlugin: model.flipperPlugin)
+        ]
+    }
+
+//    var body: some View {
+//        List {
+//            Section("Mocks") {
+//                let demosToShow = filteredDemos.isEmpty ? demos : filteredDemos
+//                ForEach(demosToShow, id: \.name) { demo in
+//                    NavigationLink {
+//                        FlowManagerView(
+//                            flowSequence: demo.flows,
+//                            navTitle: demo.navTitle,
+//                            plugins: demo.plugins
+//                        )
+//                    } label: {
+//                        Text(demo.name)
+//                    }
+//                }
+//            }
+//        }
+//        .searchable(text: $model.searchQuery)
+//        .autocorrectionDisabled()
+//        .textInputAutocapitalization(.never)
+//        .onChange(of: model.debouncedSearchQuery) { searchQuery in
+//            filteredDemos = demos.filter { demo in
+//                demo.name.localizedCaseInsensitiveContains(searchQuery)
+//            }
+//        }
+//    }
 }
 
 /// A representation of each demo
@@ -59,7 +78,7 @@ struct Demo {
     /// This will be shown in the navigation bar during the demo
     let navTitle: String
     /// Any plugins to be used in the demo. If none are provided, we'll default to loading all of the assets
-    let plugins: [NativePlugin]
+    var plugins: [NativePlugin]
 
     init(name: String, flows: [Flow], navTitle: String? = nil, plugins: [NativePlugin] = .defaults) {
         self.name = name

@@ -37,7 +37,7 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
         listeners.append(listener)
     }
 
-    func removeListener(_ listener: @escaping MessageListener) {
+    public func removeListener(_ listener: @escaping MessageListener) {
         print("DEBUG [iOS DevtoolsFlipperPlugin]: removeListener() called")
         /* TODO: we can't compare listeners directly on ios.
          Implement workaround. E.g. register listeners by ID? */

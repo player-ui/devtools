@@ -128,7 +128,7 @@ public struct PluginStore { // TODO: finish implementing
     // TODO: add errors to match android
     let jsValue: JSValue
 
-    func dispatch(event: Message) {
+    public func dispatch(event: Message) {
         _ = jsValue.invokeMethodSafely("dispatch", withArguments: [event])
     }
 
@@ -150,11 +150,11 @@ public struct PluginStore { // TODO: finish implementing
     typealias JSPluginStore = Any
 }
 
-enum DevtoolsError: LocalizedError {
+public enum DevtoolsError: LocalizedError {
     case jsContextNotFound
     case notFoundInCore(fnName: String)
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .jsContextNotFound:
             return "Did not receive non-nil JSContext from Player. Devtools will not be initialized."

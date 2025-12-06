@@ -27,7 +27,7 @@ public class PolyfillPlugin: NativePlugin {
 
     public init() {}
 
-    public func apply<P>(player: P) where P : HeadlessPlayer {
+    public func apply<P>(player: P) where P: HeadlessPlayer {
         guard let context = player.jsPlayerReference?.context else { return }
         self.context = context
 
@@ -62,7 +62,8 @@ extension JSContext {
 
             let timerId = AsynchronousIntervalManager.shared
                 .createTimer(callback: callback, delay: Int(delayInt32))
-
+            // TODO: check if these are actually getting called
+            print("[INTERVAL] [debug] Created timer with id='\(timerId)'")
             return JSValue(int32: Int32(timerId), in: self)
         }
     }
