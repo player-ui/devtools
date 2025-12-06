@@ -2,7 +2,7 @@ import type { Messenger } from "@player-devtools/messenger";
 import {
     PluginData, DevtoolsPluginsStore, PlayerInitEvent, ExtensionSupportedEvents, Transaction, DevtoolsPluginInteractionEvent,
 } from "@player-devtools/types";
-import type { Player, PlayerPlugin } from "@player-ui/player"
+import type { Player, PlayerPlugin, Logger } from "@player-ui/player"
 import { dset } from "dset/merge";
 import { produce } from "immer";
 import { useStateReducer , type Store, type Unsubscribe } from "./state";
@@ -38,9 +38,37 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     name: string = "DevtoolsPlugin";
 
     private loggedWarning = false;
+    private logger?: Logger;
 
     store: PluginStore = useStateReducer(reducer, INITIAL_STATE);
     protected lastProcessedInteraction = 0;
+
+    constructor(protected options: DevtoolsPluginOptions, logger?: Logger) {
+        this.logger = logger;
+        console.log("[DevtoolsPlugin Constructor] logger parameter received:", logger);
+        console.log("[DevtoolsPlugin Constructor] typeof logger:", typeof logger);
+        logger?.debug("[DevtoolsPlugin Constructor] Called");
+        logger?.debug("[DevtoolsPlugin Constructor] this.store =", this.store);
+        logger?.debug("[DevtoolsPlugin Constructor] typeof this.store =", typeof this.store);
+        logger?.debug("[DevtoolsPlugin Constructor] this.store is undefined?", this.store === undefined);
+        logger?.debug("[DevtoolsPlugin Constructor] this.store is null?", this.store === null);
+
+        if (this.store) {
+            logger?.debug("[DevtoolsPlugin Constructor] this.store keys:", Object.keys(this.store));
+            logger?.debug("[DevtoolsPlugin Constructor] Setting up interactions subscription");
+            this.store.subscribe(({ interactions }) => {
+                if (this.lastProcessedInteraction < (interactions.length ?? 0)) {
+                    interactions
+                        .slice(this.lastProcessedInteraction)
+                        // TODO: Is binding necessary? Verify this calls the super
+                        .forEach(this.processInteraction.bind(this));
+                }
+            })
+            logger?.debug("[DevtoolsPlugin Constructor] Interactions subscription set up successfully");
+        } else {
+            logger?.debug("[DevtoolsPlugin Constructor] ERROR: this.store is undefined!");
+        }
+    }
 
     get pluginID(): string {
         return this.options.pluginData.id
@@ -48,17 +76,6 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
 
     get playerID(): string {
         return this.options.playerID
-    }
-
-    constructor(protected options: DevtoolsPluginOptions) {
-        this.store.subscribe(({ interactions }) => {
-            if (this.lastProcessedInteraction < (interactions.length ?? 0)) {
-                interactions
-                    .slice(this.lastProcessedInteraction)
-                    // TODO: Is binding necessary? Verify this calls the super
-                    .forEach(this.processInteraction.bind(this));
-            }
-        })
     }
 
     /** Helper for applying mutations to produce a new immutable plugin state. Note, this does not update state in the store, the result should be dispatched in an appropriate event */
@@ -74,23 +91,40 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     }
 
     registerMessenger(messenger: Messenger<ExtensionSupportedEvents>): Unsubscribe {
-        console.log("[registerMessenger] Entering registerMessenger.");
+        this.logger?.debug("[registerMessenger] Entering registerMessenger.");
+        this.logger?.debug("[registerMessenger] this.store =", this.store);
+        this.logger?.debug("[registerMessenger] typeof this.store =", typeof this.store);
+        this.logger?.debug("[registerMessenger] this.store.subscribe =", this.store.subscribe);
+        this.logger?.debug("[registerMessenger] typeof this.store.subscribe =", typeof this.store.subscribe);
 
         // Propagate new messages from state to devtools via the messenger
         let lastMessageIndex = -1;
+
+        if (!this.store) {
+            this.logger?.debug("[registerMessenger] ERROR: this.store is undefined or null!");
+            return () => {};
+        }
+
+        if (!this.store.subscribe) {
+            this.logger?.debug("[registerMessenger] ERROR: this.store.subscribe is undefined or null!");
+            this.logger?.debug("[registerMessenger] this.store keys:", Object.keys(this.store));
+            return () => {};
+        }
+
+        this.logger?.debug("[registerMessenger] About to call this.store.subscribe");
         return this.store.subscribe(({ messages }) => {
-            console.log("[registerMessenger] Checking for new messages to send.");
+            this.logger?.debug("[registerMessenger] Checking for new messages to send.");
             const start = lastMessageIndex + 1;
             if (messages.length > start) {
                 const newlyAdded = messages.slice(start);
                 lastMessageIndex = messages.length - 1;
-                console.log(`[registerMessenger] Sending ${newlyAdded.length} new message(s) via messenger.`);
+                this.logger?.debug(`[registerMessenger] Sending ${newlyAdded.length} new message(s) via messenger.`);
                 for (const msg of newlyAdded) {
-                    console.log("[registerMessenger] Sending message:", msg);
+                    this.logger?.debug("[registerMessenger] Sending message:", msg);
                     messenger.sendMessage(msg);
                 }
             } else {
-                console.log("[DevtoolsPlugin] No new messages to send.");
+                this.logger?.debug("[DevtoolsPlugin] No new messages to send.");
             }
         })
     }

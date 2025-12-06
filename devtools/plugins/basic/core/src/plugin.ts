@@ -50,7 +50,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         super({
             ...options,
             pluginData,
-        });
+        }, logger);
         this.logger = logger ? new WeakRef(logger) : undefined;
     }
 

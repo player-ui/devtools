@@ -184,7 +184,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   /** there is no persistent layer bookkeeping connections,
    * so beacon to inform others of its presence */
   private beacon() {
-    console.log(`[MESSENGER] Sending beacon from ${this.id}`);
     this.options.sendMessage(
       this.addTransactionMetadata({
         type: "MESSENGER_BEACON",
@@ -197,16 +196,12 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const parsed: Transaction<T> =
       typeof transaction === "string" ? JSON.parse(transaction) : transaction;
 
-    console.log(`[MESSENGER] Received message type=${(parsed as BaseEvent<string, unknown>).type}, sender=${parsed.sender}, context=${parsed.context}`);
-
     const isFromMessenger = parsed._messenger_;
     const isFromSelf = parsed.sender === this.id;
     const isFromSameContext = parsed.context === this.options.context;
     const isTargetingOthers = parsed.target ? parsed.target !== this.id : false;
     const connection = this.getConnection(parsed.sender);
     const isKnownConnection = Boolean(connection);
-
-    console.log(`[MESSENGER] Message filters: isFromMessenger=${isFromMessenger}, isFromSelf=${isFromSelf}, isFromSameContext=${isFromSameContext}, isTargetingOthers=${isTargetingOthers}, isKnownConnection=${isKnownConnection}`);
 
     if (
       !isFromMessenger ||
@@ -215,7 +210,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       isTargetingOthers ||
       (isKnownConnection && parsed.type === "MESSENGER_BEACON")
     ) {
-      console.log(`[MESSENGER] Message filtered out, returning early`);
       return;
     }
 

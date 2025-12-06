@@ -12,6 +12,9 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
     /// Our connection to the flipper server
     public let flipperPlugin: DevtoolsFlipperPlugin
 
+    // Keep a reference so the message doesn't get garbage collected and destroyed
+    private var messenger: Messenger?
+
     public init(id: String, flipperPlugin: DevtoolsFlipperPlugin? = nil) {
         self.flipperPlugin = flipperPlugin ?? DevtoolsFlipperPlugin()
         super.init(playerID: id)
@@ -37,6 +40,7 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
                 messageCallback: try store.dispatch(event:)
             )
             let messenger = try Messenger(options: options)
+            self.messenger = messenger
             _ = registerMessenger(messenger: messenger)
         } catch {
             player.logger.e(error)
