@@ -18,9 +18,13 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
 
     public func didConnect(connection: SwiftFlipper.FlipperConnection) {
         flipperConnection = connection
+        print("[DevtoolsFlipperPlugin] didConnect called")
         // Listen to messages from methods registered under the name "message::flipper"
+        // (Matches Android implementation)
         connection.receive(method: "message::flipper") { message, _ in
             // We received a message from the flipper server.
+            print("[DevtoolsFlipperPlugin] Received message from Flipper:", message)
+            print("[DevtoolsFlipperPlugin] Number of listeners:", self.listeners.count)
             self.listeners.forEach { $0(message) }
         }
     }

@@ -87,6 +87,8 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   private id: string;
 
   constructor(private options: MessengerOptions<T>) {
+    console.log("[MESSENGER CONSTRUCTOR] options received:", options);
+    console.log("[MESSENGER CONSTRUCTOR] options.context:", options.context);
     // set defaults:
     this.id = options.id || uid();
     this.beaconIntervalMS = options.beaconIntervalMS || 1000;
@@ -203,6 +205,17 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const connection = this.getConnection(parsed.sender);
     const isKnownConnection = Boolean(connection);
 
+    // Only log non-beacon messages to reduce noise
+    const isBeacon = (parsed as any).type === "MESSENGER_BEACON";
+    if (!isBeacon) {
+      console.log("[MESSENGER FILTER] Message type:", (parsed as any).type);
+      console.log("[MESSENGER FILTER] isFromMessenger:", isFromMessenger);
+      console.log("[MESSENGER FILTER] isFromSelf:", isFromSelf);
+      console.log("[MESSENGER FILTER] isFromSameContext:", isFromSameContext, "(parsed.context:", parsed.context, "this.options.context:", this.options.context + ")");
+      console.log("[MESSENGER FILTER] isTargetingOthers:", isTargetingOthers, "(parsed.target:", parsed.target, "this.id:", this.id + ")");
+      console.log("[MESSENGER FILTER] isKnownConnection:", isKnownConnection);
+    }
+
     if (
       !isFromMessenger ||
       isFromSelf ||
@@ -210,7 +223,13 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       isTargetingOthers ||
       (isKnownConnection && parsed.type === "MESSENGER_BEACON")
     ) {
+      if (!isBeacon) {
+        console.log("[MESSENGER FILTER] Message filtered out!");
+      }
       return;
+    }
+    if (!isBeacon) {
+      console.log("[MESSENGER FILTER] Message passed filter!");
     }
 
     const handlers: Record<string, (parsed: Transaction<T>) => void> = {

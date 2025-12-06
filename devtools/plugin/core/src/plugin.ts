@@ -57,11 +57,17 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
             logger?.debug("[DevtoolsPlugin Constructor] this.store keys:", Object.keys(this.store));
             logger?.debug("[DevtoolsPlugin Constructor] Setting up interactions subscription");
             this.store.subscribe(({ interactions }) => {
+                console.log("[CONSTRUCTOR SUBSCRIPTION] Called with interactions:", interactions);
+                console.log("[CONSTRUCTOR SUBSCRIPTION] lastProcessedInteraction:", this.lastProcessedInteraction);
+                console.log("[CONSTRUCTOR SUBSCRIPTION] interactions.length:", interactions.length);
                 if (this.lastProcessedInteraction < (interactions.length ?? 0)) {
-                    interactions
-                        .slice(this.lastProcessedInteraction)
+                    const newInteractions = interactions.slice(this.lastProcessedInteraction);
+                    console.log("[CONSTRUCTOR SUBSCRIPTION] Processing", newInteractions.length, "new interactions");
+                    newInteractions
                         // TODO: Is binding necessary? Verify this calls the super
                         .forEach(this.processInteraction.bind(this));
+                } else {
+                    console.log("[CONSTRUCTOR SUBSCRIPTION] No new interactions to process");
                 }
             })
             logger?.debug("[DevtoolsPlugin Constructor] Interactions subscription set up successfully");
@@ -160,13 +166,16 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     }
 
     processInteraction(interaction: DevtoolsPluginInteractionEvent): void {
+        console.log("[PROCESS INTERACTION] Called with interaction:", interaction);
         this.options.handler.processInteraction(interaction);
 
         const {
             payload: { type, payload },
         } = interaction;
 
+        console.log("[PROCESS INTERACTION] type:", type, "payload:", payload);
         if (type === INTERACTIONS.PLAYER_SELECTED && payload) {
+            console.log("[PROCESS INTERACTION] Handling PLAYER_SELECTED");
             this.store.dispatch({
                 id: -1,
                 type: "PLAYER_DEVTOOLS_SELECTED_PLAYER_CHANGE",
@@ -179,6 +188,8 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
             });
 
             this.lastProcessedInteraction += 1;
+        } else {
+            console.log("[PROCESS INTERACTION] Unhandled interaction type");
         }
     }
 
