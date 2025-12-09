@@ -94,6 +94,8 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     }
 
     registerMessenger(messenger: Messenger<ExtensionSupportedEvents>): Unsubscribe {
+        console.log("[registerMessenger] this", this);
+        console.log("[registerMessenger] keys", Object.keys(this));
         console.log("[registerMessenger] Entering registerMessenger for playerID:", this.playerID);
         console.log("[registerMessenger] Entering registerMessenger for pluginID:", this.pluginID);
         console.log("[registerMessenger] this.store =", this.store);

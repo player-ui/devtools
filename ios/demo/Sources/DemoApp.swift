@@ -78,7 +78,7 @@ class DemoViewModel: ObservableObject {
     }
 
     func onMessageReceived(_ message: [String: Any]) {
-//        print("DEBUG [DemoViewModel]: onMessageReceived() called with message: \(message)")
+        print("DEBUG [DemoViewModel]: onMessageReceived() called with message: \(message)")
 //        Task {
 //            print("DEVTOOLS DEMO: '\(message)'")
 //        }

@@ -34,6 +34,7 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
     }
 
     public func sendMessage(_ message: Message) {
+        print("[DevtoolsFlipperPlugin] sendMessage", message["type"])
         flipperConnection?.send(method: "message::plugin", params: message)
     }
 
