@@ -38,24 +38,21 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     name: string = "DevtoolsPlugin";
 
     private loggedWarning = false;
-    private logger?: Logger;
 
     store: PluginStore = useStateReducer(reducer, INITIAL_STATE);
     protected lastProcessedInteraction = 0;
 
-    constructor(protected options: DevtoolsPluginOptions, logger?: Logger) {
-        this.logger = logger;
-        console.log("[DevtoolsPlugin Constructor] logger parameter received:", logger);
-        console.log("[DevtoolsPlugin Constructor] typeof logger:", typeof logger);
-        logger?.debug("[DevtoolsPlugin Constructor] Called");
-        logger?.debug("[DevtoolsPlugin Constructor] this.store =", this.store);
-        logger?.debug("[DevtoolsPlugin Constructor] typeof this.store =", typeof this.store);
-        logger?.debug("[DevtoolsPlugin Constructor] this.store is undefined?", this.store === undefined);
-        logger?.debug("[DevtoolsPlugin Constructor] this.store is null?", this.store === null);
+    constructor(protected options: DevtoolsPluginOptions) {
+        console.log("[DevtoolsPlugin Constructor] Entering DevtoolsPlugin constructor with options:", this.options.toString());
+        console.log("[DevtoolsPlugin Constructor] Called");
+        console.log("[DevtoolsPlugin Constructor] this.store =", this.store);
+        console.log("[DevtoolsPlugin Constructor] typeof this.store =", typeof this.store);
+        console.log("[DevtoolsPlugin Constructor] this.store is undefined?", this.store === undefined);
+        console.log("[DevtoolsPlugin Constructor] this.store is null?", this.store === null);
 
         if (this.store) {
-            logger?.debug("[DevtoolsPlugin Constructor] this.store keys:", Object.keys(this.store));
-            logger?.debug("[DevtoolsPlugin Constructor] Setting up interactions subscription");
+            console.log("[DevtoolsPlugin Constructor] this.store keys:", Object.keys(this.store));
+            console.log("[DevtoolsPlugin Constructor] Setting up interactions subscription");
             this.store.subscribe(({ interactions }) => {
                 console.log("[CONSTRUCTOR SUBSCRIPTION] Called with interactions:", interactions);
                 console.log("[CONSTRUCTOR SUBSCRIPTION] lastProcessedInteraction:", this.lastProcessedInteraction);
@@ -70,9 +67,9 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
                     console.log("[CONSTRUCTOR SUBSCRIPTION] No new interactions to process");
                 }
             })
-            logger?.debug("[DevtoolsPlugin Constructor] Interactions subscription set up successfully");
+            console.log("[DevtoolsPlugin Constructor] Interactions subscription set up successfully");
         } else {
-            logger?.debug("[DevtoolsPlugin Constructor] ERROR: this.store is undefined!");
+            console.log("[DevtoolsPlugin Constructor] ERROR: this.store is undefined!");
         }
     }
 
@@ -97,45 +94,48 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     }
 
     registerMessenger(messenger: Messenger<ExtensionSupportedEvents>): Unsubscribe {
-        this.logger?.debug("[registerMessenger] Entering registerMessenger.");
-        this.logger?.debug("[registerMessenger] this.store =", this.store);
-        this.logger?.debug("[registerMessenger] typeof this.store =", typeof this.store);
-        this.logger?.debug("[registerMessenger] this.store.subscribe =", this.store.subscribe);
-        this.logger?.debug("[registerMessenger] typeof this.store.subscribe =", typeof this.store.subscribe);
+        console.log("[registerMessenger] Entering registerMessenger for playerID:", this.playerID);
+        console.log("[registerMessenger] Entering registerMessenger for pluginID:", this.pluginID);
+        console.log("[registerMessenger] this.store =", this.store);
+        console.log("[registerMessenger] typeof this.store =", typeof this.store);
+        console.log("[registerMessenger] this.store.subscribe =", this.store?.subscribe);
+        console.log("[registerMessenger] typeof this.store.subscribe =", typeof this.store?.subscribe);
 
         // Propagate new messages from state to devtools via the messenger
         let lastMessageIndex = -1;
 
         if (!this.store) {
-            this.logger?.debug("[registerMessenger] ERROR: this.store is undefined or null!");
+            console.log("[registerMessenger] ERROR: this.store is undefined or null!");
             return () => {};
         }
 
         if (!this.store.subscribe) {
-            this.logger?.debug("[registerMessenger] ERROR: this.store.subscribe is undefined or null!");
-            this.logger?.debug("[registerMessenger] this.store keys:", Object.keys(this.store));
+            console.log("[registerMessenger] ERROR: this.store.subscribe is undefined or null!");
+            console.log("[registerMessenger] this.store keys:", Object.keys(this.store));
             return () => {};
         }
 
-        this.logger?.debug("[registerMessenger] About to call this.store.subscribe");
+        console.log("[registerMessenger] About to call this.store.subscribe");
         return this.store.subscribe(({ messages }) => {
-            this.logger?.debug("[registerMessenger] Checking for new messages to send.");
+            console.log("[registerMessenger] Checking for new messages to send.");
             const start = lastMessageIndex + 1;
             if (messages.length > start) {
                 const newlyAdded = messages.slice(start);
                 lastMessageIndex = messages.length - 1;
-                this.logger?.debug(`[registerMessenger] Sending ${newlyAdded.length} new message(s) via messenger.`);
+                console.log(`[registerMessenger] Sending ${newlyAdded.length} new message(s) via messenger.`);
                 for (const msg of newlyAdded) {
-                    this.logger?.debug("[registerMessenger] Sending message:", msg);
+                    console.log("[registerMessenger] Sending message:", msg);
                     messenger.sendMessage(msg);
                 }
             } else {
-                this.logger?.debug("[DevtoolsPlugin] No new messages to send.");
+                console.log("[DevtoolsPlugin] No new messages to send.");
             }
         })
     }
 
     protected dispatchPlayerInit(): void {
+        // this.logger?.debug("[dispatchPlayerInit] Entering dispatchPlayerInit.");
+        console.log("[DevtoolsPlugin][dispatchPlayerInit] Entering dispatchPlayerInit.");
         // Initial plugin content
         const transaction: Transaction<PlayerInitEvent> = {
             id: -1,
@@ -152,6 +152,8 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
             _messenger_: true,
         };
 
+        console.log("[DevtoolsPlugin][dispatchPlayerInit] Dispatching transaction:", transaction);
+        // this.logger?.debug("[dispatchPlayerInit] Dispatching transaction:", transaction);
         this.store.dispatch(transaction);
     }
 
@@ -194,8 +196,10 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     }
 
     apply(player: Player): void {
+        console.log("[DevtoolsPlugin][apply] Checking if devtools is active");
         if (!this.checkIfDevtoolsIsActive()) return;
 
+        console.log("[DevtoolsPlugin][apply] Calling dispatchPlayerInit()");
         this.dispatchPlayerInit()
     }
 }

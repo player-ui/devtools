@@ -23,8 +23,8 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
         // (Matches Android implementation)
         connection.receive(method: "message::flipper") { message, _ in
             // We received a message from the flipper server.
-            print("[DevtoolsFlipperPlugin] Received message from Flipper:", message)
-            print("[DevtoolsFlipperPlugin] Number of listeners:", self.listeners.count)
+            // print("[DevtoolsFlipperPlugin] Received message from Flipper:", message)
+            // print("[DevtoolsFlipperPlugin] Number of listeners:", self.listeners.count)
             self.listeners.forEach { $0(message) }
         }
     }

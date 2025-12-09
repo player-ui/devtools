@@ -23,7 +23,8 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
     public func apply<P>(player: P) where P: HeadlessPlayer {
         print("[DEVTOOLSPLUGIN] in apply")
         guard let jsContext = context else {
-            player.logger.e(DevtoolsError.jsContextNotFound)
+//            player.logger.e(DevtoolsError.jsContextNotFound) // TODO: put back later
+            print("[DEVTOOLSPLUGIN] pluginRef is nil:", pluginRef == nil)
             return
         }
 
@@ -50,6 +51,10 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
 //            // TODO: what is happening here on android?
 //            let temp: BaseFlowState = .init(status: .completed)
 //        }
+    }
+
+    deinit { // TODO: remove
+        print("❌❌❌ BasicDevtoolsPlugin Deinited")
     }
 }
 

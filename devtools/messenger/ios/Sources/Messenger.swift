@@ -77,6 +77,7 @@ public class Messenger {
     /// If this is not done, the interval will continue to send out beacons for this Messenger even when it doesn't exist anymore.
     /// This is the equivalent to the manual `destroy()` on the JS layer.
     deinit {
+        print("[DEINIT] Messenger.swift")
         _ = jsMessengerActor.messenger.invokeMethodSafely("destroy")
     }
 }

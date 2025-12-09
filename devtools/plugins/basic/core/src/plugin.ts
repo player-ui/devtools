@@ -36,22 +36,11 @@ const pluginID = pluginData.id;
 
 /** Taps into the Player and ReactPlayer hooks and leverage the WrapperComponent to define and process the content. */
 export class BasicDevtoolsPlugin extends DevtoolsPlugin {
-    /* We allow a mobile logger to be explicitly provided because of an iOS limitation.
-    In detail: there are 2 options for logging on iOS:
-    1. Use the Player logger and PrintLoggerPlugin().
-    2. Use console.log, which is polyfilled via the PolyfillPlugin().
-
-    Neither of these will work because both ios plugins are NOT JSBasePlugins, but 
-    BasicDevtoolsPlugin is. On iOS, JSBasePlugins will be loaded (i.e. `apply`ed)
-    first. So this plugin's ios wrapper and its apply are called before either the 
-    logger or polyfill are available. This results in the logs working unreliably.
-    */
-    constructor(options: Omit<DevtoolsPluginOptions, 'pluginData'>, logger?: Logger) {
+    constructor(options: Omit<DevtoolsPluginOptions, 'pluginData'>) {
         super({
             ...options,
             pluginData,
-        }, logger);
-        this.logger = logger ? new WeakRef(logger) : undefined;
+        });
     }
 
     name = "BasicDevtoolsPlugin";
@@ -80,21 +69,23 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     overrideFlow?: Player["start"];
 
     apply(player: Player): void {
-        this.logger?.deref()?.debug(this.name, "apply() called");
+        this.logger = new WeakRef(player.logger);
+
+        console.log(this.name, "apply() called");
         if (!this.checkIfDevtoolsIsActive()) {
-            this.logger?.deref()?.debug(this.name, "DevTools is not active, returning early");
+            console.log(this.name, "DevTools is not active, returning early");
             return;
         }
 
-        this.logger?.deref()?.debug(this.name, "DevTools is active, setting up plugin");
+        console.log(this.name, "DevTools is active, setting up plugin");
         this.options.pluginData.flow.data!.playerConfig = {
             version: player.getVersion(),
             plugins: player.getPlugins().map((plugin) => plugin.name),
         };
 
-        this.logger?.deref()?.debug(this.name, "Calling super.apply()");
+        console.log(this.name, "Calling super.apply()");
         super.apply(player);
-        this.logger?.deref()?.debug(this.name, "super.apply() completed");
+        console.log(this.name, "super.apply() completed");
 
         const playerID = this.playerID;
 
@@ -122,11 +113,11 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         // this.store.dispatch(transaction);
 
         // Data
-        this.logger?.deref()?.debug(this.name, "Tapping dataController hook");
+        console.log(this.name, "Tapping dataController hook");
         player.hooks.dataController.tap(this.name, (dataController) => {
-            this.logger?.deref()?.debug(this.name, "dataController hook called");
+            console.log(this.name, "dataController hook called");
             dataController.hooks.onUpdate.tap(this.name, (updates) => {
-                this.logger?.deref()?.debug(this.name, "dataController.onUpdate hook called");
+                console.log(this.name, "dataController.onUpdate hook called");
                 // TODO: Do I even need to store this anymore?
                 this.data = produce(this.data, (draft) => {
                     updates.forEach(({ binding, newValue }) => {
@@ -141,7 +132,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                     try {
                         dset(draft, ["plugins", pluginID, "flow", "data", "data"], this.data);
                     } catch {
-                        player.logger.error(this.name, "Error setting the following data: ", this.data);
+                        console.log(this.name, "Error setting the following data: ", this.data);
                         return;
                     }
                 });
@@ -156,10 +147,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
             });
         });
 
-        // Logs
-        if (!this.logger) {
-            this.logger = new WeakRef(player.logger);
-        }
         player.logger.hooks.log.tap(this.name, (severity, message) => {
             this.logs = [...this.logs, { severity, message }];
 
@@ -170,7 +157,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                 try {
                     dset(draft, ["plugins", pluginID, "flow", "data", "logs"], this.logs);
                 } catch {
-                    this.logger?.deref()?.error(this.name, "Error setting the following log: ", this.logs);
+                    console.log(this.name, "Error setting the following log: ", this.logs);
                 }
             });
 
@@ -184,9 +171,9 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // Flow
-        this.logger?.deref()?.debug(this.name, "Tapping onStart hook");
+        console.log(this.name, "Tapping onStart hook");
         player.hooks.onStart.tap(this.name, (f) => {
-            this.logger?.deref()?.debug(this.name, "onStart hook called");
+            console.log(this.name, "onStart hook called");
             this.flow = JSON.parse(JSON.stringify(f));
 
             const state = this.store.getState();
@@ -210,16 +197,16 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // View
-        this.logger?.deref()?.debug(this.name, "Tapping view hook");
+        console.log(this.name, "Tapping view hook");
         player.hooks.view.tap(this.name, (view) => {
-            this.logger?.deref()?.debug(this.name, "view hook called");
+            console.log(this.name, "view hook called");
             this.view = new WeakRef(view);
         });
 
         // Expression evaluator
-        this.logger?.deref()?.debug(this.name, "Tapping expressionEvaluator hook");
+        console.log(this.name, "Tapping expressionEvaluator hook");
         player.hooks.expressionEvaluator.tap(this.name, (evaluator) => {
-            this.logger?.deref()?.debug(this.name, "expressionEvaluator hook called");
+            console.log(this.name, "expressionEvaluator hook called");
             this.expressionEvaluator = new WeakRef(evaluator);
         });
 
@@ -266,7 +253,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     }
 
     processInteraction(interaction: DevtoolsPluginInteractionEvent): void {
-        this.logger?.deref()?.debug(this.name, "About to process interaction", interaction);
+        console.log(this.name, "About to process interaction", interaction);
 
         // invokes mobile specific handlers
         super.processInteraction(interaction)
@@ -316,7 +303,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
             try {
                 newFlow = JSON.parse(payload);
             } catch (e) {
-                this.logger?.deref()?.error(this.name, "Error parsing new flow", e);
+                console.log(this.name, "Error parsing new flow", e);
             }
 
             if (newFlow) {
@@ -327,6 +314,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
             return;
         }
 
-        this.logger?.deref()?.debug(this.name, "Unhandled interaction", interaction);
+        console.log(this.name, "Unhandled interaction", interaction);
     }
 }

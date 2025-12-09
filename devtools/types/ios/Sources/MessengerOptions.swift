@@ -108,6 +108,10 @@ public class MessengerOptions {
         self.messageCallback = messageCallback
         self.handleFailedMessage = handleFailedMessage
     }
+
+    deinit { // TODO: remove
+        print("[DEINIT] MessengerOptions.swift")
+    }
 }
 
 public extension MessengerOptions {
@@ -134,9 +138,7 @@ public extension MessengerOptions {
         }
 
         print("[MessengerOptions] jsOptions before JSValue:", jsOptions)
-        let result = JSValue(object: jsOptions, in: jsContext)
-        print("[MessengerOptions] JSValue created, context property:", result?.forProperty("context"))
-        return result
+        return JSValue(object: jsOptions, in: jsContext)
     }
 
     // MARK: - Callback Creators

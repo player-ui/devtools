@@ -30,33 +30,51 @@ public class PolyfillPlugin: NativePlugin {
     public func apply<P>(player: P) where P: HeadlessPlayer {
         guard let context = player.jsPlayerReference?.context else { return }
         self.context = context
-
-        // Use print because the logger might not exist yet
-        // Also, we can't actually polyfill console exactly. This has a limit of
-        // 5 arguments
-        let console: @convention(block) (JSValue?, JSValue?, JSValue?, JSValue?, JSValue?) -> Void = { arg1, arg2, arg3, arg4, arg5 in
-            let args = [arg1, arg2, arg3, arg4, arg5]
-                .compactMap { $0 }
-                .filter { !$0.isUndefined }
-                .compactMap { $0.toString() }
-            print("[CORE] \(args.joined(separator: " "))")
-        }
-
-        guard let jsSetInterval = JSValue(object: context.setInterval, in: context),
-              let jsClearInterval = JSValue(object: context.clearInterval, in: context),
-              let jsConsole = JSValue(object: console, in: context)
-        else {
-            return
-        }
-        context.setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
-        context.setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
-        context.setObject(["log": jsConsole], forKeyedSubscript: "console" as NSString)
+        context.polyfill()
     }
 }
 
 extension JSContext {
+    // TODO: Apply through the plugin. Making this public so we can apply it through a JSBasePlugin
+    /* 
+    TODO: Copied context to clean up later.
+
+    We allow a mobile logger to be explicitly provided because of an iOS limitation.
+    In detail: there are 2 options for logging on iOS:
+    1. Use the Player logger and PrintLoggerPlugin().
+    2. Use console.log, which is polyfilled via the PolyfillPlugin().
+
+    Neither of these will work because both ios plugins are NOT JSBasePlugins, but 
+    BasicDevtoolsPlugin is. On iOS, JSBasePlugins will be loaded (i.e. `apply`ed)
+    first. So this plugin's ios wrapper and its apply are called before either the 
+    logger or polyfill are available. This results in the logs working unreliably.
+    */
+    public func polyfill() {
+        guard let jsSetInterval = JSValue(object: setInterval, in: self),
+              let jsClearInterval = JSValue(object: clearInterval, in: self),
+              let jsConsole = JSValue(object: console, in: self)
+        else {
+            return
+        }
+        setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
+        setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
+        setObject(["log": jsConsole], forKeyedSubscript: "console" as NSString)
+    }
+
+    // Use print because the logger might not exist yet
+    // Also, we can't actually polyfill console exactly. This has a limit of 5 arguments
+    private var console: @convention(block) (JSValue?, JSValue?, JSValue?, JSValue?, JSValue?) -> Void {
+        { arg1, arg2, arg3, arg4, arg5 in
+            let args = [arg1, arg2, arg3, arg4, arg5]
+                .compactMap { $0 }
+                .filter { !$0.isUndefined }
+                .compactMap { $0.toString() }
+            print("[CORE CONSOLE] \(args.joined(separator: " "))")
+        }
+    }
+
     /// Registers a repeating job that happens every `delay` milliseconds. This is a Swift-native polyfill for JS's `setInterval`.
-    var setInterval: @convention(block) (JSValue?, JSValue?) -> JSValue? {
+    private var setInterval: @convention(block) (JSValue?, JSValue?) -> JSValue? {
         { (callback, delay) in
             guard let callback, let delayInt32 = delay?.toInt32() else { return nil }
 
@@ -69,7 +87,7 @@ extension JSContext {
     }
 
     /// Cancels the repeating job. This is a Swift-native polyfill for JS's `clearInterval`.
-    var clearInterval: @convention(block) (JSValue?) -> Void {
+    private var clearInterval: @convention(block) (JSValue?) -> Void {
         { timerId in
             guard let timerId = timerId?.toInt32() else { return }
             AsynchronousIntervalManager.shared.cancelTimer(id: Int(timerId))

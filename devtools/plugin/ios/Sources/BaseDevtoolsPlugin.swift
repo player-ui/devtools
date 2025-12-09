@@ -77,23 +77,25 @@ public struct DevtoolsPluginOptions {
     let playerID: String
     let handler: DevtoolsHandler
     let pluginData: PluginData?
+    public let jsCompatible: [String: Any]
 
-    public init(playerID: String, handler: DevtoolsHandler, pluginData: PluginData? = nil) {
+    public init(
+        in context: JSContext,
+        playerID: String,
+        handler: DevtoolsHandler,
+        pluginData: PluginData? = nil
+    ) {
         self.playerID = playerID
         self.handler = handler
         self.pluginData = pluginData
-    }
-
-    /// Format the options into a type JS can parse
-    public func jsCompatible(context: JSContext) -> [String: Any] {
-        var dict: [String: Any] = [
+        var jsCompatible: [String: Any] = [
             "playerID": playerID,
             "handler": handler.jsCompatible(context: context)
         ]
         if let pluginData {
-            dict["pluginData"] = pluginData.jsCompatible
+            jsCompatible["pluginData"] = pluginData.jsCompatible
         }
-        return dict
+        self.jsCompatible = jsCompatible
     }
 }
 

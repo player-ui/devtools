@@ -32,8 +32,8 @@ struct PluginDemos: View {
     private func getPlugins() -> [NativePlugin] {
         [
             ReferenceAssetsPlugin(),
-            PolyfillPlugin(),
-            PrintLoggerPlugin(level: .debug),
+//            PolyfillPlugin(),
+//            PrintLoggerPlugin(level: .debug),
             BasicDevtoolsPlugin(id: "demo", flipperPlugin: model.flipperPlugin)
         ]
     }
@@ -117,8 +117,8 @@ extension [NativePlugin] {
     /// The list of all plugins to load in a demo, if none are specifically provided.
     static let defaults: [NativePlugin] = [
         ReferenceAssetsPlugin(),
-        PolyfillPlugin(),
-        PrintLoggerPlugin(level: .debug),
+//        PolyfillPlugin(),
+//        PrintLoggerPlugin(level: .debug),
         BasicDevtoolsPlugin(id: "demo")
     ]
 }
