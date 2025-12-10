@@ -16,13 +16,10 @@ public protocol BaseDevtoolsPlugin: JSBasePlugin {
     var store: PluginStore { get throws }
 
     /// Whether or not devtools is active
-    var isActive: Bool { get } // Used to make the DevtoolsHandler
+    var isActive: Bool { get }
 
     /// Register new messagers
     func registerMessenger(messenger: Messenger) -> Unsubscribe
-
-    /// Process new messages received
-    func processInteraction(interaction: Message) // Used to make the DevtoolsHandler
 }
 
 /// A wrapper around the core for DevTools plugins that provides Flipper integration.
@@ -66,10 +63,6 @@ public extension BaseDevtoolsPlugin {
     func registerMessenger(messenger: Messenger) -> Unsubscribe {
         let unsubscribe = pluginRef?.invokeMethodSafely("registerMessenger", withArguments: [messenger.jsCompatible])
         return { unsubscribe?.call(withArguments: []) }
-    }
-
-    func processInteraction(interaction: Message) {
-        _ = pluginRef?.invokeMethodSafely("processInteraction", withArguments: [interaction])
     }
 }
 

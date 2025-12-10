@@ -31,8 +31,7 @@ public class Messenger {
         let jsMessenger = try context.construct(
             className: "Messenger",
             inBundle: Bundle.module,
-            withArguments: [jsOptions],
-            withPolyfill: { _ in /* TODO: remove this set up */ }
+            withArguments: [jsOptions]
         )
         self.jsMessengerActor = JSMessengerActor(jsMessenger)
         self.jsCompatible = jsMessenger

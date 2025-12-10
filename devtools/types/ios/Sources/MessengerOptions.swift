@@ -23,6 +23,7 @@ public protocol MessengerLogger {
 /// A message that can be sent or received by the Messenger. This includes messages with transaction metaData
 public typealias Message = [String: Any]
 public typealias MessageListener = ([String: Any]) -> Void
+public typealias Unsubscribe = () -> Void
 
 /// Swift implementation of MessengerOptions matching the TypeScript interface
 ///

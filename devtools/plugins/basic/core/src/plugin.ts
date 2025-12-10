@@ -293,7 +293,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                 _messenger_: true,
             });
 
-            this.lastProcessedInteraction += 1;
             return;
         }
 
@@ -303,14 +302,13 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
             try {
                 newFlow = JSON.parse(payload);
             } catch (e) {
-                console.log(this.name, "Error parsing new flow", e);
+                console.error("Error parsing new flow", e);
             }
 
             if (newFlow) {
                 this.overrideFlow(newFlow);
             }
 
-            this.lastProcessedInteraction += 1;
             return;
         }
 

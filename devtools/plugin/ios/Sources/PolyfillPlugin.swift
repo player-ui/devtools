@@ -58,7 +58,10 @@ extension JSContext {
         }
         setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
         setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
-        setObject(["log": jsConsole], forKeyedSubscript: "console" as NSString)
+        setObject([
+            "log": jsConsole,
+            "error": jsConsole
+        ], forKeyedSubscript: "console" as NSString)
     }
 
     // Use print because the logger might not exist yet

@@ -7,7 +7,7 @@ import PlayerUI
 import JavaScriptCore
 
 public extension JSContext {
-    /// Construct a JS class from a file
+    /// Construct a JS class from a file. This can construct objects that aren't player plugins.
     /// - Parameters:
     ///   - className: The name of the class to construct
     ///   - jsModule: The name of the module to construct the class from. (I.e. the same as `"native_bundle"` in the BUILD file.)
@@ -28,9 +28,7 @@ public extension JSContext {
         inModule jsModule: String? = nil,
         fromFile fileName: String? = nil,
         inBundle bundle: Bundle,
-        withArguments args: [Any] = [],
-        // TODO: remove polyfill
-        withPolyfill polyfill: @escaping (JSContext) -> Void = { _ in }
+        withArguments args: [Any] = []
     ) throws -> JSValue {
         let jsModule = jsModule ?? className
         let fileName = fileName ?? "\(jsModule).native"
@@ -41,7 +39,6 @@ public extension JSContext {
             throw JSBaseError.failedToParseScript
         }
 
-        polyfill(self)
         evaluateScript(script)
 
         guard let module = objectForKeyedSubscript(jsModule) else {
@@ -70,6 +67,7 @@ public extension JSValue {
         file: String = #file,
         line: Int = #line
     ) -> JSValue? { // TODO: replace print with player logger?
+        // forProperty / call doesn't work the same as this for some reason
         guard hasProperty(method) else {
             print("[JS SAFETY] Error in '\(file)' on line \(line). Could not find function with name '\(method)'")
             return nil
