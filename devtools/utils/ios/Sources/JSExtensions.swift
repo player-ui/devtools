@@ -69,22 +69,16 @@ public extension JSValue {
         withArguments arguments: [Any] = [],
         file: String = #file,
         line: Int = #line
-    ) -> JSValue? { // TODO: replace with player logger?
-        guard let function = objectForKeyedSubscript(method) else {
-            // TODO: replace with logger?
+    ) -> JSValue? { // TODO: replace print with player logger?
+        guard hasProperty(method) else {
             print("[JS SAFETY] Error in '\(file)' on line \(line). Could not find function with name '\(method)'")
             return nil
         }
 
-        guard !function.isUndefined && !function.isNull else {
-            print("[JS SAFETY] Error in '\(file)' on line \(line). Function with name '\(method)' is undefined or null")
-            return nil
-        }
-
-        guard let result = function.call(withArguments: arguments),
+        guard let result = invokeMethod(method, withArguments: arguments),
               !result.isNull
         else {
-            print("[JS SAFETY] Error in '\(file)' on line \(line). Found function with name '\(method)' but could not call it with arguments=\(arguments)")
+            print("[JS SAFETY] Error in '\(file)' on line \(line). Found property with name='\(method)' but could not call it with arguments=\(arguments)")
             return nil
         }
         return result

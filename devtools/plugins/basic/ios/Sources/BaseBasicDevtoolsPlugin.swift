@@ -38,12 +38,10 @@ open class BaseBasicDevtoolsPlugin: JSBasePlugin, BaseDevtoolsPlugin {
     struct Handler: DevtoolsHandler {
         var isActive = true
 
-        func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {
-            print("[DEVTOOLS] processInteraction called with: \(interaction)")
-        }
+        // This plugin has no extra steps for processInteraction beyond the core impl.
+        func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {}
 
-        func log(message: String) {
-            print("[DEVTOOLS] log: \(message)")
-        }
+        // This plugin has no extra steps for log beyond the core impl.
+        func log(message: String) {}
     }
 }

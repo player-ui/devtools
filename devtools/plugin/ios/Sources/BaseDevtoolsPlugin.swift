@@ -64,7 +64,7 @@ public extension BaseDevtoolsPlugin {
     }
 
     func registerMessenger(messenger: Messenger) -> Unsubscribe {
-        let unsubscribe = pluginRef?.invokeMethod("registerMessenger", withArguments: [messenger.jsCompatible])
+        let unsubscribe = pluginRef?.invokeMethodSafely("registerMessenger", withArguments: [messenger.jsCompatible])
         return { unsubscribe?.call(withArguments: []) }
     }
 
