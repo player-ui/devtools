@@ -16,7 +16,6 @@ public extension JSContext {
     ///   default to `"\(jsModule).native"`
     ///   - bundle: The bundle containing the JavaScript file
     ///   - args: The arguments to pass to the constructor. These should be valid JSValues or an equivalent
-    ///   - polyfill: A closure that can be used to add polyfills to the context before evaluating the script
     /// - Returns: The instantiated JS class as a JSValue
     ///
     /// ## 🛑 WARNING
@@ -66,7 +65,7 @@ public extension JSValue {
         withArguments arguments: [Any] = [],
         file: String = #file,
         line: Int = #line
-    ) -> JSValue? { // TODO: replace print with player logger?
+    ) -> JSValue? {
         // forProperty / call doesn't work the same as this for some reason
         guard hasProperty(method) else {
             print("[JS SAFETY] Error in '\(file)' on line \(line). Could not find function with name '\(method)'")
@@ -79,7 +78,7 @@ public extension JSValue {
             print("[JS SAFETY] Error in '\(file)' on line \(line). Found property with name='\(method)' but could not call it with arguments=\(arguments)")
             return nil
         }
-        return result
+        return result.isUndefined ? nil : result
     }
 }
 

@@ -71,21 +71,16 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     apply(player: Player): void {
         this.logger = new WeakRef(player.logger);
 
-        console.log(this.name, "apply() called");
         if (!this.checkIfDevtoolsIsActive()) {
-            console.log(this.name, "DevTools is not active, returning early");
             return;
         }
 
-        console.log(this.name, "DevTools is active, setting up plugin");
         this.options.pluginData.flow.data!.playerConfig = {
             version: player.getVersion(),
             plugins: player.getPlugins().map((plugin) => plugin.name),
         };
 
-        console.log(this.name, "Calling super.apply()");
         super.apply(player);
-        console.log(this.name, "super.apply() completed");
 
         const playerID = this.playerID;
 
@@ -113,11 +108,8 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         // this.store.dispatch(transaction);
 
         // Data
-        console.log(this.name, "Tapping dataController hook");
         player.hooks.dataController.tap(this.name, (dataController) => {
-            console.log(this.name, "dataController hook called");
             dataController.hooks.onUpdate.tap(this.name, (updates) => {
-                console.log(this.name, "dataController.onUpdate hook called");
                 // TODO: Do I even need to store this anymore?
                 this.data = produce(this.data, (draft) => {
                     updates.forEach(({ binding, newValue }) => {
@@ -132,7 +124,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                     try {
                         dset(draft, ["plugins", pluginID, "flow", "data", "data"], this.data);
                     } catch {
-                        console.log(this.name, "Error setting the following data: ", this.data);
                         return;
                     }
                 });
@@ -157,7 +148,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                 try {
                     dset(draft, ["plugins", pluginID, "flow", "data", "logs"], this.logs);
                 } catch {
-                    console.log(this.name, "Error setting the following log: ", this.logs);
+                    // Silently fail
                 }
             });
 
@@ -171,9 +162,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // Flow
-        console.log(this.name, "Tapping onStart hook");
         player.hooks.onStart.tap(this.name, (f) => {
-            console.log(this.name, "onStart hook called");
             this.flow = JSON.parse(JSON.stringify(f));
 
             const state = this.store.getState();
@@ -197,16 +186,12 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
         });
 
         // View
-        console.log(this.name, "Tapping view hook");
         player.hooks.view.tap(this.name, (view) => {
-            console.log(this.name, "view hook called");
             this.view = new WeakRef(view);
         });
 
         // Expression evaluator
-        console.log(this.name, "Tapping expressionEvaluator hook");
         player.hooks.expressionEvaluator.tap(this.name, (evaluator) => {
-            console.log(this.name, "expressionEvaluator hook called");
             this.expressionEvaluator = new WeakRef(evaluator);
         });
 
@@ -253,8 +238,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     }
 
     processInteraction(interaction: DevtoolsPluginInteractionEvent): void {
-        console.log(this.name, "About to process interaction", interaction);
-
         // invokes mobile specific handlers
         super.processInteraction(interaction)
 
@@ -311,7 +294,5 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
             return;
         }
-
-        console.log(this.name, "Unhandled interaction", interaction);
     }
 }

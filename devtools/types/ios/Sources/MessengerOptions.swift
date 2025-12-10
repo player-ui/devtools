@@ -109,10 +109,6 @@ public class MessengerOptions {
         self.messageCallback = messageCallback
         self.handleFailedMessage = handleFailedMessage
     }
-
-    deinit { // TODO: remove
-        print("[DEINIT] MessengerOptions.swift")
-    }
 }
 
 public extension MessengerOptions {

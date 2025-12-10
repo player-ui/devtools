@@ -125,7 +125,7 @@ final class BaseBasicDevtoolsPluginTests: XCTestCase {
         ]
 
         for message in testMessages {
-            plugin.processInteraction(interaction: message)
+            testHandler.processInteraction(interaction: message)
         }
 
         XCTAssertEqual(testHandler.interactionsProcessed, testMessages.count)

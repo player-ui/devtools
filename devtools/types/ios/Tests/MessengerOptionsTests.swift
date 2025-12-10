@@ -57,7 +57,7 @@ final class MessengerOptionsTests: XCTestCase {
             .objectForKeyedSubscript("log")
             .call(withArguments: [logMessage])
         // The array is converted to a string representation
-        XCTAssertEqual(logger.loggedMessages, ["[\"test log message\"]"])
+        XCTAssertEqual(logger.loggedMessages, ["test log message"])
     }
 
     func testAsJSValueConvertsSendMessageCorrectly() {

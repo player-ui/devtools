@@ -87,13 +87,9 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   private id: string;
 
   constructor(private options: MessengerOptions<T>) {
-    console.log("[MESSENGER CONSTRUCTOR] options received:", options);
-    console.log("[MESSENGER CONSTRUCTOR] options.context:", options.context);
     // set defaults:
     this.id = options.id || uid();
     this.beaconIntervalMS = options.beaconIntervalMS || 1000;
-
-    console.log(`[MESSENGER] Initialized messenger with id=${this.id}, context=${this.options.context}`);
 
     // start beacon interval:
     this.beaconInterval = setInterval(
@@ -101,14 +97,11 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       this.beaconIntervalMS,
     );
 
-    console.log(`[MESSENGER] Started beacon interval with ${this.beaconIntervalMS}ms`);
-
     // bind message handler:
     this.handleMessage = this._handleMessage.bind(this);
 
     // add listener:
     this.options.addListener(this.handleMessage);
-    console.log(`[MESSENGER] Added listener for incoming messages`);
   }
 
   private log(message: string) {
@@ -205,17 +198,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const connection = this.getConnection(parsed.sender);
     const isKnownConnection = Boolean(connection);
 
-    // Only log non-beacon messages to reduce noise
-    const isBeacon = (parsed as any).type === "MESSENGER_BEACON";
-    if (!isBeacon) {
-      console.log("[MESSENGER FILTER] Message type:", (parsed as any).type);
-      console.log("[MESSENGER FILTER] isFromMessenger:", isFromMessenger);
-      console.log("[MESSENGER FILTER] isFromSelf:", isFromSelf);
-      console.log("[MESSENGER FILTER] isFromSameContext:", isFromSameContext, "(parsed.context:", parsed.context, "this.options.context:", this.options.context + ")");
-      console.log("[MESSENGER FILTER] isTargetingOthers:", isTargetingOthers, "(parsed.target:", parsed.target, "this.id:", this.id + ")");
-      console.log("[MESSENGER FILTER] isKnownConnection:", isKnownConnection);
-    }
-
     if (
       !isFromMessenger ||
       isFromSelf ||
@@ -223,13 +205,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       isTargetingOthers ||
       (isKnownConnection && parsed.type === "MESSENGER_BEACON")
     ) {
-      if (!isBeacon) {
-        console.log("[MESSENGER FILTER] Message filtered out!");
-      }
       return;
-    }
-    if (!isBeacon) {
-      console.log("[MESSENGER FILTER] Message passed filter!");
     }
 
     const handlers: Record<string, (parsed: Transaction<T>) => void> = {
@@ -383,8 +359,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const parsed: T =
       typeof message === "string" ? JSON.parse(message) : message;
 
-    console.log(`[MESSENGER] Sending message type=${(parsed as BaseEvent<string, unknown>).type} from ${this.id}`);
-
     this.addEvent(parsed);
 
     const target = parsed.target || null;
@@ -398,8 +372,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     return this.options.sendMessage(msg).catch(() => {
       this.options.handleFailedMessage?.(msg);
 
-      console.log(`[MESSENGER] Failed to send message type=${(parsed as BaseEvent<string, unknown>).type} from ${this.id} to ${target || "all"}`);
-
       this.log(
         `failed to send message: ${
           (parsed as BaseEvent<string, unknown>).type
@@ -409,15 +381,11 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   }
 
   public destroy() {
-    console.log(`[MESSENGER] Destroying messenger ${this.id}`);
-
     if (this.beaconInterval) {
       clearInterval(this.beaconInterval);
-      console.log(`[MESSENGER] Cleared beacon interval`);
     }
 
     this.options.removeListener(this.handleMessage);
-    console.log(`[MESSENGER] Removed listener`);
 
     Object.keys(Messenger.connections).forEach((connection) => {
       const event: DisconnectEvent = {
@@ -430,7 +398,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     });
 
     Messenger.reset();
-    console.log(`[MESSENGER] Messenger ${this.id} destroyed`);
     this.log("destroyed");
   }
 

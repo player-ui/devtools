@@ -28,7 +28,7 @@ public extension BaseDevtoolsPlugin {
     /// The id of the plugin
     var pluginID: String {
         get throws {
-            guard let id = pluginRef?.forProperty("pluginID")?.toString() else {
+            guard let jsID = pluginRef?.forProperty("playerID"), !jsID.isUndefined, let id = jsID.toString() else {
                 throw DevtoolsError.notFoundInCore(fnName: "pluginID")
             }
             return id
@@ -38,7 +38,7 @@ public extension BaseDevtoolsPlugin {
     /// The id of the player
     var playerID: String {
         get throws {
-            guard let id = pluginRef?.forProperty("playerID")?.toString() else {
+            guard let jsID = pluginRef?.forProperty("playerID"), !jsID.isUndefined, let id = jsID.toString() else {
                 throw DevtoolsError.notFoundInCore(fnName: "playerID")
             }
             return id
@@ -47,7 +47,7 @@ public extension BaseDevtoolsPlugin {
 
     var store: PluginStore {
         get throws {
-            guard let jsStore = pluginRef?.forProperty("store") else {
+            guard let jsStore = pluginRef?.forProperty("store"), !jsStore.isUndefined else {
                 throw DevtoolsError.notFoundInCore(fnName: "store")
             }
             return PluginStore(jsValue: jsStore)
@@ -118,19 +118,19 @@ public struct PluginData {
     }
 }
 
-public struct PluginStore { // TODO: finish implementing
-    // TODO: check if the functions exist first
-    // TODO: add errors to match android
+public struct PluginStore {
     let jsValue: JSValue
 
     public func dispatch(event: Message) {
         _ = jsValue.invokeMethodSafely("dispatch", withArguments: [event])
     }
 
+    // Unused so far
     func getState() -> JSPluginStore? {
         jsValue.invokeMethodSafely("getState")?.toObject()
     }
 
+    // Unused so far
     func subscribe(subscriber: @escaping (JSPluginStore) -> Void) -> Unsubscribe {
         let objcSubscriber: @convention(block) (JSValue) -> Void = { jsStore in
             guard let store = jsStore.toObject() else { return }
@@ -153,7 +153,7 @@ public enum DevtoolsError: LocalizedError {
         switch self {
         case .jsContextNotFound:
             return "Did not receive non-nil JSContext from Player. Devtools will not be initialized."
-          case .notFoundInCore(let fnName):
+        case .notFoundInCore(let fnName):
             return "Did not find function with name '\(fnName)' in JS core."
         }
     }

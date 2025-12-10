@@ -11,23 +11,21 @@ import PlayerUIDevToolsMessenger
 public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
     /// Our connection to the flipper server
     public let flipperPlugin: DevtoolsFlipperPlugin
-
+    
     // Keep a reference so the message doesn't get garbage collected and destroyed
     private var messenger: Messenger?
-
+    
     public init(id: String, flipperPlugin: DevtoolsFlipperPlugin? = nil) {
         self.flipperPlugin = flipperPlugin ?? DevtoolsFlipperPlugin()
         super.init(playerID: id)
     }
-
+    
     public func apply<P>(player: P) where P: HeadlessPlayer {
-        print("[DEVTOOLSPLUGIN] in apply")
         guard let jsContext = context else {
-//            player.logger.e(DevtoolsError.jsContextNotFound) // TODO: put back later
-            print("[DEVTOOLSPLUGIN] pluginRef is nil:", pluginRef == nil)
+            player.logger.e(DevtoolsError.jsContextNotFound)
             return
         }
-
+        
         do {
             let playerID = try playerID
             let options = MessengerOptions(
@@ -46,15 +44,11 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
         } catch {
             player.logger.e(error)
         }
-
-//        player.hooks?.state.tap { state in
-//            // TODO: what is happening here on android?
-//            let temp: BaseFlowState = .init(status: .completed)
-//        }
-    }
-
-    deinit { // TODO: remove
-        print("❌❌❌ BasicDevtoolsPlugin Deinited")
+        
+        //        player.hooks?.state.tap { state in
+        //            // TODO: what is happening here on android?
+        //            let temp: BaseFlowState = .init(status: .completed)
+        //        }
     }
 }
 

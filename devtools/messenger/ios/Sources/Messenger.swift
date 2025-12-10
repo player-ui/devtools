@@ -71,14 +71,6 @@ public class Messenger {
             _ = promise.invokeMethodSafely("then", withArguments: [jsResolve as Any])
         }
     }
-
-    /// Destroy the messenger instance and clean up resources.
-    /// If this is not done, the interval will continue to send out beacons for this Messenger even when it doesn't exist anymore.
-    /// This is the equivalent to the manual `destroy()` on the JS layer.
-    deinit {
-        print("[DEINIT] Messenger.swift")
-        _ = jsMessengerActor.messenger.invokeMethodSafely("destroy")
-    }
 }
 
 // MARK: - Error Types

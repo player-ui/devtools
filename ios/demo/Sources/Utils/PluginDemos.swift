@@ -16,48 +16,35 @@ import PlayerUIPrintLoggerPlugin
 struct PluginDemos: View {
     @ObservedObject var model: DemoViewModel
     let demos: [Demo]
-
+    
     @State private var filteredDemos: [Demo] = []
-
+    
     var body: some View {
-        // TODO: change back to multiple flows once debugging is done
-        if let demo = demos.first(where: { demo in
-            demo.name == "action/action-counter"
-        }) {
-            FlowManagerView(
-                flowSequence: demo.flows,
-                navTitle: demo.navTitle,
-                plugins: demo.plugins ?? model.defaultPlugins
-            )
+        List {
+            Section("Mocks") {
+                let demosToShow = filteredDemos.isEmpty ? demos : filteredDemos
+                ForEach(demosToShow, id: \.name) { demo in
+                    NavigationLink {
+                        FlowManagerView(
+                            flowSequence: demo.flows,
+                            navTitle: demo.navTitle,
+                            plugins: demo.plugins ?? model.defaultPlugins
+                        )
+                    } label: {
+                        Text(demo.name)
+                    }
+                }
+            }
+        }
+        .searchable(text: $model.searchQuery)
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
+        .onChange(of: model.debouncedSearchQuery) { searchQuery in
+            filteredDemos = demos.filter { demo in
+                demo.name.localizedCaseInsensitiveContains(searchQuery)
+            }
         }
     }
-
-//    var body: some View {
-//        List {
-//            Section("Mocks") {
-//                let demosToShow = filteredDemos.isEmpty ? demos : filteredDemos
-//                ForEach(demosToShow, id: \.name) { demo in
-//                    NavigationLink {
-//                        FlowManagerView(
-//                            flowSequence: demo.flows,
-//                            navTitle: demo.navTitle,
-//                            plugins: demo.plugins
-//                        )
-//                    } label: {
-//                        Text(demo.name)
-//                    }
-//                }
-//            }
-//        }
-//        .searchable(text: $model.searchQuery)
-//        .autocorrectionDisabled()
-//        .textInputAutocapitalization(.never)
-//        .onChange(of: model.debouncedSearchQuery) { searchQuery in
-//            filteredDemos = demos.filter { demo in
-//                demo.name.localizedCaseInsensitiveContains(searchQuery)
-//            }
-//        }
-//    }
 }
 
 /// A representation of each demo
@@ -73,7 +60,7 @@ struct Demo {
     let navTitle: String
     /// An override of the plugins to be used in the demo. If this is nil, the intention is that the demo should provide defaults.
     var plugins: [NativePlugin]?
-
+    
     init(name: String, flows: [Flow], navTitle: String? = nil, plugins: [NativePlugin]? = nil) {
         self.name = name
         self.flows = flows
@@ -90,7 +77,7 @@ enum Flow {
     /// This path should be relative and NOT include the ".json" extension.
     /// E.g. fancy-dog/basic
     case file(String)
-
+    
     var value: String {
         switch self {
         case .literal(let value):

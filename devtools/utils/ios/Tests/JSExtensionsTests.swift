@@ -97,27 +97,9 @@ final class JSExtensionsTests: XCTestCase {
         XCTAssertEqual(finalCount?.toInt32(), 8, "Count should be updated to 8")
     }
 
-    func testPolyfillIsAddedToContext() throws {
-        let context: JSContext = JSContext()
-        let _ = try context.construct(
-            className: "Fancy",
-            inModule: "Utils",
-            fromFile: "Utils.native",
-            inBundle: Bundle.module,
-            withArguments: ["WorkflowTest"],
-            withPolyfill: { context in
-                context.evaluateScript("var setInterval = function() {}")
-            }
-        )
-        XCTAssertFalse(
-            context.objectForKeyedSubscript("setInterval").isUndefined,
-            "setInterval should be defined"
-        )
-    }
-
     // MARK: - invokeClassMethod tests
 
-    func testInvokeClassMethodWithValidMethod() {
+    func testInvokeMethodSafelyWithValidMethod() {
         // Create a JSValue with a method to test
         let context: JSContext = JSContext()
         let script = """
@@ -143,7 +125,7 @@ final class JSExtensionsTests: XCTestCase {
         XCTAssertEqual(result?.toInt32(), 8)
     }
 
-    func testInvokeClassMethodWithUndefinedResult() {
+    func testInvokeMethodSafelyWithUndefinedResult() {
         guard let context = JSContext() else {
             XCTFail("Failed to create JSContext")
             return
@@ -168,7 +150,7 @@ final class JSExtensionsTests: XCTestCase {
         XCTAssertNil(result)
     }
 
-    func testInvokeClassMethodWithNonExistentMethod() {
+    func testInvokeMethodSafelyWithNonExistentMethod() {
         let context: JSContext = JSContext()
         let script = "var testObject = {};"
         context.evaluateScript(script)
@@ -182,7 +164,7 @@ final class JSExtensionsTests: XCTestCase {
         XCTAssertNil(result)
     }
 
-    func testInvokeClassMethodWithArguments() {
+    func testInvokeMethodSafelyWithArguments() {
         let context: JSContext = JSContext()
         let script = """
         var testObject = {

@@ -8,19 +8,22 @@ import JavaScriptCore
 import PlayerUI
 import PlayerUILogger
 
-// TODO: move out to its own folder in utils or something?
 /**
-Sets up polyfills for JavaScript APIs. This plugin must be added BEFORE any plugins that need it.
+ Sets up polyfills for JavaScript APIs. This plugin must be added BEFORE any plugins that need it.
 
-Provides setInterval, clearInterval, and console.log implementations for JSBase plugins, 
-which will not have access to the browser APIs.
+ Provides setInterval, clearInterval, and console.log implementations for JSBase plugins,
+ which will not have access to the browser APIs.
 
-The polyfills enable:
-- `setInterval`: Registers repeating timers for periodic tasks (e.g., beacon messages)
-- `clearInterval`: Cancels active timers
-- `console.log`: Provides debug logging output
-*/
+ The polyfills enable:
+ - `setInterval`: Registers repeating timers for periodic tasks (e.g., beacon messages)
+ - `clearInterval`: Cancels active timers
+ - `console.log`: Provides debug logging output
+ */
 public class PolyfillPlugin: NativePlugin {
+    /* TODO: actually use this plugin after https://github.com/player-ui/player/issues/773 is fixed.
+     This plugin currently does not work for the same reason the PrintLoggerPlugin doesn't work here:
+     https://github.com/player-ui/player/issues/772
+     */
     public var pluginName: String = "PolyfillPlugin"
     // Exposed for testing
     internal var context: JSContext?
@@ -35,20 +38,9 @@ public class PolyfillPlugin: NativePlugin {
 }
 
 extension JSContext {
-    // TODO: Apply through the plugin. Making this public so we can apply it through a JSBasePlugin
-    /* 
-    TODO: Copied context to clean up later.
-
-    We allow a mobile logger to be explicitly provided because of an iOS limitation.
-    In detail: there are 2 options for logging on iOS:
-    1. Use the Player logger and PrintLoggerPlugin().
-    2. Use console.log, which is polyfilled via the PolyfillPlugin().
-
-    Neither of these will work because both ios plugins are NOT JSBasePlugins, but 
-    BasicDevtoolsPlugin is. On iOS, JSBasePlugins will be loaded (i.e. `apply`ed)
-    first. So this plugin's ios wrapper and its apply are called before either the 
-    logger or polyfill are available. This results in the logs working unreliably.
-    */
+    /*
+     TODO: make this private once https://github.com/player-ui/player/issues/773 is addressed
+     */
     public func polyfill() {
         guard let jsSetInterval = JSValue(object: setInterval, in: self),
               let jsClearInterval = JSValue(object: clearInterval, in: self),
@@ -83,8 +75,6 @@ extension JSContext {
 
             let timerId = AsynchronousIntervalManager.shared
                 .createTimer(callback: callback, delay: Int(delayInt32))
-            // TODO: check if these are actually getting called
-            print("[INTERVAL] [debug] Created timer with id='\(timerId)'")
             return JSValue(int32: Int32(timerId), in: self)
         }
     }
