@@ -5,6 +5,7 @@ import PlayerUISwiftUI
 import SwiftFlipper
 import PlayerUIDevToolsPlugins
 import PlayerUIReferenceAssets
+import PlayerUIDevToolsBasicPlugin
 
 @main
 struct BazelApp: App {
@@ -58,8 +59,12 @@ struct BazelApp: App {
 
 /// View model for the demo app
 class DemoViewModel: ObservableObject {
+    /// Our connection to flipper
     private let flipperClient = FlipperClient(connectionConfig: .init(), plugins: [])
+    /// A plugin that allows us to use the connectiont o flipper
     let flipperPlugin = DevtoolsFlipperPlugin()
+    /// The list of all player plugins to load in a demo, if none are specifically provided.
+    let defaultPlugins: [NativePlugin]
 
     // -- Used to debounce the search query input. -- //
     // The input in the search field
@@ -68,6 +73,11 @@ class DemoViewModel: ObservableObject {
     @Published var debouncedSearchQuery = ""
 
     init() {
+        defaultPlugins = [
+            ReferenceAssetsPlugin(),
+            BasicDevtoolsPlugin(id: "demo", flipperPlugin: flipperPlugin)
+        ]
+
         flipperClient.addPlugin(flipperPlugin)
         flipperClient.connectToFlipper()
         flipperPlugin.addListener(onMessageReceived(_:))
@@ -78,10 +88,8 @@ class DemoViewModel: ObservableObject {
     }
 
     func onMessageReceived(_ message: [String: Any]) {
-        print("DEBUG [DemoViewModel]: onMessageReceived() called with message: \(message)")
-//        Task {
-//            print("DEVTOOLS DEMO: '\(message)'")
-//        }
+        // Do nothing. We can add debugging here if we want.
+        // But generally this just creates way too much output.
     }
 }
 

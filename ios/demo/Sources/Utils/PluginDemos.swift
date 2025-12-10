@@ -20,22 +20,16 @@ struct PluginDemos: View {
     @State private var filteredDemos: [Demo] = []
 
     var body: some View {
-        if let demo = demos.first {
+        // TODO: change back to multiple flows once debugging is done
+        if let demo = demos.first(where: { demo in
+            demo.name == "action/action-counter"
+        }) {
             FlowManagerView(
                 flowSequence: demo.flows,
                 navTitle: demo.navTitle,
-                plugins: getPlugins()
+                plugins: demo.plugins ?? model.defaultPlugins
             )
         }
-    }
-
-    private func getPlugins() -> [NativePlugin] {
-        [
-            ReferenceAssetsPlugin(),
-//            PolyfillPlugin(),
-//            PrintLoggerPlugin(level: .debug),
-            BasicDevtoolsPlugin(id: "demo", flipperPlugin: model.flipperPlugin)
-        ]
     }
 
 //    var body: some View {
@@ -77,10 +71,10 @@ struct Demo {
     let flows: [Flow]
     /// This will be shown in the navigation bar during the demo
     let navTitle: String
-    /// Any plugins to be used in the demo. If none are provided, we'll default to loading all of the assets
-    var plugins: [NativePlugin]
+    /// An override of the plugins to be used in the demo. If this is nil, the intention is that the demo should provide defaults.
+    var plugins: [NativePlugin]?
 
-    init(name: String, flows: [Flow], navTitle: String? = nil, plugins: [NativePlugin] = .defaults) {
+    init(name: String, flows: [Flow], navTitle: String? = nil, plugins: [NativePlugin]? = nil) {
         self.name = name
         self.flows = flows
         self.navTitle = navTitle ?? name
@@ -111,14 +105,4 @@ enum Flow {
             return flow
         }
     }
-}
-
-extension [NativePlugin] {
-    /// The list of all plugins to load in a demo, if none are specifically provided.
-    static let defaults: [NativePlugin] = [
-        ReferenceAssetsPlugin(),
-//        PolyfillPlugin(),
-//        PrintLoggerPlugin(level: .debug),
-        BasicDevtoolsPlugin(id: "demo")
-    ]
 }

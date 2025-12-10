@@ -18,7 +18,6 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
 
     public func didConnect(connection: SwiftFlipper.FlipperConnection) {
         flipperConnection = connection
-        print("[DevtoolsFlipperPlugin] didConnect called")
         // Listen to messages from methods registered under the name "message::flipper"
         // (Matches Android implementation)
         connection.receive(method: "message::flipper") { message, _ in
@@ -34,7 +33,6 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
     }
 
     public func sendMessage(_ message: Message) {
-        print("[DevtoolsFlipperPlugin] sendMessage", message["type"])
         flipperConnection?.send(method: "message::plugin", params: message)
     }
 
