@@ -11,49 +11,23 @@ import PlayerUIDevToolsMessenger
 public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
     /// Our connection to the flipper server
     public let flipperPlugin: DevtoolsFlipperPlugin
-    
-    // Keep a reference so the message doesn't get garbage collected and destroyed
-    private var messenger: Messenger?
-    
+    /// Keep a reference so the messenger doesn't get garbage collected and destroyed
+    public var messenger: Messenger?
+
     public init(id: String, flipperPlugin: DevtoolsFlipperPlugin? = nil) {
         self.flipperPlugin = flipperPlugin ?? DevtoolsFlipperPlugin()
         super.init(playerID: id)
     }
-    
-    public func apply<P>(player: P) where P: HeadlessPlayer {
-        guard let jsContext = context else {
-            player.logger.e(DevtoolsError.jsContextNotFound)
+
+    // Let listeners know that this plugin and its messenger are going away
+    deinit {
+        // TODO: make the removeListener work?
+//        flipperPlugin.removeListener(//)
+        guard let messenger else {
+            print("[KORITEST] Messenger does not exist!")
             return
         }
-        
-        do {
-            let playerID = try playerID
-            let options = MessengerOptions(
-                id: playerID,
-                jsContext: jsContext,
-                context: .player,
-                logger: PlayerLogger(logger: player.logger),
-                sendMessage: flipperPlugin.sendMessage(_:),
-                addListener: flipperPlugin.addListener(_:),
-                removeListener: flipperPlugin.removeListener(_:),
-                messageCallback: try store.dispatch(event:)
-            )
-            let messenger = try Messenger(options: options)
-            self.messenger = messenger
-            _ = registerMessenger(messenger: messenger)
-        } catch {
-            player.logger.e(error)
-        }
-        
-        //        player.hooks?.state.tap { state in
-        //            // TODO: what is happening here on android?
-        //            let temp: BaseFlowState = .init(status: .completed)
-        //        }
+        print("[KORITEST] Destroying Messenger")
+        messenger.destroy()
     }
-}
-
-/// This just wraps the player logger
-struct PlayerLogger: MessengerLogger {
-    let logger: TapableLogger
-    func log(_ args: Any...) { logger.d(args) }
 }

@@ -32,22 +32,22 @@ public extension JSContext {
         let jsModule = jsModule ?? className
         let fileName = fileName ?? "\(jsModule).native"
         guard let url = bundle.url(forResource: fileName, withExtension: "js") else {
-            throw JSBaseError.noSuchFile
+            throw JSBaseError.noSuchFile(fileName: fileName, bundle: bundle)
         }
         guard let script = try? String(contentsOf: url, encoding: .utf8) else {
-            throw JSBaseError.failedToParseScript
+            throw JSBaseError.failedToParseScript(fileName: fileName)
         }
 
         evaluateScript(script)
 
         guard let module = objectForKeyedSubscript(jsModule) else {
-            throw JSBaseError.noSuchJSModule
+            throw JSBaseError.noSuchJSModule(moduleName: jsModule, className: className, fileName: fileName)
         }
         guard let jsClass = module.objectForKeyedSubscript(className) else {
-            throw JSBaseError.noSuchJSClass
+            throw JSBaseError.noSuchJSClass(className: className, fileName: fileName)
         }
         guard let constructedClass = jsClass.construct(withArguments: args), !constructedClass.isUndefined else {
-            throw JSBaseError.couldNotInstantiateClass
+            throw JSBaseError.couldNotInstantiateClass(className: className, fileName: fileName)
         }
         return constructedClass
     }
@@ -83,11 +83,41 @@ public extension JSValue {
 }
 
 /// Errors that can occur when trying to load a JS class that will be referenced by a Swift wrapper
-enum JSBaseError: Error {
-    case noSuchFile
-    case failedToParseScript
-    case failedToMakeContext
-    case noSuchJSModule
-    case noSuchJSClass
-    case couldNotInstantiateClass
+enum JSBaseError: Error, LocalizedError {
+    case noSuchFile(fileName: String, bundle: Bundle)
+    case failedToParseScript(fileName: String)
+    case noSuchJSModule(moduleName: String, className: String, fileName: String)
+    case noSuchJSClass(className: String, fileName: String)
+    case couldNotInstantiateClass(className: String, fileName: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .noSuchFile(let fileName, let bundle):
+            return "Could not find file='\(fileName).js' in bundle. Available files: \(bundle.availableFiles)"
+        case .failedToParseScript(let fileName):
+            return "Failed to read contents of file='\(fileName)'"
+        case .noSuchJSModule(let moduleName, let className, let fileName):
+            return "Could not find JS module with name=\(moduleName) containing class='\(className)' in file='\(fileName).js'"
+        case .noSuchJSClass(let className, let fileName):
+            return "Could not find class='\(className)' in file='\(fileName).js'"
+        case .couldNotInstantiateClass(let className, let fileName):
+            return "Could not instantiate class='\(className)' in file='\(fileName).js'"
+        }
+    }
+}
+
+extension Bundle {
+    var availableFiles: [String] {
+        guard let path = resourcePath else {
+            return []
+        }
+        let children = try? FileManager.default.contentsOfDirectory(atPath: path)
+        let paths: [[String]] = children?.compactMap { child in
+            if child.contains(".") {
+                return ["/\(child)"]
+            }
+            return ["/\(child)/..."]
+        } ?? [[]]
+        return paths.reduce([]) { $0 + $1 }
+    }
 }

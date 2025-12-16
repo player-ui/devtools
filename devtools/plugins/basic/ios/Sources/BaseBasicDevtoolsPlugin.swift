@@ -8,7 +8,7 @@ import JavaScriptCore
 
 /// A Player Plugin that provides DevTools capabilities via Flipper
 open class BaseBasicDevtoolsPlugin: JSBasePlugin, BaseDevtoolsPlugin {
-    let _playerID: String
+    private let _playerID: String
     // This is a var so a different handler can be provided for testing
     var handler: DevtoolsHandler = Handler()
     
@@ -20,10 +20,10 @@ open class BaseBasicDevtoolsPlugin: JSBasePlugin, BaseDevtoolsPlugin {
         )
     }
     
-    public override func getUrlForFile(fileName: String) -> URL? {
+    public final override func getUrlForFile(fileName: String) -> URL? {
         Bundle.module.url(forResource: fileName, withExtension: "js")
     }
-    
+
     public override func getArguments() -> [Any] {
         guard let context else { return [] }
         // TODO: replace with proper polyfill plugin after https://github.com/player-ui/player/issues/773

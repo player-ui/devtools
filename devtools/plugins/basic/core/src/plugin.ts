@@ -20,7 +20,7 @@ import flow from "../_generated/content/index.json";
 declare const localStorage: never;
 declare const window: never;
 declare const document: never;
-// declare const console: never; // Keep the console since it's being polyfilled.
+// We do not set console to never, since it may be polyfilled. The player logger is preferred though.
 
 // interface BasicDevtoolsPluginOptions {
 //     id?: string;
@@ -71,9 +71,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     apply(player: Player): void {
         this.logger = new WeakRef(player.logger);
 
-        if (!this.checkIfDevtoolsIsActive()) {
-            return;
-        }
+        if (!this.checkIfDevtoolsIsActive()) return;
 
         this.options.pluginData.flow.data!.playerConfig = {
             version: player.getVersion(),
@@ -124,6 +122,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                     try {
                         dset(draft, ["plugins", pluginID, "flow", "data", "data"], this.data);
                     } catch {
+                        player.logger.error(this.name, "Error setting the following data: ", this.data);
                         return;
                     }
                 });
@@ -148,7 +147,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
                 try {
                     dset(draft, ["plugins", pluginID, "flow", "data", "logs"], this.logs);
                 } catch {
-                    // Silently fail
+                    player.logger.error(this.name, "Error setting the following log: ", this.logs);
                 }
             });
 
@@ -285,7 +284,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
             try {
                 newFlow = JSON.parse(payload);
             } catch (e) {
-                console.error("Error parsing new flow", e);
+                this.logger?.deref()?.error(this.name, "Error parsing new flow", e);
             }
 
             if (newFlow) {

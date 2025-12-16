@@ -71,6 +71,12 @@ public class Messenger {
             _ = promise.invokeMethodSafely("then", withArguments: [jsResolve as Any])
         }
     }
+
+    /// Destroy the messenger. 
+    // This should be called when the messenger is no longer to properly inform other messengers that it is gone.
+    public func destroy() {
+        _ = jsMessengerActor.messenger.invokeMethodSafely("destroy")
+    }
 }
 
 // MARK: - Error Types

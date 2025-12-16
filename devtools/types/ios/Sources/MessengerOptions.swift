@@ -115,9 +115,6 @@ public extension MessengerOptions {
     /// Convert MessengerOptions to a JSValue for use in JavaScript context
     /// Uses the shared JSContext from SharedMessengerLayer
     var asJSValue: JSValue? {
-        print("[MessengerOptions] Converting to JSValue")
-        print("[MessengerOptions] context:", context)
-        print("[MessengerOptions] context.rawValue:", context.rawValue)
         var jsOptions: [String: Any] = [
             "id": id,
             "context": context.rawValue,
@@ -133,8 +130,6 @@ public extension MessengerOptions {
         if let failedMessageCallback {
             jsOptions["handleFailedMessage"] = failedMessageCallback
         }
-
-        print("[MessengerOptions] jsOptions before JSValue:", jsOptions)
         return JSValue(object: jsOptions, in: jsContext)
     }
 

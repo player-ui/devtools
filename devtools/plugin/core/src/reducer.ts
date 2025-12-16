@@ -57,16 +57,10 @@ export const reducer = (
         draft.messages.push(message);
       });
     case "PLAYER_DEVTOOLS_PLUGIN_INTERACTION":
-      console.log("[REDUCER] PLAYER_DEVTOOLS_PLUGIN_INTERACTION received:", transaction);
       return produce(state, (draft) => {
-        if (containsInteraction(draft.interactions, transaction)) {
-          console.log("[REDUCER] Interaction already exists, skipping");
-          return state;
-        }
+        if (containsInteraction(draft.interactions, transaction)) return state;
 
-        console.log("[REDUCER] Adding interaction to draft.interactions");
         dset(draft, ["interactions"], [...draft.interactions, transaction]);
-        console.log("[REDUCER] New interactions array length:", draft.interactions.length);
       });
     case "PLAYER_DEVTOOLS_SELECTED_PLAYER_CHANGE": {
       const { playerID } = transaction.payload;
