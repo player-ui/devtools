@@ -1,10 +1,11 @@
 import PlayerUI
 import PlayerUILogger
 import Foundation
-import PlayerUIDevToolsPlugins
-import PlayerUIDevToolsMessenger
-import PlayerUIDevToolsTypes
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsMessenger
+import PlayerUIDevtoolsTypes
 import JavaScriptCore
+import PlayerUIDevtoolsUtilsSwiftUI
 
 /// A Player Plugin that provides DevTools capabilities via Flipper
 open class BaseBasicDevtoolsPlugin: JSBasePlugin, BaseDevtoolsPlugin {
@@ -39,7 +40,7 @@ open class BaseBasicDevtoolsPlugin: JSBasePlugin, BaseDevtoolsPlugin {
         var isActive = true
         
         // This plugin has no extra steps for processInteraction beyond the core impl.
-        func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {}
+        func processInteraction(interaction: PlayerUIDevtoolsTypes.Message) {}
         
         // This plugin has no extra steps for log beyond the core impl.
         func log(message: String) {}

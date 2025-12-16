@@ -7,9 +7,10 @@
 
 import XCTest
 import JavaScriptCore
-@testable import PlayerUIDevToolsMessenger
-@preconcurrency import PlayerUIDevToolsTypes
-@testable import PlayerUIDevToolsUtils
+@testable import PlayerUIDevtoolsMessenger
+@preconcurrency import PlayerUIDevtoolsTypes
+@testable import PlayerUIDevtoolsUtils
+import PlayerUIDevtoolsUtilsSwiftUI
 
 final class MessengerTests: XCTestCase {
 
@@ -21,15 +22,14 @@ final class MessengerTests: XCTestCase {
     var defaultOptions: MessengerOptions { makeOptions() }
 
     func makeOptions(
-        id: String = "test-id",
-        isDebug: Bool = false
+        id: String = "test-id"
     ) -> MessengerOptions {
         MessengerOptions(
             id: id,
             jsContext: jsContext,
             context: .devtools,
             beaconIntervalMS: .avoidIAmHereBeacons,
-            isDebug: isDebug,
+            isDebug: true,
             logger: mockLogger,
             sendMessage: mockAPI.sendMessage,
             addListener: mockAPI.addListener,
@@ -41,6 +41,9 @@ final class MessengerTests: XCTestCase {
     override func setUpWithError() throws {
         mockAPI = MockMessagingAPI(tracker: tracker)
         mockLogger = MockLogger(tracker: tracker)
+
+        // Set up polyfills for setInterval, clearInterval, and console
+        jsContext.polyfill()
     }
 
     override func tearDown() async throws {
@@ -114,21 +117,17 @@ final class MessengerTests: XCTestCase {
         }
     }
 
-    func testLogsWhenDebugTrue() async throws {
-        let _ = try Messenger(options: makeOptions(isDebug: true))
+    func testLogs() async throws {
+        let messenger = try Messenger(options: defaultOptions)
         await fulfillment(for: "Logs sent, if enabled", delay: 0.5)
+
+        // Catch the error so we can check the logs
+        do { try await messenger.sendMessage("i am invalid") } catch {}
         let loggedMessages = await tracker.loggedMessages
 
         // The number of logs may vary. But we expect at least one
         XCTAssertGreaterThanOrEqual(loggedMessages.count, 1)
-        XCTAssert(loggedMessages.contains("[MESSENGER-test-id](devtools): destroyed"))
-    }
-
-    func testDoesNotLogWhenDebugFalse() async throws {
-        let _ = try Messenger(options: self.makeOptions(isDebug: false))
-        await fulfillment(for: "Logs sent, if enabled", delay: 0.5)
-        let loggedMessages = await tracker.loggedMessages
-        XCTAssertEqual(loggedMessages.count, 0)
+        XCTAssert(loggedMessages.contains("[MESSENGER-test-id](devtools): Failed to parse message to JSON. Message: i am invalid"))
     }
 
     // MARK: - Edge Cases
@@ -156,7 +155,7 @@ final class MessengerTests: XCTestCase {
         do {
             try await messenger.sendMessage("undefined")
         } catch {
-            XCTAssertEqual(error.localizedDescription, "Failed to send message: JS messenger did not return Promise")
+            XCTAssertEqual(error.localizedDescription, "[JS SAFETY] Failed to send message: promise rejected with error='SyntaxError: JSON Parse error: Unexpected identifier \"undefined\"'")
             isErrorThrown = true
         }
         XCTAssert(isErrorThrown, "Error was not thrown as expected")

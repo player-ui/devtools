@@ -7,7 +7,7 @@
 
 import XCTest
 import JavaScriptCore
-@testable import PlayerUIDevToolsTypes
+@testable import PlayerUIDevtoolsTypes
 
 final class MessengerOptionsTests: XCTestCase {
 

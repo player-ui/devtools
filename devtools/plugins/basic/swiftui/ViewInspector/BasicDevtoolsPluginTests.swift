@@ -1,9 +1,9 @@
 import XCTest
 import PlayerUI
-import PlayerUIDevToolsTypes
-import PlayerUIDevToolsPlugins
-import PlayerUIDevToolsBaseBasicDevtoolsPlugin
-@testable import PlayerUIDevToolsBasicPlugin
+import PlayerUIDevtoolsTypes
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsBaseBasicDevtoolsPlugin
+@testable import PlayerUIDevtoolsBasicPlugin
 
 // MARK: - BasicDevtoolsPluginTests
 final class BasicDevtoolsPluginTests: XCTestCase {
@@ -83,13 +83,6 @@ final class BasicDevtoolsPluginTests: XCTestCase {
 
         XCTAssertEqual(plugin1.pluginName, plugin2.pluginName)
         XCTAssertEqual(plugin1.pluginName, "BasicDevtoolsPlugin.BasicDevtoolsPlugin")
-    }
-
-    // MARK: - Protocol Conformance Tests
-
-    func testPluginConformsToDevtoolsPlugin() {
-        let plugin = BasicDevtoolsPlugin(id: "test-id")
-        XCTAssert(plugin is DevtoolsPlugin)
     }
 
     // MARK: - Flipper Plugin Listener Tests

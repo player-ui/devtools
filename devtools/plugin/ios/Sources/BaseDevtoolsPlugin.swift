@@ -1,8 +1,8 @@
 import PlayerUI
 import JavaScriptCore
 import SwiftFlipper
-import PlayerUIDevToolsTypes
-import PlayerUIDevToolsMessenger
+import PlayerUIDevtoolsTypes
+import PlayerUIDevtoolsMessenger
 import PlayerUILogger
 
 public protocol BaseDevtoolsPlugin: JSBasePlugin {

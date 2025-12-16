@@ -2,7 +2,7 @@ import SwiftFlipper
 import JavaScriptCore
 import Foundation
 import PlayerUI
-import PlayerUIDevToolsTypes
+import PlayerUIDevtoolsTypes
 
 /// A Flipper Plugin that provides DevTools capabilities via Flipper
 public class DevtoolsFlipperPlugin: FlipperPlugin {

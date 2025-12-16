@@ -356,8 +356,13 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   }
 
   public sendMessage(message: T | string): Promise<void> {
-    const parsed: T =
-      typeof message === "string" ? JSON.parse(message) : message;
+    let parsed: T;
+    try {
+      parsed = typeof message === "string" ? JSON.parse(message) : message;
+    } catch (e) {
+      this.log(`Failed to parse message to JSON. Message: ${message}`);
+      return Promise.reject(e);
+    }
 
     this.addEvent(parsed);
 

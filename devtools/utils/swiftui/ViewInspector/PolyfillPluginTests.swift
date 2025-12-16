@@ -2,7 +2,7 @@
 //  PolyfillPluginTests.swift
 //  PolyfillPluginTests
 //
-//  Generated with Cursor by Koriann South - December 2, 2025
+//  Generated with Cursor by Koriann South - December 16, 2025
 //
 
 import XCTest
@@ -10,7 +10,7 @@ import JavaScriptCore
 import PlayerUI
 import PlayerUILogger
 import PlayerUITestUtilitiesCore
-@testable import PlayerUIDevToolsPlugins
+@testable import PlayerUIDevtoolsUtilsSwiftUI
 
 final class PolyfillPluginTests: XCTestCase {
 

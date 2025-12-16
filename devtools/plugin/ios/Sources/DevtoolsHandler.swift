@@ -6,7 +6,7 @@
 //
 
 import JavaScriptCore
-import PlayerUIDevToolsTypes
+import PlayerUIDevtoolsTypes
 
 public protocol DevtoolsHandler {
     /// Whether devtools is active or not

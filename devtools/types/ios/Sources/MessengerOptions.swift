@@ -5,7 +5,7 @@
 import Foundation
 import JavaScriptCore
 import PlayerUI
-import PlayerUIDevToolsUtils
+import PlayerUIDevtoolsUtils
 
 /// Context for the messenger instance. This is where the messages are coming from
 public enum MessengerContext: String, Codable, CaseIterable {

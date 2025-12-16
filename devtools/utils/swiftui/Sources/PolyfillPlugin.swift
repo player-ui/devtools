@@ -1,8 +1,6 @@
 //
 //  PolyfillPlugin.swift
-//  DemoProject
-//
-//  Created by Koriann South on 2025-12-01.
+//  Generated with Cursor by Koriann South - December 16, 2025
 //
 import JavaScriptCore
 import PlayerUI
@@ -87,3 +85,4 @@ extension JSContext {
         }
     }
 }
+

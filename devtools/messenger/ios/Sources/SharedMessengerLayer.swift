@@ -5,7 +5,7 @@
 //
 
 import JavaScriptCore
-import PlayerUIDevToolsTypes
+import PlayerUIDevtoolsTypes
 
 /// The shared details of all Swift Messengers.
 public class SharedMessengerLayer {

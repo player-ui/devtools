@@ -7,7 +7,7 @@
 
 import XCTest
 
-@testable import PlayerUIDevToolsTypes
+@testable import PlayerUIDevtoolsTypes
 
 final class BaseEventTests: XCTestCase {
 

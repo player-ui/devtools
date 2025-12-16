@@ -40,13 +40,34 @@ public extension JSContext {
 
         evaluateScript(script)
 
+        // Check for exceptions after script evaluation
+        if let jsException = exception {
+            throw JSBaseError.jsContextException(
+                message: jsException.toString(),
+                className: className,
+                fileName: fileName
+            )
+        }
+
         guard let module = objectForKeyedSubscript(jsModule) else {
             throw JSBaseError.noSuchJSModule(moduleName: jsModule, className: className, fileName: fileName)
         }
         guard let jsClass = module.objectForKeyedSubscript(className) else {
             throw JSBaseError.noSuchJSClass(className: className, fileName: fileName)
         }
-        guard let constructedClass = jsClass.construct(withArguments: args), !constructedClass.isUndefined else {
+
+        let constructedClass = jsClass.construct(withArguments: args)
+
+        // Check for exceptions after construction attempt
+        if let jsException = exception {
+            throw JSBaseError.jsContextException(
+                message: jsException.toString(),
+                className: className,
+                fileName: fileName
+            )
+        }
+
+        guard let constructedClass = constructedClass, !constructedClass.isUndefined else {
             throw JSBaseError.couldNotInstantiateClass(className: className, fileName: fileName)
         }
         return constructedClass
@@ -78,6 +99,12 @@ public extension JSValue {
             print("[JS SAFETY] Error in '\(file)' on line \(line). Found property with name='\(method)' but could not call it with arguments=\(arguments)")
             return nil
         }
+
+        // Check if there was an exception
+        if let jsException = context?.exception, let exception = jsException.toString() {
+            print("[JS SAFETY] Error in '\(file)' on line \(line). Encountered JavaScript exception when calling function='\(method)': \(exception)")
+            return nil
+        }
         return result.isUndefined ? nil : result
     }
 }
@@ -89,19 +116,22 @@ enum JSBaseError: Error, LocalizedError {
     case noSuchJSModule(moduleName: String, className: String, fileName: String)
     case noSuchJSClass(className: String, fileName: String)
     case couldNotInstantiateClass(className: String, fileName: String)
+    case jsContextException(message: String, className: String, fileName: String)
 
     var errorDescription: String? {
         switch self {
         case .noSuchFile(let fileName, let bundle):
-            return "Could not find file='\(fileName).js' in bundle. Available files: \(bundle.availableFiles)"
+            return "[JS SAFETY] Could not find file='\(fileName).js' in bundle. Available files: \(bundle.availableFiles)"
         case .failedToParseScript(let fileName):
-            return "Failed to read contents of file='\(fileName)'"
+            return "[JS SAFETY] Failed to read contents of file='\(fileName)'"
         case .noSuchJSModule(let moduleName, let className, let fileName):
-            return "Could not find JS module with name=\(moduleName) containing class='\(className)' in file='\(fileName).js'"
+            return "[JS SAFETY] Could not find JS module with name=\(moduleName) containing class='\(className)' in file='\(fileName).js'"
         case .noSuchJSClass(let className, let fileName):
-            return "Could not find class='\(className)' in file='\(fileName).js'"
+            return "[JS SAFETY] Could not find class='\(className)' in file='\(fileName).js'"
         case .couldNotInstantiateClass(let className, let fileName):
-            return "Could not instantiate class='\(className)' in file='\(fileName).js'"
+            return "[JS SAFETY] Could not instantiate class='\(className)' in file='\(fileName).js'"
+        case .jsContextException(let message, let className, let fileName):
+            return "[JS SAFETY] JavaScript exception while constructing class='\(className)' in file='\(fileName).js': \(message)"
         }
     }
 }

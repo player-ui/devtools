@@ -1,10 +1,7 @@
-import PlayerUI
-import PlayerUILogger
-import Foundation
-import PlayerUIDevToolsPlugins
-import PlayerUIDevToolsTypes
-import PlayerUIDevToolsBaseBasicDevtoolsPlugin
-import PlayerUIDevToolsMessenger
+import PlayerUIDevtoolsMessenger
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsSwiftUIPlugins
+import PlayerUIDevtoolsBaseBasicDevtoolsPlugin
 
 /// A Player Plugin that provides DevTools capabilities via Flipper.
 /// This is entirely just a wrapper around the JSBasePlugin

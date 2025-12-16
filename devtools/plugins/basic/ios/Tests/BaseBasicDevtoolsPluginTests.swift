@@ -1,9 +1,9 @@
 import XCTest
 import JavaScriptCore
 import PlayerUI
-import PlayerUIDevToolsPlugins
-import PlayerUIDevToolsTypes
-@testable import PlayerUIDevToolsBaseBasicDevtoolsPlugin
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsTypes
+@testable import PlayerUIDevtoolsBaseBasicDevtoolsPlugin
 
 final class BaseBasicDevtoolsPluginTests: XCTestCase {
 
@@ -143,7 +143,7 @@ class TestHandler: DevtoolsHandler {
     var interactionsProcessed = 0
     var isActive = true
 
-    func processInteraction(interaction: PlayerUIDevToolsTypes.Message) {
+    func processInteraction(interaction: PlayerUIDevtoolsTypes.Message) {
         interactionsProcessed += 1
     }
 }

@@ -98,6 +98,9 @@ jobs:
           echo "test --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
           echo "coverage --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >> .bazelrc.local
           echo "common --remote_upload_local_results" >> .bazelrc.local
+          # iOS Flags to keep the CI/CD test environment consistent
+          echo "common --ios_simulator_device='iPhone 16 Pro'" >> .bazelrc.local
+          echo "common --ios_simulator_version='18.5'" >> .bazelrc.local
       - persist_to_workspace:
           root: .
           paths:

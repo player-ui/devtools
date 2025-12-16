@@ -15,7 +15,7 @@ let playerUISwiftUIDependency: Target.Dependency = .product(name: "PlayerUISwift
 
 // TODO: Add your plugins here. Remember to prefix them with the same prefix as in helpers/ios.bzl.
 let messengerPlugin: Target = .target(
-    name: "PlayerUIDevToolsMessenger",
+    name: "PlayerUIDevtoolsMessenger",
     dependencies: [
         playerUIDependency,
         playerUISwiftUIDependency
@@ -31,7 +31,7 @@ let messengerPlugin: Target = .target(
 // During release, this file and the Swift sources will be published to:
 // https://github.com/player-ui/devtools-ios
 let package = Package(
-    name: "PlayerUIDevTools", // Should match the package name in the BUILD file.
+    name: "PlayerUIDevtools", // Should match the package name in the BUILD file.
     platforms: [
         .iOS(.v16),
         // In an ideal world, we would not include macOS here. However, this is the most efficient way to support

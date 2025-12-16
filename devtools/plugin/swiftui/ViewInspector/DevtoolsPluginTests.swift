@@ -9,20 +9,43 @@ import XCTest
 import JavaScriptCore
 import PlayerUI
 import PlayerUITestUtilitiesCore
-@testable import PlayerUIDevToolsPlugins
-@testable import PlayerUIDevToolsTypes
-@testable import PlayerUIDevToolsMessenger
+@testable import PlayerUIDevtoolsPlugins
+@testable import PlayerUIDevtoolsTypes
+@testable import PlayerUIDevtoolsMessenger
 
 final class DevtoolsPlayerPluginTests: XCTestCase {
 
     var mockHandler: MockDevtoolsHandler!
-    var plugin: DevtoolsPlayerPlugin!
+    var flipperPlugin: DevtoolsFlipperPlugin!
     var player: HeadlessPlayerImpl!
 
     override func setUpWithError() throws {
         mockHandler = MockDevtoolsHandler()
+        flipperPlugin = DevtoolsFlipperPlugin()
+    }
 
-        // Create minimal plugin data with a valid flow structure
+    override func tearDown() async throws {
+        mockHandler = nil
+        flipperPlugin = nil
+        player = nil
+    }
+
+    // MARK: - Options Tests
+
+    func testDevtoolsPluginOptionsJSCompatible() throws {
+        let options = DevtoolsPluginOptions(
+            in: JSContext(),
+            playerID: "test-player-123",
+            handler: mockHandler
+        )
+
+        let jsCompatible = options.jsCompatible
+
+        XCTAssertEqual(jsCompatible["playerID"] as? String, "test-player-123")
+        XCTAssertNotNil(jsCompatible["handler"])
+    }
+
+    func testDevtoolsPluginOptionsWithPluginData() throws {
         let pluginData = PluginData(
             id: "test-plugin",
             version: "1.0.0",
@@ -34,42 +57,18 @@ final class DevtoolsPlayerPluginTests: XCTestCase {
             ]
         )
 
-        plugin = DevtoolsPlayerPlugin(options: DevtoolsPluginOptions(
-            playerID: "test-player",
+        let options = DevtoolsPluginOptions(
+            in: JSContext(),
+            playerID: "test-player-123",
             handler: mockHandler,
             pluginData: pluginData
-        ))
-        player = HeadlessPlayerImpl(plugins: [plugin])
-    }
-
-    override func tearDown() async throws {
-        mockHandler = nil
-        plugin = nil
-        player = nil
-    }
-
-    // MARK: - Initialization Tests
-
-    func testPluginNameIsGettable() throws {
-        XCTAssertEqual(plugin.pluginName, "DevtoolsPlugin.DevtoolsPlugin")
-    }
-
-    func testPlayerIDIGettable() throws {
-        XCTAssertEqual(plugin.playerID, "test-player")
-    }
-
-    // MARK: - Options Tests
-
-    func testDevtoolsPluginOptionsJSCompatible() throws {
-        let options = DevtoolsPluginOptions(
-            playerID: "test-player-123",
-            handler: mockHandler
         )
 
         let jsCompatible = options.jsCompatible
 
         XCTAssertEqual(jsCompatible["playerID"] as? String, "test-player-123")
         XCTAssertNotNil(jsCompatible["handler"])
+        XCTAssertNotNil(jsCompatible["pluginData"])
     }
 
     // MARK: - Handler Integration Tests

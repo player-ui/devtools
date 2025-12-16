@@ -5,8 +5,8 @@
 import Foundation
 import PlayerUI
 import JavaScriptCore
-import PlayerUIDevToolsTypes
-import PlayerUIDevToolsUtils
+import PlayerUIDevtoolsTypes
+import PlayerUIDevtoolsUtils
 
 /// Swift wrapper for the JavaScript Messenger implementation.
 /// Provides a native Swift API while delegating to the JS implementation.
@@ -58,22 +58,31 @@ public class Messenger {
         guard let promise = jsMessengerActor.messenger
             .invokeMethodSafely("sendMessage", withArguments: [message])
         else {
-            throw MessengerError.didNotReceiveJSPromise
+            throw MessengerError.didNotReceiveJSPromise(method: "sendMessage")
         }
 
         // This is a wrapper that allows us to wait for the then/catch callbacks from the JS Promise
-        try await withCheckedThrowingContinuation { continuation in
-            let onResolve: @convention(block) () -> Void = { continuation.resume() }
-            guard let context = promise.context else {
-                return continuation.resume(throwing: MessengerError.didNotReceiveJSPromise)
-            }
-            let jsResolve = JSValue(object: onResolve, in: context)
-            _ = promise.invokeMethodSafely("then", withArguments: [jsResolve as Any])
+        let checkedContinuation: (CheckedContinuation<Void, any Error>) -> Void = { continuation in
+                guard let context = promise.context else {
+                    return continuation.resume(throwing: MessengerError.couldNotFindJSContext(variable: "promise"))
+                }
+
+                let onResolve: @convention(block) () -> Void = { continuation.resume() }
+                let jsResolve = JSValue(object: onResolve, in: context)
+
+                let onReject: @convention(block) (JSValue) -> Void = { error in
+                    let message = error.toString() ?? "Error could not be parsed."
+                    continuation.resume(throwing: MessengerError.promiseRejected(error: message))
+                }
+                let jsReject = JSValue(object: onReject, in: context)
+                _ = promise.invokeMethodSafely("then", withArguments: [jsResolve as Any])
+                _ = promise.invokeMethodSafely("catch", withArguments: [jsReject as Any])
         }
+        try await withCheckedThrowingContinuation(checkedContinuation)
     }
 
     /// Destroy the messenger. 
-    // This should be called when the messenger is no longer to properly inform other messengers that it is gone.
+    /// This should be called when the messenger is de-inited to properly inform other messengers that it is gone.
     public func destroy() {
         _ = jsMessengerActor.messenger.invokeMethodSafely("destroy")
     }
@@ -86,19 +95,23 @@ public enum MessengerError: Error, LocalizedError {
     /// Failed to initialize the JavaScript Messenger instance
     case failedToConvertOptionsToJSValue
 
-    case didNotReceiveJSPromise
+    case didNotReceiveJSPromise(method: String)
 
-    case failedToSendMessage
+    case couldNotFindJSContext(variable: String)
+
+    case promiseRejected(error: String)
 
     /// A localized description of the error
     public var errorDescription: String? {
         switch self {
         case .failedToConvertOptionsToJSValue:
-            return "Failed to convert Swift native options to JS options"
-        case .didNotReceiveJSPromise:
-            return "Failed to send message: JS messenger did not return Promise"
-        case .failedToSendMessage:
-            return "Failed to send message: propagated JS error"
+            return "[JS SAFETY] Failed to convert Swift native options to JS options"
+        case .didNotReceiveJSPromise(let method):
+            return "[JS SAFETY] Failed to send message: JS messenger's '\(method)' function did not return a Promise"
+        case .couldNotFindJSContext(let variable):
+            return "[JS SAFETY] Failed to send message: '\(variable)' property does not have a valid JSContext associated with it"
+        case .promiseRejected(let error):
+            return "[JS SAFETY] Failed to send message: promise rejected with error='\(error)'"
         }
     }
 }

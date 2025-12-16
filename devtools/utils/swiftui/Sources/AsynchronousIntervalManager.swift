@@ -1,8 +1,6 @@
 //
 //  AsynchronousIntervalManager.swift
-//  DemoProject
-//
-//  Created by Koriann South on 2025-12-01.
+//  Generated with Cursor by Koriann South - December 16, 2025
 //
 import Foundation
 import JavaScriptCore
@@ -72,3 +70,4 @@ private extension DispatchQueue {
     /// This will be used by the polyfills.
     static let intervals = DispatchQueue(label: "intervals")
 }
+

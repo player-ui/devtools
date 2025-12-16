@@ -5,7 +5,7 @@
 
 import XCTest
 import JavaScriptCore
-@testable import PlayerUIDevToolsUtils
+@testable import PlayerUIDevtoolsUtils
 
 final class JSExtensionsTests: XCTestCase {
 
@@ -39,19 +39,24 @@ final class JSExtensionsTests: XCTestCase {
             fromFile: "NonExistentFile",
             inBundle: Bundle.module,
         )) { error in
-            XCTAssertEqual(error as? JSBaseError, .noSuchFile)
+            XCTAssertEqual(error.localizedDescription, "[JS SAFETY] Could not find file='NonExistentFile.js' in bundle. Available files: [\"/Utils.native.js.map\", \"/Utils.native.js\"]")
         }
     }
 
     func testConstructWithNonExistentClass() {
         // Test trying to construct a class that doesn't exist in the Utils bundle
+        // This should now throw a jsContextException with the actual JavaScript error
         XCTAssertThrowsError(try JSContext().construct(
             className: "NonExistentClass",
             inModule: "Utils",
             fromFile: "Utils.native",
             inBundle: Bundle.module
         )) { error in
-            XCTAssertEqual(error as? JSBaseError, .couldNotInstantiateClass)
+            // The error should contain the JavaScript exception message
+            let errorDescription = error.localizedDescription
+            XCTAssertTrue(errorDescription.contains("[JS SAFETY] JavaScript exception"), "Error should be a JS context exception")
+            XCTAssertTrue(errorDescription.contains("NonExistentClass"), "Error should mention the class name")
+            XCTAssertTrue(errorDescription.contains("Utils.native.js"), "Error should mention the file name")
         }
     }
 
@@ -121,7 +126,6 @@ final class JSExtensionsTests: XCTestCase {
 
         // Test successful method invocation
         let result = testObject.invokeMethodSafely("testMethod", withArguments: [5, 3])
-        XCTAssertNotNil(result)
         XCTAssertEqual(result?.toInt32(), 8)
     }
 
@@ -182,7 +186,6 @@ final class JSExtensionsTests: XCTestCase {
 
         // Test method with multiple arguments
         let result = testObject.invokeMethodSafely("concatenate", withArguments: ["Hello", "World", " "])
-        XCTAssertNotNil(result)
         XCTAssertEqual(result?.toString(), "Hello World")
     }
 }

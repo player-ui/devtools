@@ -6,7 +6,11 @@ ios_library(
     name = "Messenger",
     resources = ["//devtools/messenger/core:core_native_bundle"],
     deps = [
-        "//devtools/types/ios:PlayerUIDevToolsTypes",
-        "//devtools/utils/ios:PlayerUIDevToolsUtils",
+        "//devtools/types/ios:PlayerUIDevtoolsTypes",
+        "//devtools/utils/ios:PlayerUIDevtoolsUtils",
+    ],
+    test_deps = [
+        "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+        "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUI",
     ],
 )

@@ -1,8 +1,10 @@
 import PlayerUI
 import JavaScriptCore
 import SwiftFlipper
-import PlayerUIDevToolsTypes
-import PlayerUIDevToolsMessenger
+import PlayerUIDevtoolsTypes
+import PlayerUIDevtoolsMessenger
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsUtilsSwiftUI
 import PlayerUILogger
 
 /// A protocol defining a Player Plugin that provides DevTools capabilities via Flipper
@@ -12,7 +14,6 @@ public protocol DevtoolsPlugin: BaseDevtoolsPlugin, NativePlugin {
     /// Keep a reference so the messenger doesn't get garbage collected and destroyed
     var messenger: Messenger? { get set }
 }
-
 
 public extension DevtoolsPlugin where Self: NativePlugin {
     func apply<P>(player: P) where P: HeadlessPlayer {

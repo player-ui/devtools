@@ -4,7 +4,8 @@ swiftui_plugin(
     name = "BasicPlugin",
     deps = [
       "@swiftpkg_swiftflipper//:SwiftFlipper",
-      "//devtools/plugins/basic/ios:PlayerUIDevToolsBaseBasicDevtoolsPlugin",
+      "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPlugins",
+      "//devtools/plugins/basic/ios:PlayerUIDevtoolsBaseBasicDevtoolsPlugin"
       ],
     test_deps = []
 )

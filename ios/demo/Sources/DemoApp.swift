@@ -3,9 +3,9 @@ import Combine
 import PlayerUI
 import PlayerUISwiftUI
 import SwiftFlipper
-import PlayerUIDevToolsPlugins
+import PlayerUIDevtoolsPlugins
 import PlayerUIReferenceAssets
-import PlayerUIDevToolsBasicPlugin
+import PlayerUIDevtoolsBasicPlugin
 
 @main
 struct BazelApp: App {

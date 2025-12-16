@@ -5,6 +5,6 @@ load("//helpers:ios.bzl", "ios_library")
 ios_library(
     name = "Types",
     deps = [
-        "//devtools/utils/ios:PlayerUIDevToolsUtils",
+        "//devtools/utils/ios:PlayerUIDevtoolsUtils",
     ]
 )

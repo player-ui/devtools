@@ -7,10 +7,10 @@
 
 import SwiftUI
 import PlayerUI
-import PlayerUIDevToolsPlugins
-import PlayerUIDevToolsTypes
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsTypes
 import PlayerUIReferenceAssets
-import PlayerUIDevToolsBasicPlugin
+import PlayerUIDevtoolsBasicPlugin
 import PlayerUIPrintLoggerPlugin
 
 struct PluginDemos: View {

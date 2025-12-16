@@ -16,6 +16,7 @@ js_pipeline(
         ":node_modules/@player-devtools/types",
         "//:node_modules/@devtools-ui/plugin",
         "//:node_modules/@player-ui/react",
+        "//:node_modules/@types/react",
         "//:node_modules/@types/uuid",
         "//:node_modules/dequal",
         "//:node_modules/dset",
