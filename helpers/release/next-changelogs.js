@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
 const { execSync } = require("child_process");
 
 const getLatestReleaseTags = () => {
@@ -20,7 +21,7 @@ class NextChangelogsPlugin {
       const [latest, second] = getLatestReleaseTags();
       if (dryRun) {
         auto.logger.log.info(
-          `Dry run: making changelog from last release: ${latestRelease}`,
+          `Dry run: making changelog from last release: ${latest}`,
         );
       } else {
         await auto.changelog({

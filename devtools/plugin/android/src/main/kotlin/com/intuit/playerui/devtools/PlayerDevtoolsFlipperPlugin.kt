@@ -10,10 +10,12 @@ import kotlinx.serialization.json.Json
 
 public class PlayerDevtoolsFlipperPlugin : FlipperPlugin {
     private var flipperConnection: FlipperConnection? = null
+
     // multiple devtools plugins can listen for events
     private val listeners = mutableSetOf<(Event) -> Unit>()
 
     override fun getId(): String = "player-ui-devtools"
+
     override fun runInBackground(): Boolean = false
 
     override fun onConnect(connection: FlipperConnection) {
@@ -37,6 +39,7 @@ public class PlayerDevtoolsFlipperPlugin : FlipperPlugin {
     }
 
     internal fun addListener(listener: (Event) -> Unit) = listeners.add(listener)
+
     internal fun removeListener(listener: (Event) -> Unit) = listeners.remove(listener)
 
     private object Json : StringFormat by Json(builderAction = {

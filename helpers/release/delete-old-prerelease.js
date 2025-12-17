@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
 const { execSync } = require("child_process");
 
 const getTags = () => {

@@ -1,11 +1,7 @@
 import React from "react";
 import { Action } from "@player-ui/reference-assets-plugin-components";
 import type { DSLFlow } from "@player-tools/dsl";
-import {
-  binding as b,
-  expression as e,
-  makeBindingsForObject,
-} from "@player-tools/dsl";
+import { expression as e, makeBindingsForObject } from "@player-tools/dsl";
 
 const schema = {
   count: {

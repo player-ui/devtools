@@ -14,14 +14,19 @@ public interface TransactionMetaData {
     public val id: Long
     public val timestamp: Long
     public val sender: String
-    public val context: JsonElement // TODO: Why the hell isn't this a string
+    public val context: JsonElement
+
+    // TODO: Why the hell isn't this a string
     @SerialName("_messenger_")
     public val tag: Boolean
 
     @Serializable
     public enum class Context {
-        @SerialName("player") PLAYER,
-        @SerialName("devtools") DEVTOOLS
+        @SerialName("player")
+        PLAYER,
+
+        @SerialName("devtools")
+        DEVTOOLS,
     }
 }
 
@@ -45,7 +50,8 @@ public data class BeaconEvent(
     override val context: JsonElement,
     @SerialName("_messenger_")
     override val tag: Boolean,
-) : Event(), InternalEvent {
+) : Event(),
+    InternalEvent {
     public override val type: String = "MESSENGER_BEACON"
 }
 
@@ -59,11 +65,14 @@ public data class EventsBatchEvent(
     override val context: JsonElement,
     @SerialName("_messenger_")
     override val tag: Boolean,
-) : EventWithPayload<EventsBatchEvent.Payload>(), InternalEvent {
+) : EventWithPayload<EventsBatchEvent.Payload>(),
+    InternalEvent {
     public override val type: String = "MESSENGER_EVENT_BATCH"
 
     @Serializable
-    public data class Payload(val events: List<Event>)
+    public data class Payload(
+        val events: List<Event>,
+    )
 }
 
 @Serializable
@@ -76,11 +85,14 @@ public data class RequestLostEventsEvent(
     override val context: JsonElement,
     @SerialName("_messenger_")
     override val tag: Boolean,
-) : EventWithPayload<RequestLostEventsEvent.Payload>(), InternalEvent {
+) : EventWithPayload<RequestLostEventsEvent.Payload>(),
+    InternalEvent {
     public override val type: String = "MESSENGER_REQUEST_LOST_EVENTS"
 
     @Serializable
-    public data class Payload(val messagesReceived: Long)
+    public data class Payload(
+        val messagesReceived: Long,
+    )
 }
 
 @Serializable
@@ -92,7 +104,8 @@ public data class DisconnectEvent(
     override val context: JsonElement,
     @SerialName("_messenger_")
     override val tag: Boolean,
-) : Event(), InternalEvent {
+) : Event(),
+    InternalEvent {
     public override val type: String = "MESSENGER_DISCONNECT"
 }
 
@@ -107,7 +120,6 @@ public data class DevtoolsPluginInteractionEvent(
     @SerialName("_messenger_")
     override val tag: Boolean,
 ) : EventWithPayload<DevtoolsPluginInteractionEvent.Payload>() {
-
     public override val type: String = "PLAYER_DEVTOOLS_PLUGIN_INTERACTION"
 
     @Serializable public data class Payload(
@@ -130,7 +142,7 @@ public data class PlayerInitEvent(
     public override val type: String = "PLAYER_DEVTOOLS_PLAYER_INIT"
 
     @Serializable public data class Payload(
-        public val plugins: Map<String, JsonElement>
+        public val plugins: Map<String, JsonElement>,
     )
 }
 
@@ -156,11 +168,13 @@ public data class DevtoolsDataChangeEvent(
 @Serializable(with = UnknownEvent.Serializer::class)
 public data class UnknownEvent(
     override val node: Node,
-): Event(), NodeWrapper {
+) : Event(),
+    NodeWrapper {
     override val id: Long by NodeSerializableField()
     override val timestamp: Long by NodeSerializableField()
     override val sender: String by NodeSerializableField()
     override val context: JsonElement by NodeSerializableField()
+
     @SerialName("_messenger_")
     override val tag: Boolean by NodeSerializableField()
     override val type: String by NodeSerializableField()

@@ -1,12 +1,18 @@
 import React from "react";
-import { Action, Info, Text } from "@player-ui/reference-assets-plugin-components";
+import {
+  Action,
+  Info,
+  Text,
+} from "@player-ui/reference-assets-plugin-components";
 import type { DSLFlow } from "@player-tools/dsl";
 
 const view1 = (
   <Info id="info-view">
     <Info.Title>Welcome to Player UI</Info.Title>
     <Info.PrimaryInfo>
-      <Text>This is a basic info view demonstrating the Player UI framework</Text>
+      <Text>
+        This is a basic info view demonstrating the Player UI framework
+      </Text>
     </Info.PrimaryInfo>
     <Info.Actions>
       <Action value="continue">
@@ -41,4 +47,3 @@ const flow: DSLFlow = {
 export default flow;
 
 // Generated with Cursor by Koriann South - 2025-11-11
-

@@ -8,16 +8,21 @@ import com.intuit.playerui.core.player.state.ReleasedState
 import com.intuit.playerui.core.plugins.LoggerPlugin
 import com.intuit.playerui.core.plugins.RuntimePlugin
 
-public abstract class AndroidDevtoolsPlugin<T : DevtoolsPlugin> : DevtoolsHandler, AndroidPlayerPlugin, RuntimePlugin {
-
+public abstract class AndroidDevtoolsPlugin<T : DevtoolsPlugin> :
+    DevtoolsHandler,
+    AndroidPlayerPlugin,
+    RuntimePlugin {
     private var flipperPlugin: PlayerDevtoolsFlipperPlugin? = null
-        get() = field ?: AndroidFlipperClient.getInstanceIfInitialized()
-            ?.getPluginByClass(PlayerDevtoolsFlipperPlugin::class.java)
-            ?.also { field = it }
+        get() =
+            field ?: AndroidFlipperClient
+                .getInstanceIfInitialized()
+                ?.getPluginByClass(PlayerDevtoolsFlipperPlugin::class.java)
+                ?.also { field = it }
 
     private var logger: LoggerPlugin? = null
 
-    protected lateinit var corePlugin: T; private set
+    protected lateinit var corePlugin: T
+        private set
 
     public val playerID: String get() = corePlugin.playerID
 
@@ -37,19 +42,20 @@ public abstract class AndroidDevtoolsPlugin<T : DevtoolsPlugin> : DevtoolsHandle
             return
         }
 
-        val messenger = Messenger(
-            Messenger.Options(
-                id = playerID,
-                context = TransactionMetaData.Context.PLAYER,
-                messageCallback = this.store::dispatch,
-                sendMessage = flipperPlugin::sendMessage,
-                addListener = flipperPlugin::addListener,
-                removeListener = flipperPlugin::removeListener,
-                logger = androidPlayer.logger::debug,
-                // TODO: Make this configurable
-                debug = true,
+        val messenger =
+            Messenger(
+                Messenger.Options(
+                    id = playerID,
+                    context = TransactionMetaData.Context.PLAYER,
+                    messageCallback = this.store::dispatch,
+                    sendMessage = flipperPlugin::sendMessage,
+                    addListener = flipperPlugin::addListener,
+                    removeListener = flipperPlugin::removeListener,
+                    logger = androidPlayer.logger::debug,
+                    // TODO: Make this configurable
+                    debug = true,
+                ),
             )
-        )
 
         messenger.apply(corePlugin.node.runtime)
         corePlugin.registerMessenger(messenger)

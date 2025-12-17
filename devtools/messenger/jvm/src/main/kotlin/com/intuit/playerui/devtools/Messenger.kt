@@ -23,23 +23,29 @@ public typealias MessageHandler = (Event) -> Unit
 
 @Serializable(with = Messenger.Serializer::class)
 public class Messenger(
-    internal val options: Options
-) : MessageHandler, JSScriptPluginWrapper(NAME, sourcePath = BUNDLED_SOURCE_PATH) {
-
+    internal val options: Options,
+) : JSScriptPluginWrapper(NAME, sourcePath = BUNDLED_SOURCE_PATH),
+    MessageHandler {
     override fun apply(runtime: Runtime<*>) {
         SetTimeoutPlugin().apply(runtime)
         // TODO: setInterval should come from SetTimeoutPlugin
         if (!runtime.contains("setInterval")) {
-            runtime.add("setInterval", runtime.executeRaw("((callback, timeout) => setTimeout(() => { callback(); setInterval(callback, timeout) }, timeout))"))
+            runtime.add(
+                "setInterval",
+                runtime.executeRaw("((callback, timeout) => setTimeout(() => { callback(); setInterval(callback, timeout) }, timeout))"),
+            )
         }
 
         runtime.load(ScriptContext(script, BUNDLED_SOURCE_PATH))
         val optionsKey = "messengerOptions_${hashCode()}"
-        runtime.add(optionsKey, options.copy(
-            // hijack listeners to ensure we can remove them w/ stable JVM references
-            addListener = { _ -> options.addListener(this) },
-            removeListener = { options.removeListener(this) }
-        ))
+        runtime.add(
+            optionsKey,
+            options.copy(
+                // hijack listeners to ensure we can remove them w/ stable JVM references
+                addListener = { _ -> options.addListener(this) },
+                removeListener = { options.removeListener(this) },
+            ),
+        )
         instance = runtime.buildInstance("(new $name.$name($optionsKey))")
     }
 
@@ -60,7 +66,10 @@ public class Messenger(
     }
 
     private val reset: () -> Unit by lazy {
-        instance.runtime.getObject(NAME)?.getObject(NAME)?.getInvokable<Unit>("reset")
+        instance.runtime
+            .getObject(NAME)
+            ?.getObject(NAME)
+            ?.getInvokable<Unit>("reset")
             ?: throw PlayerException("Could not find static reset function on Messenger class")
     }
 
@@ -91,14 +100,12 @@ public class Messenger(
     @Serializable
     public data class Options(
         public val context: TransactionMetaData.Context,
-
         // Not transient because we want to require an implementation, but it does mean deserialization not supported
         @SerialName("_sendMessage") public val sendMessage: suspend (message: Event) -> Unit,
         public val addListener: (callback: MessageHandler) -> Unit,
         public val removeListener: (callback: MessageHandler) -> Unit,
         @SerialName("_messageCallback") public val messageCallback: MessageHandler,
         @Transient public val handleFailedMessage: MessageHandler? = null,
-
         public val id: String? = null,
         public val beaconIntervalMS: Long? = null,
         public val debug: Boolean? = null,
@@ -106,9 +113,11 @@ public class Messenger(
     ) {
         // [Logger] structure can't automatically serialize, so we represent as it should be manually
         @SerialName("logger")
+        @Suppress("ktlint:standard:backing-property-naming")
         private val _logger: Map<String, Invokable<Unit>> = mapOf("log" to Invokable { logger.log(*it) })
 
         @SerialName("sendMessage")
+        @Suppress("ktlint:standard:backing-property-naming")
         private val _sendMessage = { message: Node ->
             message.runtime.Promise { resolve, reject ->
                 try {
@@ -122,6 +131,7 @@ public class Messenger(
         }
 
         @SerialName("handleFailedMessage")
+        @Suppress("ktlint:standard:backing-property-naming")
         private val _handleFailedMessage = { message: Node ->
             handleFailedMessage?.let {
                 try {
@@ -134,6 +144,7 @@ public class Messenger(
         }
 
         @SerialName("messageCallback")
+        @Suppress("ktlint:standard:backing-property-naming")
         private val _messageCallback = { message: Node ->
             try {
                 messageCallback(message.deserialize<Event>())

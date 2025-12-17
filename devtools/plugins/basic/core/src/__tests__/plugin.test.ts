@@ -1,12 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { PLUGIN_INACTIVE_WARNING } from "@player-devtools/plugin";
-import { Player } from "@player-ui/react";
-import { BasicDevtoolsPlugin } from "../plugin";
+import { describe } from "vitest";
 
 describe("BasicDevtoolsPlugin", () => {
-  let plugin: BasicDevtoolsPlugin;
-  let mockPlayer: Player;
-})
+  // TODO: Add tests for BasicDevtoolsPlugin
+});
 
 // describe("BasicWevDevtoolPlugins", () => {
 //   let plugin: BasicWebDevtoolsPlugin;

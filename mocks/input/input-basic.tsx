@@ -1,5 +1,9 @@
 import React from "react";
-import { Input, Info, Action } from "@player-ui/reference-assets-plugin-components";
+import {
+  Input,
+  Info,
+  Action,
+} from "@player-ui/reference-assets-plugin-components";
 import { binding as b } from "@player-tools/dsl";
 import type { DSLFlow } from "@player-tools/dsl";
 
@@ -61,4 +65,3 @@ const flow: DSLFlow = {
 export default flow;
 
 // Generated with Cursor by Koriann South - 2025-11-11
-

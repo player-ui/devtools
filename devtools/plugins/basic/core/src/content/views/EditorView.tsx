@@ -1,4 +1,5 @@
 import { expression as e } from "@player-tools/dsl";
+import type { Expression, BindingTemplateInstance } from "@player-tools/dsl";
 import { CodeEditor } from "@devtools-ui/plugin";
 import React from "react";
 import { VIEWS_IDS, INTERACTIONS } from "../../constants";
@@ -12,8 +13,8 @@ export const EditorView = (
     id={VIEWS_IDS.EDITOR}
     main={
       <CodeEditor
-        exp={evaluateExpression as any}
-        binding={bindings.flow as any}
+        exp={evaluateExpression as Expression}
+        binding={bindings.flow as BindingTemplateInstance}
       />
     }
   />
