@@ -1,3 +1,4 @@
+import Foundation
 import PlayerUIDevtoolsMessenger
 import PlayerUIDevtoolsPlugins
 import PlayerUIDevtoolsSwiftUIPlugins
@@ -10,21 +11,30 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
     public let flipperPlugin: DevtoolsFlipperPlugin
     /// Keep a reference so the messenger doesn't get garbage collected and destroyed
     public var messenger: Messenger?
+    /// The IDs of all registered listeners associated with this plugin
+    public var listeners: [UUID] = []
 
-    public init(id: String, flipperPlugin: DevtoolsFlipperPlugin? = nil) {
-        self.flipperPlugin = flipperPlugin ?? DevtoolsFlipperPlugin()
+    public init(id: String, flipperPlugin: DevtoolsFlipperPlugin) {
+        self.flipperPlugin = flipperPlugin
         super.init(playerID: id)
     }
 
-    // Let listeners know that this plugin and its messenger are going away
+    /* Let flipper know that this plugin is going away. Deregister the listeners we
+     attached to the DevtoolsFlipperPlugin.
+
+     Deinits will NOT run when the app is terminated. But if the app is terminated,
+     flipper will gracefully handle the abrupt, implicit disconnect, and deregistering
+     the listeners won't matter anymore since they won't be called if the app is dead. */
     deinit {
-        // TODO: make the removeListener work?
-//        flipperPlugin.removeListener(//)
-        guard let messenger else {
-            print("[KORITEST] Messenger does not exist!")
-            return
+        // If you make your own DevtoolsPlugin, you will need to implement your own
+        // deinit, exactly like this. The DevtoolsPlugin protocol cannot provide a deinit,
+        // unfortunately.
+        if let messenger {
+            messenger.destroy()
+        } else {
+            print("[DEBUG] Could not destroy messenger. Messenger already no longer exists.")
         }
-        print("[KORITEST] Destroying Messenger")
-        messenger.destroy()
+        listeners.forEach { flipperPlugin.removeListener(id: $0) }
+        print("[DEBUG] BasicDevtoolsPlugin deinited")
     }
 }

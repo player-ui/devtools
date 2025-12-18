@@ -52,28 +52,6 @@ final class MessengerTests: XCTestCase {
 
     // MARK: - Basic Functionality Tests
 
-    func testInitializesNormally() async throws {
-        let messenger = try Messenger(options: defaultOptions)
-
-        // Check that the messenger has been initialized
-        await fulfillment(for: "Initialized")
-
-        // Prevents the de-init from triggering and unregistering the messenger
-        XCTAssertNotNil(messenger)
-    }
-
-    func testDeinitializesNormally() async throws {
-        let foo: () throws -> Void = {
-            let messenger = try Messenger(options: self.defaultOptions)
-            XCTAssertNotNil(messenger)
-        }
-        try foo()
-
-        // The Messenger should have been de-inited because it's now out-of-scope.
-        // So the deinit should have triggered and "destroy"ed this Messenger
-        await fulfillment(for: "Deinited")
-    }
-
     func testSendMessage() async throws {
         let messenger = try Messenger(options: defaultOptions)
         try await messenger.sendMessage(.testMessage)
@@ -128,6 +106,19 @@ final class MessengerTests: XCTestCase {
         // The number of logs may vary. But we expect at least one
         XCTAssertGreaterThanOrEqual(loggedMessages.count, 1)
         XCTAssert(loggedMessages.contains("[MESSENGER-test-id](devtools): Failed to parse message to JSON. Message: i am invalid"))
+    }
+
+    func testDestroy() async throws {
+        let messenger = try Messenger(options: defaultOptions)
+        messenger.destroy()
+        await fulfillment(for: "Logs sent, if enabled", delay: 0.5)
+
+        let loggedMessages = await tracker.loggedMessages
+        XCTAssertGreaterThanOrEqual(loggedMessages.count, 1)
+        XCTAssert(
+            loggedMessages.contains("[MESSENGER-test-id](devtools): destroyed"),
+            "Did not find destroy message in logged messages: \(loggedMessages)"
+        )
     }
 
     // MARK: - Edge Cases

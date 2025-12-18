@@ -389,7 +389,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     if (this.beaconInterval) {
       clearInterval(this.beaconInterval);
     }
-
+    // iOS does not leverage this because iOS cannot compare functions
     this.options.removeListener(this.handleMessage);
 
     Object.keys(Messenger.connections).forEach((connection) => {

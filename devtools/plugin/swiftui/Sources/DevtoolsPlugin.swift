@@ -13,6 +13,8 @@ public protocol DevtoolsPlugin: BaseDevtoolsPlugin, NativePlugin {
     var flipperPlugin: DevtoolsFlipperPlugin { get }
     /// Keep a reference so the messenger doesn't get garbage collected and destroyed
     var messenger: Messenger? { get set }
+    /// The IDs of all registered listeners associated with this plugin
+    var listeners: [UUID] { get set }
 }
 
 public extension DevtoolsPlugin where Self: NativePlugin {
@@ -28,10 +30,15 @@ public extension DevtoolsPlugin where Self: NativePlugin {
                 id: playerID,
                 jsContext: jsContext,
                 context: .player,
+                isDebug: true,
                 logger: PlayerLogger(logger: player.logger),
                 sendMessage: flipperPlugin.sendMessage(_:),
-                addListener: flipperPlugin.addListener(_:),
-                removeListener: flipperPlugin.removeListener(_:),
+                // This needs to use a weak reference to self or it will prevent
+                // this plugin from being deallocated
+                addListener: { [weak self] listener in
+                    self?.addListener(listener)
+                },
+                removeListener: { _ in /* Swift manually handles this */ },
                 messageCallback: try store.dispatch(event:)
             )
             let messenger = try Messenger(options: options)
@@ -40,6 +47,12 @@ public extension DevtoolsPlugin where Self: NativePlugin {
         } catch {
             player.logger.e(error)
         }
+    }
+
+    // Exposed for testing
+    internal func addListener(_ listener: @escaping MessageListener) {
+        let id = flipperPlugin.addListener(listener)
+        listeners.append(id)
     }
 }
 

@@ -51,5 +51,8 @@ clean: # Force delete all the cached bazel stuff. Be careful!
     rm -rf ios/demo/.swiftpm
     rm -rf ios/DemoProject.xcodeproj
 
+    # Delete all node_modules folders
+    npx npkill -D -y
+
     # Then expunge for good measure
     bazel clean --expunge --async

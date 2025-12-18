@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 import PlayerUI
 import PlayerUISwiftUI
+import PlayerUIPrintLoggerPlugin
 import SwiftFlipper
 import PlayerUIDevtoolsPlugins
 import PlayerUIReferenceAssets
@@ -11,17 +12,33 @@ import PlayerUIDevtoolsBasicPlugin
 struct BazelApp: App {
     @StateObject private var model = DemoViewModel()
 
-    // This is a very basic demo implementation to help you get started
     var body: some Scene {
         WindowGroup {
             if #available(iOS 16.0, *) {
                 NavigationStack {
                     PluginDemos(model: model, demos: demosFromMocks)
+                    resetPlugins
                 }
-            } else {
-                // Fallback on earlier versions
-            }
+            } else { /* Not implementing a fallback for the demo. */ }
         }
+    }
+
+    private var resetPlugins: some View {
+        VStack {
+            Text("BasicDevtoolsPlugin id:")
+                .frame(maxWidth: .infinity, alignment: .center)
+            Text("\(model.devtoolsPluginID)")
+                .font(.callout)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Button("New Flipper Plugin") {  model.resetPlugins() }
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Text(String.explanation)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .multilineTextAlignment(.leading)
+        .padding()
     }
 
     // These demos just load the mocks directly with the basic asset plugin added
@@ -64,7 +81,8 @@ class DemoViewModel: ObservableObject {
     /// A plugin that allows us to use the connectiont o flipper
     let flipperPlugin = DevtoolsFlipperPlugin()
     /// The list of all player plugins to load in a demo, if none are specifically provided.
-    let defaultPlugins: [NativePlugin]
+    @Published private(set) var defaultPlugins: [NativePlugin]
+    private(set) var devtoolsPluginID: String
 
     // -- Used to debounce the search query input. -- //
     // The input in the search field
@@ -73,23 +91,31 @@ class DemoViewModel: ObservableObject {
     @Published var debouncedSearchQuery = ""
 
     init() {
+        devtoolsPluginID = "demo"
         defaultPlugins = [
             ReferenceAssetsPlugin(),
-            BasicDevtoolsPlugin(id: "demo", flipperPlugin: flipperPlugin)
+            PrintLoggerPlugin(level: .debug),
+            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
         ]
 
         flipperClient.addPlugin(flipperPlugin)
         flipperClient.connectToFlipper()
-        flipperPlugin.addListener(onMessageReceived(_:))
 
         $searchQuery
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .assign(to: &$debouncedSearchQuery)
     }
 
-    func onMessageReceived(_ message: [String: Any]) {
-        // Do nothing. We can add debugging here if we want.
-        // But generally this just creates way too much output.
+    /// Discard the previous set of plugins and make a new set.
+    ///
+    /// This allows us to test that the BasicDevtoolsPlugin is cleaned up properly.
+    func resetPlugins() {
+        devtoolsPluginID = "demo-\(UUID().uuidString)"
+        defaultPlugins = [
+            ReferenceAssetsPlugin(),
+            PrintLoggerPlugin(level: .debug),
+            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
+        ]
     }
 }
 
@@ -101,4 +127,8 @@ extension Bundle {
         }
         return Self(path: path)
     }
+}
+
+private extension String {
+    static let explanation = "Disconnect the previous BasicDevtoolsPlugin and replace it with a new one. The old plugin should disappear from the Flipper dropdown, and a new one should appear. **NOTE:** You must click into a flow to instantiate the new plugin."
 }

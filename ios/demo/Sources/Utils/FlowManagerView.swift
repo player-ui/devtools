@@ -40,7 +40,7 @@ struct FlowManagerView: View {
                     )
 
                     Button("Terminate Flow") { isComplete = true }
-                }
+                }.padding()
             }
         }.navigationBarTitle(Text(navTitle))
     }

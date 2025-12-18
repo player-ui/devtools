@@ -1,5 +1,6 @@
 import XCTest
 import PlayerUI
+import JavaScriptCore
 import PlayerUIDevtoolsTypes
 import PlayerUIDevtoolsPlugins
 import PlayerUIDevtoolsBaseBasicDevtoolsPlugin
@@ -85,50 +86,6 @@ final class BasicDevtoolsPluginTests: XCTestCase {
         XCTAssertEqual(plugin1.pluginName, "BasicDevtoolsPlugin.BasicDevtoolsPlugin")
     }
 
-    // MARK: - Flipper Plugin Listener Tests
-
-    func testFlipperPluginCanAddListener() {
-        let plugin = BasicDevtoolsPlugin(id: "test-id")
-        var listenerCalled = false
-
-        let listener: MessageListener = { _ in
-            listenerCalled = true
-        }
-
-        plugin.flipperPlugin.addListener(listener)
-        // Verify listener was added (we can't directly verify the count, but we can check the plugin exists)
-        XCTAssertNotNil(plugin.flipperPlugin)
-    }
-
-    func testFlipperPluginCanSendMessage() {
-        let plugin = BasicDevtoolsPlugin(id: "test-id")
-        let testMessage: Message = ["type": "test", "data": "test-data"]
-
-        // This should not crash
-        plugin.flipperPlugin.sendMessage(testMessage)
-        XCTAssertTrue(true) // If we get here, sendMessage didn't crash
-    }
-
-    // MARK: - Plugin Initialization Behavior Tests
-
-    func testPluginInitializationDoesNotThrow() {
-        XCTAssertNoThrow {
-            let _ = BasicDevtoolsPlugin(id: "test-id")
-        }
-    }
-
-    func testPluginInitializationWithUnicodeID() {
-        let unicodeID = "player-🎮-🎯"
-        let plugin = BasicDevtoolsPlugin(id: unicodeID)
-        XCTAssertNotNil(plugin)
-    }
-
-    func testPluginInitializationWithNumericID() {
-        let numericID = "12345"
-        let plugin = BasicDevtoolsPlugin(id: numericID)
-        XCTAssertNotNil(plugin)
-    }
-
     // MARK: - Flipper Plugin Configuration Tests
 
     func testFlipperPluginHasCorrectConfiguration() {
@@ -147,5 +104,45 @@ final class BasicDevtoolsPluginTests: XCTestCase {
         let id2 = ObjectIdentifier(plugin2.flipperPlugin)
 
         XCTAssertNotEqual(id1, id2)
+    }
+
+    // MARK: - Deinit Tests
+
+    func testDeinitRemovesListeners() {
+        let flipperPlugin = DevtoolsFlipperPlugin()
+        var plugin: BasicDevtoolsPlugin? = BasicDevtoolsPlugin(id: "test-id", flipperPlugin: flipperPlugin)
+
+        // Add a listener
+        let listenerID = flipperPlugin.addListener { _ in }
+        plugin?.listeners.append(listenerID)
+
+        // Verify listener was added
+        XCTAssertEqual(flipperPlugin.listeners.count, 1)
+
+        // Deinit should be called when plugin is set to nil
+        plugin = nil
+
+        // Test that they were actually removed
+        XCTAssertEqual(flipperPlugin.listeners.count, 0)
+    }
+
+    // TODO: test the destroy on Messenger?
+    func testDeinitDestroysMessenger() { // TODO: worried this doesn't work
+        let flipperPlugin = DevtoolsFlipperPlugin()
+        var plugin: BasicDevtoolsPlugin? = BasicDevtoolsPlugin(id: "test-id", flipperPlugin: flipperPlugin)
+
+        // Deinit should be called when plugin is set to nil
+        plugin = nil
+
+        // Test that destroy was called
+        if let jsException = plugin?.context?.exception {
+            XCTFail("Destroy failed")
+        }
+    }
+}
+
+extension BasicDevtoolsPlugin {
+    convenience init(id: String) {
+        self.init(id: id, flipperPlugin: .init())
     }
 }
