@@ -1,0 +1,787 @@
+{
+  "id": "player-ui-basic-devtools-plugin",
+  "views": [
+    {
+      "id": "Config",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Config-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Config-header-values-0",
+                "type": "action",
+                "value": "Config",
+                "label": {
+                  "asset": {
+                    "id": "Config-header-values-0-label",
+                    "type": "text",
+                    "value": "Config"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Config-header-values-1",
+                "type": "action",
+                "value": "Flow",
+                "label": {
+                  "asset": {
+                    "id": "Config-header-values-1-label",
+                    "type": "text",
+                    "value": "Flow"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Config-header-values-2",
+                "type": "action",
+                "value": "Logs",
+                "label": {
+                  "asset": {
+                    "id": "Config-header-values-2-label",
+                    "type": "text",
+                    "value": "Logs"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Config-header-values-3",
+                "type": "action",
+                "value": "Console",
+                "label": {
+                  "asset": {
+                    "id": "Config-header-values-3-label",
+                    "type": "text",
+                    "value": "Console"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Config-header-values-4",
+                "type": "action",
+                "value": "Editor",
+                "label": {
+                  "asset": {
+                    "id": "Config-header-values-4-label",
+                    "type": "text",
+                    "value": "Editor"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Config-main",
+          "type": "object-inspector",
+          "binding": "playerConfig",
+          "label": {
+            "asset": {
+              "id": "Config-main-label",
+              "type": "text",
+              "value": "Config"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Flow",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Flow-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Flow-header-values-0",
+                "type": "action",
+                "value": "Config",
+                "label": {
+                  "asset": {
+                    "id": "Flow-header-values-0-label",
+                    "type": "text",
+                    "value": "Config"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Flow-header-values-1",
+                "type": "action",
+                "value": "Flow",
+                "label": {
+                  "asset": {
+                    "id": "Flow-header-values-1-label",
+                    "type": "text",
+                    "value": "Flow"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Flow-header-values-2",
+                "type": "action",
+                "value": "Logs",
+                "label": {
+                  "asset": {
+                    "id": "Flow-header-values-2-label",
+                    "type": "text",
+                    "value": "Logs"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Flow-header-values-3",
+                "type": "action",
+                "value": "Console",
+                "label": {
+                  "asset": {
+                    "id": "Flow-header-values-3-label",
+                    "type": "text",
+                    "value": "Console"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Flow-header-values-4",
+                "type": "action",
+                "value": "Editor",
+                "label": {
+                  "asset": {
+                    "id": "Flow-header-values-4-label",
+                    "type": "text",
+                    "value": "Editor"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Flow-main",
+          "type": "object-inspector",
+          "filter": true,
+          "binding": "flow",
+          "label": {
+            "asset": {
+              "id": "Flow-main-label",
+              "type": "text",
+              "value": "Flow"
+            }
+          }
+        }
+      },
+      "footer": {
+        "asset": {
+          "id": "Flow-footer",
+          "type": "copy-to-clipboard",
+          "binding": "flow",
+          "label": {
+            "asset": {
+              "id": "Flow-footer-label",
+              "type": "text",
+              "value": "Copy flow to the clipboard"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Logs",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Logs-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Logs-header-values-0",
+                "type": "action",
+                "value": "Config",
+                "label": {
+                  "asset": {
+                    "id": "Logs-header-values-0-label",
+                    "type": "text",
+                    "value": "Config"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Logs-header-values-1",
+                "type": "action",
+                "value": "Flow",
+                "label": {
+                  "asset": {
+                    "id": "Logs-header-values-1-label",
+                    "type": "text",
+                    "value": "Flow"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Logs-header-values-2",
+                "type": "action",
+                "value": "Logs",
+                "label": {
+                  "asset": {
+                    "id": "Logs-header-values-2-label",
+                    "type": "text",
+                    "value": "Logs"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Logs-header-values-3",
+                "type": "action",
+                "value": "Console",
+                "label": {
+                  "asset": {
+                    "id": "Logs-header-values-3-label",
+                    "type": "text",
+                    "value": "Console"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Logs-header-values-4",
+                "type": "action",
+                "value": "Editor",
+                "label": {
+                  "asset": {
+                    "id": "Logs-header-values-4-label",
+                    "type": "text",
+                    "value": "Editor"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Logs-main",
+          "type": "table",
+          "binding": "logs"
+        }
+      }
+    },
+    {
+      "id": "Console",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Console-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Console-header-values-0",
+                "type": "action",
+                "value": "Config",
+                "label": {
+                  "asset": {
+                    "id": "Console-header-values-0-label",
+                    "type": "text",
+                    "value": "Config"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Console-header-values-1",
+                "type": "action",
+                "value": "Flow",
+                "label": {
+                  "asset": {
+                    "id": "Console-header-values-1-label",
+                    "type": "text",
+                    "value": "Flow"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Console-header-values-2",
+                "type": "action",
+                "value": "Logs",
+                "label": {
+                  "asset": {
+                    "id": "Console-header-values-2-label",
+                    "type": "text",
+                    "value": "Logs"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Console-header-values-3",
+                "type": "action",
+                "value": "Console",
+                "label": {
+                  "asset": {
+                    "id": "Console-header-values-3-label",
+                    "type": "text",
+                    "value": "Console"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Console-header-values-4",
+                "type": "action",
+                "value": "Editor",
+                "label": {
+                  "asset": {
+                    "id": "Console-header-values-4-label",
+                    "type": "text",
+                    "value": "Editor"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Console-main",
+          "type": "console",
+          "exp": " publish('evaluate-expression', {{expression}}) ",
+          "binding": "history"
+        }
+      }
+    },
+    {
+      "id": "Editor",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Editor-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Editor-header-values-0",
+                "type": "action",
+                "value": "Config",
+                "label": {
+                  "asset": {
+                    "id": "Editor-header-values-0-label",
+                    "type": "text",
+                    "value": "Config"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Editor-header-values-1",
+                "type": "action",
+                "value": "Flow",
+                "label": {
+                  "asset": {
+                    "id": "Editor-header-values-1-label",
+                    "type": "text",
+                    "value": "Flow"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Editor-header-values-2",
+                "type": "action",
+                "value": "Logs",
+                "label": {
+                  "asset": {
+                    "id": "Editor-header-values-2-label",
+                    "type": "text",
+                    "value": "Logs"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Editor-header-values-3",
+                "type": "action",
+                "value": "Console",
+                "label": {
+                  "asset": {
+                    "id": "Editor-header-values-3-label",
+                    "type": "text",
+                    "value": "Console"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Editor-header-values-4",
+                "type": "action",
+                "value": "Editor",
+                "label": {
+                  "asset": {
+                    "id": "Editor-header-values-4-label",
+                    "type": "text",
+                    "value": "Editor"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Editor-main",
+          "type": "code-editor",
+          "binding": "flow",
+          "exp": " publish('override-flow', {{code}}) "
+        }
+      }
+    }
+  ],
+  "navigation": {
+    "BEGIN": "Plugin",
+    "Plugin": {
+      "startState": "CONFIG",
+      "CONFIG": {
+        "state_type": "VIEW",
+        "ref": "Config",
+        "transitions": {
+          "Config": "CONFIG",
+          "Flow": "FLOW",
+          "Logs": "LOGS",
+          "Console": "CONSOLE",
+          "Editor": "EDITOR"
+        }
+      },
+      "FLOW": {
+        "state_type": "VIEW",
+        "ref": "Flow",
+        "transitions": {
+          "Config": "CONFIG",
+          "Flow": "FLOW",
+          "Logs": "LOGS",
+          "Console": "CONSOLE",
+          "Editor": "EDITOR"
+        }
+      },
+      "LOGS": {
+        "state_type": "VIEW",
+        "ref": "Logs",
+        "transitions": {
+          "Config": "CONFIG",
+          "Flow": "FLOW",
+          "Logs": "LOGS",
+          "Console": "CONSOLE",
+          "Editor": "EDITOR"
+        }
+      },
+      "CONSOLE": {
+        "state_type": "VIEW",
+        "ref": "Console",
+        "transitions": {
+          "Config": "CONFIG",
+          "Flow": "FLOW",
+          "Logs": "LOGS",
+          "Console": "CONSOLE",
+          "Editor": "EDITOR"
+        }
+      },
+      "EDITOR": {
+        "state_type": "VIEW",
+        "ref": "Editor",
+        "transitions": {
+          "Config": "CONFIG",
+          "Flow": "FLOW",
+          "Logs": "LOGS",
+          "Console": "CONSOLE",
+          "Editor": "EDITOR"
+        }
+      }
+    }
+  },
+  "schema": {
+    "ROOT": {
+      "playerConfig": {
+        "type": "RecordType"
+      },
+      "flow": {
+        "type": "RecordType"
+      },
+      "expression": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "code": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "history": {
+        "type": "historyType",
+        "isArray": true
+      },
+      "logs": {
+        "type": "logsType",
+        "isArray": true
+      }
+    },
+    "logsType": {
+      "id": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "time": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "type": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "message": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "severity": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "binding": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "from": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "to": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "state": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "error": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "outcome": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "metricType": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      }
+    },
+    "historyType": {
+      "id": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "expression": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "result": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "severity": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "data": {
+    "expression": "",
+    "flow": {},
+    "history": [],
+    "logs": [],
+    "playerConfig": {}
+  }
+}
