@@ -55,8 +55,8 @@ public class Messenger(
             ?: throw PlayerException("Could not find handleMessage function on Messenger instance")
     }
 
-    private val sendMessage: (message: Any) -> Unit by lazy {
-        instance.getInvokable("sendMessage")
+    private val sendMessage: (message: Any) -> Promise by lazy {
+        instance.getInvokable<Promise>("sendMessage")
             ?: throw PlayerException("Could not find sendMessage function on Messenger instance")
     }
 
