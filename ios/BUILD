@@ -10,8 +10,13 @@ xcodeproj(
         top_level_target("//ios/demo:DemoApp", target_environments = ["simulator"]),
 
         # Add all test targets here. ONLY test targets should go here
-        "//devtools/messenger/ios:PlayerUIDevToolsMessengerTests",
-        "//devtools/utils/ios:PlayerUIDevToolsUtilsTests",
-        "//devtools/types/ios:PlayerUIDevToolsTypesTests",
+        "//devtools/messenger/ios:PlayerUIDevtoolsMessengerTests",
+        "//devtools/utils/ios:PlayerUIDevtoolsUtilsTests",
+        "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUIViewInspectorTests",
+        "//devtools/types/ios:PlayerUIDevtoolsTypesTests",
+        "//devtools/plugin/ios:PlayerUIDevtoolsPluginsViewInspectorTests",
+        "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPluginsViewInspectorTests",
+        "//devtools/plugins/basic/ios:PlayerUIDevtoolsBaseBasicDevtoolsPluginTests",
+        "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPluginViewInspectorTests",
     ],
 )

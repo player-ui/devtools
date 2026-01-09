@@ -5,115 +5,86 @@
 import Foundation
 import PlayerUI
 import JavaScriptCore
-import PlayerUIDevToolsTypes
-import PlayerUIDevToolsUtils
+import PlayerUIDevtoolsTypes
+import PlayerUIDevtoolsUtils
 
-/// Swift wrapper for the JavaScript Messenger implementation
-/// Provides a native Swift API while delegating to the JS implementation
-public class Messenger<Message: BaseEvent> {
-    private let jsMessenger: JSValue
-    private let sharedContext: JSContext?
-    
+/// Swift wrapper for the JavaScript Messenger implementation.
+/// Provides a native Swift API while delegating to the JS implementation.
+public class Messenger {
+    /// A thread-safe way to access the JS Messenger
+    private let jsMessengerActor: JSMessengerActor
+
+    /// This object in a format that JS can understand. DO NOT attempt to call methods on this directly.
+    public let jsCompatible: JSValue
+
     /// Initialize a new Messenger instance
-    /// - Parameter options: Configuration options for the messenger
+    /// - Parameter options: The options to use for this instance
     /// - Throws: MessengerError if initialization fails
-    public init(options: MessengerOptions<Message>, jsContext: JSContext = JSContext()) throws {
-        // Create a shared JSContext for both the options and the messenger
-        self.sharedContext = jsContext
-        
-        guard let sharedContext, let jsOptions = try options.asJSValue(in: sharedContext) else {
-            throw MessengerError.initializationFailed
+    public init(options: MessengerOptions) throws {
+        // We can pull the jsContext from the MessengerOptions. This is helpful
+        // because the options and Messenger need to have the same context
+        guard let jsOptions = options.asJSValue, let context = jsOptions.context else {
+            throw MessengerError.failedToConvertOptionsToJSValue
         }
-        
-        self.jsMessenger = try JSValue.construct(
+
+        // TODO: Actually do something with logger + debug option
+        let jsMessenger = try context.construct(
             className: "Messenger",
-            fromFile: "Messenger.native",
             inBundle: Bundle.module,
-            withArguments: [jsOptions],
-            inContext: sharedContext,
-            withPolyfill: { sharedContext.setupMessengerPolyfill() }
+            withArguments: [jsOptions]
         )
+        self.jsMessengerActor = JSMessengerActor(jsMessenger)
+        self.jsCompatible = jsMessenger
     }
-    
-    /// Send a message through the messenger
+
+    /// Send a message through the messenger.
+    ///
     /// - Parameter message: The message to send
-    public func sendMessage(_ message: Message) {
-        do {
-            let messageData = try JSONEncoder().encode(message)
-            let messageString = String(data: messageData, encoding: .utf8) ?? "{}"
-            
-            // JSContext/JSValue are not thread-safe, must be accessed from main thread
-            if Thread.isMainThread {
-                jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-            } else {
-                DispatchQueue.main.async { [weak self] in
-                    self?.jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-                }
-            }
-        } catch {
-            print("Failed to encode message: \(error)")
-        }
+    public func sendMessage(_ message: Message) async throws {
+        try await send(message: message)
     }
-    
+
     /// Send a message as a JSON string
-    /// - Parameter messageString: The message as a JSON string
-    public func sendMessage(_ messageString: String) {
-        // JSContext/JSValue are not thread-safe, must be accessed from main thread
-        if Thread.isMainThread {
-            jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-        } else {
-            DispatchQueue.main.async { [weak self] in
-                self?.jsMessenger.invokeMethod("sendMessage", withArguments: [messageString])
-            }
-        }
+    ///
+    /// - Parameter messageString: The message
+    public func sendMessage(_ messageString: String) async throws {
+        try await send(message: messageString)
     }
-    
-    /// Destroy the messenger instance and clean up resources
+
+    /// Helper to actually send the message.
+    /// Usually, we want to avoid `Any`. However, the JS function accepts `[Any]` as arguments.
+    /// So in this case, it's... okay.
+    private func send(message: Any) async throws {
+        guard let promise = jsMessengerActor.messenger
+            .invokeMethodSafely("sendMessage", withArguments: [message])
+        else {
+            throw MessengerError.didNotReceiveJSPromise(method: "sendMessage")
+        }
+
+        // This is a wrapper that allows us to wait for the then/catch callbacks from the JS Promise
+        let checkedContinuation: (CheckedContinuation<Void, any Error>) -> Void = { continuation in
+                guard let context = promise.context else {
+                    return continuation.resume(throwing: MessengerError.couldNotFindJSContext(variable: "promise"))
+                }
+
+                let onResolve: @convention(block) () -> Void = { continuation.resume() }
+                let jsResolve = JSValue(object: onResolve, in: context)
+
+                let onReject: @convention(block) (JSValue) -> Void = { error in
+                    let message = error.toString() ?? "Error could not be parsed."
+                    continuation.resume(throwing: MessengerError.promiseRejected(error: message))
+                }
+                let jsReject = JSValue(object: onReject, in: context)
+                _ = promise.invokeMethodSafely("then", withArguments: [jsResolve as Any])
+                _ = promise.invokeMethodSafely("catch", withArguments: [jsReject as Any])
+        }
+        try await withCheckedThrowingContinuation(checkedContinuation)
+    }
+
+    /// Destroy the messenger. 
+    /// This should be called when the messenger is de-inited to properly inform other messengers that it is gone.
     public func destroy() {
-        // JSContext/JSValue are not thread-safe, must be accessed from main thread
-        if Thread.isMainThread {
-            jsMessenger.invokeMethod("destroy", withArguments: [])
-        } else {
-            DispatchQueue.main.sync {
-                jsMessenger.invokeMethod("destroy", withArguments: [])
-            }
-        }
-    }
-    
-    /// Reset static records (bridges to JavaScript implementation)
-    ///
-    /// **Important:** This method calls the static `Messenger.reset()` method in JavaScript,
-    /// which clears ALL static state (events and connections) for ALL messenger instances
-    /// that share the same JavaScript context. This affects:
-    ///
-    /// - All Swift Messenger instances (since they share `sharedJSContext`)
-    /// - All events stored in the JavaScript static `events` record
-    /// - All connections stored in the JavaScript static `connections` record
-    ///
-    /// This is an instance method (not static) because it needs access to the shared
-    /// JavaScript context, but it performs a global operation affecting all instances.
-    /// Use with caution in multi-instance scenarios.
-    public func reset() {
-        // JSContext/JSValue are not thread-safe, must be accessed from main thread
-        let performReset = {
-            guard let messengerClass = self.sharedContext?
-                .objectForKeyedSubscript("Messenger")
-                .objectForKeyedSubscript("Messenger")
-            else {
-                print("Warning: Messenger class not found in JavaScript context")
-                return
-            }
-            
-            messengerClass.invokeMethod("reset", withArguments: [])
-        }
-        
-        if Thread.isMainThread {
-            performReset()
-        } else {
-            DispatchQueue.main.sync {
-                performReset()
-            }
-        }
+        _ = jsMessengerActor.messenger.invokeMethodSafely("destroy")
     }
 }
 
@@ -121,119 +92,35 @@ public class Messenger<Message: BaseEvent> {
 
 /// The different types of errors that can occur when using the Messenger
 public enum MessengerError: Error, LocalizedError {
-    case jsSourceNotFound
-    case initializationFailed
-    case encodingFailed
-    case decodingFailed
-    
+    /// Failed to initialize the JavaScript Messenger instance
+    case failedToConvertOptionsToJSValue
+
+    case didNotReceiveJSPromise(method: String)
+
+    case couldNotFindJSContext(variable: String)
+
+    case promiseRejected(error: String)
+
+    /// A localized description of the error
     public var errorDescription: String? {
         switch self {
-        case .jsSourceNotFound:
-            return "JavaScript Messenger source file not found"
-        case .initializationFailed:
-            return "Failed to initialize JavaScript Messenger"
-        case .encodingFailed:
-            return "Failed to encode message"
-        case .decodingFailed:
-            return "Failed to decode message"
+        case .failedToConvertOptionsToJSValue:
+            return "[JS SAFETY] Failed to convert Swift native options to JS options"
+        case .didNotReceiveJSPromise(let method):
+            return "[JS SAFETY] Failed to send message: JS messenger's '\(method)' function did not return a Promise"
+        case .couldNotFindJSContext(let variable):
+            return "[JS SAFETY] Failed to send message: '\(variable)' property does not have a valid JSContext associated with it"
+        case .promiseRejected(let error):
+            return "[JS SAFETY] Failed to send message: promise rejected with error='\(error)'"
         }
     }
 }
 
-extension JSContext {
-    /**
-     Provides setInterval, clearInterval, and console.log implementations for the JS Messenger
-     used by the Swift wrapper, which will not have access to the browser APIs.
-     (I.e. this is a polyfill for the JS Messenger.)
-     */
-    func setupMessengerPolyfill() {
-        // Store timers in a class-level dictionary to avoid JSValue storage issues
-        let timerStorage = TimerStorage.shared
-        
-        // setInterval in JS registers a repeating job that happens every x milliseconds.
-        let setInterval: @convention(block) (JSValue?, JSValue?) -> JSValue? = { (callback, delay) in
-            guard let callback = callback,
-                  let delay = delay?.toInt32() else { return nil }
-            
-            let timerId = timerStorage.createTimer(callback: callback, delay: Int(delay))
-            return JSValue(int32: Int32(timerId), in: self)
-        }
-        
-        // clearInterval in JS cancels the repeating job.
-        let clearInterval: @convention(block) (JSValue?) -> Void = { timerId in
-            guard let timerId = timerId?.toInt32() else { return }
-            timerStorage.cancelTimer(id: Int(timerId))
-        }
-        
-        // Add console.log polyfill
-        let console: @convention(block) (JSValue?) -> Void = { (args) in
-            if let args = args?.toArray() {
-                print("Swift DevTools, Debug mode:", args)
-            }
-        }
-        
-        guard let jsSetInterval = JSValue(object: setInterval, in: self) else { return }
-        setObject(jsSetInterval, forKeyedSubscript: "setInterval" as NSString)
-        guard let jsClearInterval = JSValue(object: clearInterval, in: self) else { return }
-        setObject(jsClearInterval, forKeyedSubscript: "clearInterval" as NSString)
-        guard let jsConsole = JSValue(object: console, in: self) else { return }
-        setObject(jsConsole, forKeyedSubscript: "console" as NSString)
-    }
-}
+/// A wrapper for the JSValue needed by the Messenger.
+class JSMessengerActor {
+    let messenger: JSValue
 
-// Separate timer storage class to avoid JSValue memory management issues
-private class TimerStorage {
-    static let shared = TimerStorage()
-    
-    private var timers: [Int: DispatchSourceTimer] = [:]
-    private var callbacks: [Int: JSValue] = [:]
-    private var timerCounter = 0
-    // Use serial queue for simplicity and thread safety
-    private let queue = DispatchQueue(label: "timer-storage")
-    
-    private init() {}
-    
-    func createTimer(callback: JSValue, delay: Int) -> Int {
-        return queue.sync {
-            timerCounter += 1
-            let timerId = timerCounter
-            
-            // Store the callback strongly to prevent deallocation
-            callbacks[timerId] = callback
-            
-            let timer = DispatchSource.makeTimerSource(queue: .main)
-            timer.schedule(deadline: .now(), repeating: .milliseconds(delay))
-            timer.setEventHandler { [weak self] in
-                // We're already on main queue (timer's queue), which is required for JSValue
-                // Read the callback within the lock to ensure thread safety
-                guard let self = self else { return }
-                let callbackToExecute = self.queue.sync { self.callbacks[timerId] }
-                callbackToExecute?.call(withArguments: [])
-            }
-            timer.resume()
-            
-            timers[timerId] = timer
-            return timerId
-        }
-    }
-    
-    func cancelTimer(id: Int) {
-        queue.sync {
-            if let timer = timers[id] {
-                timer.cancel()
-                timers.removeValue(forKey: id)
-                callbacks.removeValue(forKey: id)
-            }
-        }
-    }
-    
-    deinit {
-        queue.sync {
-            for timer in timers.values {
-                timer.cancel()
-            }
-            timers.removeAll()
-            callbacks.removeAll()
-        }
+    init(_ messenger: JSValue) {
+        self.messenger = messenger
     }
 }

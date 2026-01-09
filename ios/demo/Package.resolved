@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "flipperpluginutils",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/chiragramani/FlipperPluginUtils",
+      "state" : {
+        "branch" : "main",
+        "revision" : "f68ac6cc7954867b4ea9d9fa13be5995174c4929"
+      }
+    },
+    {
       "identity" : "playerui-swift-package",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/player-ui/playerui-swift-package.git",
@@ -41,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "309a47b2b1d9b5e991f36961c983ecec72275be3",
-        "version" : "1.6.1"
+        "revision" : "cdd0ef3755280949551dc26dee5de9ddeda89f54",
+        "version" : "1.6.2"
       }
     },
     {
@@ -59,8 +68,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "21b3b45635decd1a0b89968f81b6d9a93128f773",
-        "version" : "602.0.0-prerelease-2025-08-11"
+        "revision" : "6673b05995983461eef015c4768f1483c245db22",
+        "version" : "603.0.0-prerelease-2025-09-15"
+      }
+    },
+    {
+      "identity" : "swiftflipper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/chiragramani/SwiftFlipper.git",
+      "state" : {
+        "branch" : "0.1",
+        "revision" : "23ab427d3dd076e14f0028e30d174e004a2faa00"
       }
     },
     {
@@ -68,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/SwiftLint.git",
       "state" : {
-        "revision" : "cc6fbaf355caf9ebe02c1b631a8edaa6df9145c5",
-        "version" : "0.61.0"
+        "revision" : "da9d742874d88f6d5d0f7b315d1fcf12655f2311",
+        "version" : "0.62.2"
       }
     },
     {
@@ -104,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "d41ba4e7164c0838c6d48351f7575f7f762151fe",
-        "version" : "6.1.0"
+        "revision" : "51b5127c7fb6ffac106ad6d199aaa33c5024895f",
+        "version" : "6.2.0"
       }
     }
   ],

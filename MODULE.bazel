@@ -77,6 +77,7 @@ use_repo(
     "swift_package",  # Not sure what this is for, but it is required
     "swiftpkg_playerui_swift_package",
     "swiftpkg_swift_hooks",
+    "swiftpkg_swiftflipper",
     "swiftpkg_swiftlint",
     "swiftpkg_viewinspector",
 )
@@ -146,6 +147,7 @@ maven.install(
     ],
     version_conflict_policy = "pinned",
 )
+
 # maven.override(
 #     name = "maven",
 #     coordinates = "com.android.ndk.thirdparty:openssl",

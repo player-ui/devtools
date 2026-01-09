@@ -1,1 +1,0 @@
-export { profiler } from "./profiler";

@@ -7,13 +7,18 @@
 
 import SwiftUI
 import PlayerUI
+import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsTypes
+import PlayerUIReferenceAssets
+import PlayerUIDevtoolsBasicPlugin
+import PlayerUIPrintLoggerPlugin
 
 struct PluginDemos: View {
     @ObservedObject var model: DemoViewModel
     let demos: [Demo]
-
+    
     @State private var filteredDemos: [Demo] = []
-
+    
     var body: some View {
         List {
             Section("Mocks") {
@@ -23,7 +28,7 @@ struct PluginDemos: View {
                         FlowManagerView(
                             flowSequence: demo.flows,
                             navTitle: demo.navTitle,
-                            plugins: demo.plugins
+                            plugins: demo.plugins ?? model.defaultPlugins
                         )
                     } label: {
                         Text(demo.name)
@@ -53,10 +58,10 @@ struct Demo {
     let flows: [Flow]
     /// This will be shown in the navigation bar during the demo
     let navTitle: String
-    /// Any plugins to be used in the demo. If none are provided, we'll default to loading all of the assets
-    let plugins: [NativePlugin]
-
-    init(name: String, flows: [Flow], navTitle: String? = nil, plugins: [NativePlugin] = .defaults) {
+    /// An override of the plugins to be used in the demo. If this is nil, the intention is that the demo should provide defaults.
+    var plugins: [NativePlugin]?
+    
+    init(name: String, flows: [Flow], navTitle: String? = nil, plugins: [NativePlugin]? = nil) {
         self.name = name
         self.flows = flows
         self.navTitle = navTitle ?? name
@@ -72,7 +77,7 @@ enum Flow {
     /// This path should be relative and NOT include the ".json" extension.
     /// E.g. fancy-dog/basic
     case file(String)
-
+    
     var value: String {
         switch self {
         case .literal(let value):
@@ -87,12 +92,4 @@ enum Flow {
             return flow
         }
     }
-}
-
-extension [NativePlugin] {
-    /// The list of all plugins to load in a demo, if none are specifically provided.
-    static let defaults: [NativePlugin] = [
-        // TODO: Add all plugins here
-        // No plugins defined yet for devtools
-    ]
 }

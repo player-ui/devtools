@@ -1,2 +1,2 @@
-export { generateUUID } from './uuid'
-export { genDataChangeTransaction } from './genDataChangeTransaction'
+export { generateUUID } from "./uuid";
+export { genDataChangeTransaction } from "./genDataChangeTransaction";

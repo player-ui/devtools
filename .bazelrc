@@ -27,10 +27,6 @@ common:ci --config=ci-base --local_resources=cpu=4 --local_resources=memory=8192
 # Circle m4pro.medium 6 cores 28gb ram (?)
 common:ci-mac --config=ci-base --local_resources=cpu=4 --local_resources=memory=26000
 
-#iOS Flags. TODO: Change this to match your team's set up.
-common --ios_simulator_device="iPhone 16 Pro"
-common --ios_simulator_version="18.5"
-
 # Cache Config
 common --bes_results_url=https://app.buildbuddy.io/invocation/
 common --bes_backend=grpcs://remote.buildbuddy.io

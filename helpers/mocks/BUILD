@@ -1,29 +1,25 @@
 load("@rules_player//player:defs.bzl", generate_mocks_manifest = "generate_mocks_manifest")
 load("@aspect_rules_js//npm:defs.bzl", "npm_package")
 
-MOCKS = [ # TODO: Add all mock folders here
-    # No plugins defined yet for devtools
-]
-
 # This one is used directly by iOS, and indirectly by the other platforms.
+# References the compiled mocks from the mocks directory
 filegroup(
     name = "all_mocks",
-    srcs = ["//mocks/{}/mocks".format(mock) for mock in MOCKS] if MOCKS else [],
+    srcs = ["//mocks:mocks"],
     visibility = ["//visibility:public"],
 )
 
-# TODO: Uncomment this when we have mocks
-# generate_mocks_manifest(
-#     name = "manifest",
-#     mocks = [":all_mocks"],
-# )
+generate_mocks_manifest(
+    name = "manifest",
+    mocks = [":all_mocks"],
+)
 
 npm_package(
     name = "mocks",
     visibility = ["//visibility:public"],
-    package = "@player-devtools/mocks", # TODO: Change this to match your project
+    package = "@player-devtools/mocks",
     srcs = [
-        # ":manifest", # TODO: Uncomment this when we have mocks
+        ":manifest",
         "package.json"
     ],
     tags = ["do-not-publish"],
@@ -32,6 +28,6 @@ npm_package(
 java_library(
     name = "jar",
     resource_strip_prefix = "helpers",
-    # resources = [":manifest"], # TODO: Uncomment this when we have mocks
+    resources = [":manifest"],
     visibility = ["//visibility:public"],
 )

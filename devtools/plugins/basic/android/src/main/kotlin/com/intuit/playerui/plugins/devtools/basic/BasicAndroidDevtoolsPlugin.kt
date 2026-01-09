@@ -6,10 +6,13 @@ import com.intuit.playerui.devtools.AndroidDevtoolsPlugin
 import com.intuit.playerui.plugins.devtools.basic.BasicDevtoolsPlugin.Module.BasicDevtoolsPlugin
 import com.intuit.playerui.plugins.devtools.basic.R
 
-public class BasicAndroidDevtoolsPlugin(private val id: String) : AndroidDevtoolsPlugin<BasicDevtoolsPlugin>() {
-    override fun Runtime<*>.buildCorePlugin(): BasicDevtoolsPlugin = BasicDevtoolsPlugin(
-        BasicDevtoolsPlugin.Options(id, this@BasicAndroidDevtoolsPlugin)
-    )
+public class BasicAndroidDevtoolsPlugin(
+    private val id: String,
+) : AndroidDevtoolsPlugin<BasicDevtoolsPlugin>() {
+    override fun Runtime<*>.buildCorePlugin(): BasicDevtoolsPlugin =
+        BasicDevtoolsPlugin(
+            BasicDevtoolsPlugin.Options(id, this@BasicAndroidDevtoolsPlugin),
+        )
 
     override fun apply(androidPlayer: AndroidPlayer) {
         if (!checkIfDevtoolsIsActive()) return
@@ -21,4 +24,3 @@ public class BasicAndroidDevtoolsPlugin(private val id: String) : AndroidDevtool
         }
     }
 }
-

@@ -6,16 +6,9 @@ packages:
   - devtools/plugin/react
   - devtools/plugins/basic/core
   - devtools/plugins/basic/react
-  - devtools/plugins/profiler/core
-  - devtools/plugins/profiler/react
-#  - devtools/plugins/mobile/flipper-desktop-client
-#  - devtools/plugins/desktop/common
-#  - devtools/plugins/desktop/basic
-#  - devtools/plugins/desktop/profiler
   - devtools/messenger/core
-  - devtools/client
   - devtools/utils/ios/Resources/core
-  - helpers/mocks
+  - mocks/
 
 onlyBuiltDependencies:
   - esbuild

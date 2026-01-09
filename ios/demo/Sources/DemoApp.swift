@@ -1,33 +1,61 @@
 import SwiftUI
+import Combine
 import PlayerUI
 import PlayerUISwiftUI
+import PlayerUIPrintLoggerPlugin
+import SwiftFlipper
+import PlayerUIDevtoolsPlugins
+import PlayerUIReferenceAssets
+import PlayerUIDevtoolsBasicPlugin
 
 @main
 struct BazelApp: App {
     @StateObject private var model = DemoViewModel()
 
-    // This is a very basic demo implementation to help you get started
     var body: some Scene {
         WindowGroup {
             if #available(iOS 16.0, *) {
                 NavigationStack {
                     PluginDemos(model: model, demos: demosFromMocks)
+                    resetPlugins
                 }
-            } else {
-                /* Not implementing since this is just for the demo app. */
-            }
+            } else { /* Not implementing a fallback for the demo. */ }
         }
+    }
+
+    private var resetPlugins: some View {
+        VStack {
+            Text("BasicDevtoolsPlugin id:")
+                .frame(maxWidth: .infinity, alignment: .center)
+            Text("\(model.devtoolsPluginID)")
+                .font(.callout)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Button("New Flipper Plugin") {  model.resetPlugins() }
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Text(String.explanation)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .multilineTextAlignment(.leading)
+        .padding()
     }
 
     // These demos just load the mocks directly with the basic asset plugin added
     private var demosFromMocks: [Demo] {
-        guard let mocksPath = Bundle.mocks?.resourcePath else { return [] }
+        guard let mocksPath = Bundle.mocks?.resourcePath else {
+            return []
+        }
         let paths = getFlowPaths(from: mocksPath)
         return paths.map { path in
-            let relativePath = String(path
+            var relativePath = String(path
                 .dropFirst(mocksPath.count) // Remove the absolute path
                 .dropLast(5) // Remove the ".json"
             )
+            // Remove leading slash if present
+            if relativePath.hasPrefix("/") {
+                relativePath = String(relativePath.dropFirst())
+            }
             return Demo(name: relativePath, flows: [.file(relativePath)])
         }
     }
@@ -46,17 +74,48 @@ struct BazelApp: App {
     }
 }
 
-/// View model for the demo app. Used to debounce the search query input.
+/// View model for the demo app
 class DemoViewModel: ObservableObject {
+    /// Our connection to flipper
+    private let flipperClient = FlipperClient(connectionConfig: .init(), plugins: [])
+    /// A plugin that allows us to use the connectiont o flipper
+    let flipperPlugin = DevtoolsFlipperPlugin()
+    /// The list of all player plugins to load in a demo, if none are specifically provided.
+    @Published private(set) var defaultPlugins: [NativePlugin]
+    private(set) var devtoolsPluginID: String
+
+    // -- Used to debounce the search query input. -- //
     // The input in the search field
     @Published var searchQuery = ""
     // The search query to use for filtering. This is updated on a debounce schedule
     @Published var debouncedSearchQuery = ""
 
     init() {
-        self.$searchQuery
+        devtoolsPluginID = "demo"
+        defaultPlugins = [
+            ReferenceAssetsPlugin(),
+            PrintLoggerPlugin(level: .debug),
+            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
+        ]
+
+        flipperClient.addPlugin(flipperPlugin)
+        flipperClient.connectToFlipper()
+
+        $searchQuery
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .assign(to: &$debouncedSearchQuery)
+    }
+
+    /// Discard the previous set of plugins and make a new set.
+    ///
+    /// This allows us to test that the BasicDevtoolsPlugin is cleaned up properly.
+    func resetPlugins() {
+        devtoolsPluginID = "demo-\(UUID().uuidString)"
+        defaultPlugins = [
+            ReferenceAssetsPlugin(),
+            PrintLoggerPlugin(level: .debug),
+            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
+        ]
     }
 }
 
@@ -68,4 +127,8 @@ extension Bundle {
         }
         return Self(path: path)
     }
+}
+
+private extension String {
+    static let explanation = "Disconnect the previous BasicDevtoolsPlugin and replace it with a new one. The old plugin should disappear from the Flipper dropdown, and a new one should appear. **NOTE:** You must click into a flow to instantiate the new plugin."
 }

@@ -12,11 +12,14 @@ swift_library(
         # DO NOT put packages that require XCTest here (i.e. UI test dependencies).
         "@swiftpkg_playerui_swift_package//:PlayerUI",
         "@swiftpkg_playerui_swift_package//:PlayerUISwiftUI",
+        "@swiftpkg_playerui_swift_package//:PlayerUIReferenceAssets",
+        "@swiftpkg_playerui_swift_package//:PlayerUIPrintLoggerPlugin",
         "@swiftpkg_swift_hooks//:SwiftHooks",
+        "@swiftpkg_swiftflipper//:SwiftFlipper",
 
         # These are the components under development.
-        "//devtools/messenger/ios:PlayerUIDevToolsMessenger",
-        "//devtools/types/ios:PlayerUIDevToolsTypes",
+        "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+        "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPlugin",
     ]
 )
 

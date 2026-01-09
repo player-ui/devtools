@@ -4,8 +4,7 @@ load("@rules_player//ios:defs.bzl", "ios_pipeline", "spm_publish")
 load("@rules_pkg//:mappings.bzl", "pkg_files", "strip_prefix")
 load("@rules_pkg//:pkg.bzl", "pkg_zip")
 
-# TODO: Change these to be appropriate for your project
-prefix = "PlayerUIDevTools"
+prefix = "PlayerUIDevtools"
 default_dependencies = [
   "@swiftpkg_playerui_swift_package//:PlayerUI"
 ]

@@ -2,17 +2,25 @@ import { describe, it, expect, vi } from "vitest";
 import { getEvaluateExpression } from "../getEvaluateExpression";
 import type { Evaluation } from "../../types";
 
-vi.mock("uuid", () => ({
-  v4: () => "test-uuid",
+vi.mock("@player-devtools/plugin", () => ({
+  generateUUID: () => "test-uuid",
 }));
 
 const getMockExpressionEvaluator = (
   evaluate: ReturnType<typeof vi.fn>,
   throwError = false,
-): any => {
+): {
+  interceptor: Record<string, unknown>;
+  evaluate: (...args: unknown[]) => unknown;
+  hooks: {
+    onError: {
+      intercept: (args: Record<string, unknown>) => void;
+    };
+  };
+} => {
   class MockExpressionEvaluator {
-    interceptor: Record<string, any> = {};
-    evaluate(...args: any[]) {
+    interceptor: Record<string, unknown> = {};
+    evaluate(...args: unknown[]) {
       if (throwError) {
         throw new Error("Evaluation error");
       }
@@ -20,7 +28,7 @@ const getMockExpressionEvaluator = (
     }
     hooks = {
       onError: {
-        intercept: (args: Record<string, any>) => {
+        intercept: (args: Record<string, unknown>) => {
           this.interceptor = args;
         },
       },

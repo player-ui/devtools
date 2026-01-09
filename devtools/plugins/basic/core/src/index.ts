@@ -1,2 +1,2 @@
-export { BasicDevtoolsPlugin } from './plugin'
-export * from './constants';
+export { BasicDevtoolsPlugin } from "./plugin";
+export * from "./constants";

@@ -1,0 +1,12 @@
+{
+  "name": "@player-devtools/mocks",
+  "version": "0.0.0-PLACEHOLDER",
+  "dependencies": {},
+  "files": [
+    "action",
+    "collection",
+    "info",
+    "input",
+    "text"
+  ]
+}

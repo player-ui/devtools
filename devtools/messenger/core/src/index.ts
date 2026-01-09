@@ -355,9 +355,14 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     this.log(`disconnected - ${parsed.context}:${parsed.sender}`);
   }
 
-  public sendMessage(message: T | string) {
-    const parsed: T =
-      typeof message === "string" ? JSON.parse(message) : message;
+  public sendMessage(message: T | string): Promise<void> {
+    let parsed: T;
+    try {
+      parsed = typeof message === "string" ? JSON.parse(message) : message;
+    } catch (e) {
+      this.log(`Failed to parse message to JSON. Message: ${message}`);
+      return Promise.reject(e);
+    }
 
     this.addEvent(parsed);
 
@@ -369,7 +374,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       connection.messagesSent += 1;
     }
 
-    this.options.sendMessage(msg).catch(() => {
+    return this.options.sendMessage(msg).catch(() => {
       this.options.handleFailedMessage?.(msg);
 
       this.log(
@@ -384,7 +389,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     if (this.beaconInterval) {
       clearInterval(this.beaconInterval);
     }
-
+    // iOS does not leverage this because iOS cannot compare functions
     this.options.removeListener(this.handleMessage);
 
     Object.keys(Messenger.connections).forEach((connection) => {

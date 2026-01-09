@@ -28,15 +28,17 @@ import java.util.concurrent.atomic.AtomicInteger
 @Serializable(with = DevtoolsHandler.Serializer::class)
 public interface DevtoolsHandler {
     public fun processInteraction(interaction: DevtoolsPluginInteractionEvent)
+
     public fun checkIfDevtoolsIsActive(): Boolean
 
     @Serializable
     public data class SerializedHandler(
-        @Transient val processInteraction: (DevtoolsPluginInteractionEvent) -> Unit = { error("Deserialization not supported" )},
+        @Transient val processInteraction: (DevtoolsPluginInteractionEvent) -> Unit = { error("Deserialization not supported") },
         val checkIfDevtoolsIsActive: () -> Boolean,
     ) : DevtoolsHandler {
         // hijack to deserialize the event before passing to the real handler
         @SerialName("processInteraction")
+        @Suppress("ktlint:standard:backing-property-naming")
         private val _processInteraction = { event: Node -> processInteraction(event.deserialize()) }
 
         override fun checkIfDevtoolsIsActive(): Boolean = checkIfDevtoolsIsActive.invoke()
@@ -48,8 +50,15 @@ public interface DevtoolsHandler {
 
     public object Serializer : KSerializer<DevtoolsHandler> {
         override val descriptor: SerialDescriptor = SerializedHandler.serializer().descriptor
-        override fun serialize(encoder: Encoder, value: DevtoolsHandler) {
-            encoder.encodeSerializableValue(SerializedHandler.serializer(), SerializedHandler(value::processInteraction, value::checkIfDevtoolsIsActive))
+
+        override fun serialize(
+            encoder: Encoder,
+            value: DevtoolsHandler,
+        ) {
+            encoder.encodeSerializableValue(
+                SerializedHandler.serializer(),
+                SerializedHandler(value::processInteraction, value::checkIfDevtoolsIsActive),
+            )
         }
 
         override fun deserialize(decoder: Decoder): DevtoolsHandler = decoder.decodeSerializableValue(SerializedHandler.serializer())
@@ -57,16 +66,18 @@ public interface DevtoolsHandler {
 }
 
 @Serializable(with = DevtoolsPluginStore.Serializer::class)
-public data class DevtoolsPluginStore(override val node: Node) : NodeWrapper {
-
+public data class DevtoolsPluginStore(
+    override val node: Node,
+) : NodeWrapper {
     // TODO: Expose internals
 
     internal object Serializer : KSerializer<DevtoolsPluginStore> by NodeWrapperSerializer(::DevtoolsPluginStore)
 }
 
 @Serializable(with = PluginStore.Serializer::class)
-public class PluginStore(override val node: Node) : NodeWrapper {
-
+public class PluginStore(
+    override val node: Node,
+) : NodeWrapper {
     private val dispatch by lazy {
         node.getInvokable<Unit>("dispatch")
             ?: throw PlayerException("Could not find dispatch on PluginStore instance")
@@ -88,13 +99,14 @@ public class PluginStore(override val node: Node) : NodeWrapper {
             ?: throw PlayerException("Could not find subscribe on PluginStore instance")
     }
 
-    public fun subscribe(subscriber: (DevtoolsPluginStore) -> Unit): () -> Unit = subscribe.invoke { store: Node ->
-        try {
-            subscriber(store.deserialize())
-        } catch (throwable: Throwable) {
-            throw PlayerException("Error while subscribing to PluginStore", throwable).also(Throwable::printStackTrace)
+    public fun subscribe(subscriber: (DevtoolsPluginStore) -> Unit): () -> Unit =
+        subscribe.invoke { store: Node ->
+            try {
+                subscriber(store.deserialize())
+            } catch (throwable: Throwable) {
+                throw PlayerException("Error while subscribing to PluginStore", throwable).also(Throwable::printStackTrace)
+            }
         }
-    }
 
     internal object Serializer : KSerializer<PluginStore> by NodeWrapperSerializer(::PluginStore)
 }
@@ -105,8 +117,9 @@ public typealias PluginData = Map<String, @Contextual Any?>
 @Serializable(with = DevtoolsPlugin.Serializer::class)
 public open class DevtoolsPlugin(
     override val node: Node,
-) : DevtoolsHandler, PlayerPlugin, NodeWrapper {
-
+) : DevtoolsHandler,
+    PlayerPlugin,
+    NodeWrapper {
     public val pluginID: String by NodeSerializableField()
     public val playerID: String by NodeSerializableField()
     public val store: PluginStore by NodeSerializableField()
@@ -160,8 +173,9 @@ public open class DevtoolsPlugin(
 
             val argsKey = "devtoolsPluginArgs_${count.getAndIncrement()}"
             runtime.add(argsKey, options)
-            val instance = runtime.execute("(new $NAME.$NAME($argsKey))") as? Node
-                ?: throw PlayerException("Could not instantiate DevtoolsPlugin")
+            val instance =
+                runtime.execute("(new $NAME.$NAME($argsKey))") as? Node
+                    ?: throw PlayerException("Could not instantiate DevtoolsPlugin")
             return DevtoolsPlugin(instance)
         }
 
@@ -178,7 +192,6 @@ public class ModuleLoader(
     private val name: String,
     private val scriptContext: ScriptContext,
 ) : RuntimePlugin {
-
     public constructor(name: String, path: String) : this(name, ScriptContext(readScript(name, path), path))
 
     override fun apply(runtime: Runtime<*>) {
@@ -186,7 +199,13 @@ public class ModuleLoader(
     }
 
     private companion object {
-        fun readScript(name: String, path: String): String = ModuleLoader::class.java.classLoader.getResource(path)?.readText()
-            ?: throw PlayerException("Could not find bundled script for $name at $path")
+        fun readScript(
+            name: String,
+            path: String,
+        ): String =
+            ModuleLoader::class.java.classLoader
+                .getResource(path)
+                ?.readText()
+                ?: throw PlayerException("Could not find bundled script for $name at $path")
     }
 }
