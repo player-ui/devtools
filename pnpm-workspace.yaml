@@ -6,6 +6,8 @@ packages:
   - devtools/plugin/react
   - devtools/plugins/basic/core
   - devtools/plugins/basic/react
+  - devtools/plugins/profiler/core
+  - devtools/plugins/profiler/react
   - devtools/messenger/core
   - devtools/utils/ios/Resources/core
   - mocks/

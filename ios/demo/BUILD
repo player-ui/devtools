@@ -20,6 +20,7 @@ swift_library(
         # These are the components under development.
         "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
         "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPlugin",
+        "//devtools/plugins/profiler/ios:PlayerUIDevToolsProfilerDevtoolsPlugin",
     ]
 )
 

@@ -25,6 +25,17 @@ let messengerPlugin: Target = .target(
     resources: [.process("Resources")]
 )
 
+let profilerPlugin: Target = .target(
+    name: "PlayerUIDevToolsProfilerDevtoolsPlugin",
+    dependencies: [
+        playerUIDependency,
+        playerUISwiftUIDependency
+    ],
+    path: "devtools/plugins/profiler/ios",
+    exclude: excluded,
+    resources: [.process("Resources")]
+)
+
 // --- END DECLARATIONS ---
 
 // This is the Package.swift for our SPM release.
@@ -42,11 +53,15 @@ let package = Package(
         .library(
             name: messengerPlugin.name,
             targets: [messengerPlugin.name]
+        ),
+        .library(
+            name: profilerPlugin.name,
+            targets: [profilerPlugin.name]
         )
     ],
     dependencies: [
         .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.11.2"),
         .package(url:"https://github.com/chiragramani/SwiftFlipper.git", from: "0.1.0"),
     ],
-    targets: [messengerPlugin]
+    targets: [messengerPlugin, profilerPlugin]
 )

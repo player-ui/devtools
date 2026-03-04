@@ -408,6 +408,30 @@ importers:
         specifier: workspace:*
         version: link:../../../types/core
 
+  devtools/plugins/profiler/core:
+    dependencies:
+      '@player-devtools/messenger':
+        specifier: workspace:*
+        version: link:../../../messenger/core
+      '@player-devtools/plugin':
+        specifier: workspace:*
+        version: link:../../../plugin/core
+      '@player-devtools/types':
+        specifier: workspace:*
+        version: link:../../../types/core
+
+  devtools/plugins/profiler/react:
+    dependencies:
+      '@player-devtools/plugin-react':
+        specifier: workspace:*
+        version: link:../../../plugin/react
+      '@player-devtools/profiler-plugin':
+        specifier: workspace:*
+        version: link:../core
+      '@player-devtools/types':
+        specifier: workspace:*
+        version: link:../../../types/core
+
   devtools/types/core: {}
 
   devtools/utils/ios/Resources/core: {}

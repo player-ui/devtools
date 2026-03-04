@@ -1,0 +1,10 @@
+{
+  "name": "@player-devtools/profiler-plugin",
+  "version": "0.0.0-PLACEHOLDER",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@player-devtools/messenger": "workspace:*",
+    "@player-devtools/plugin": "workspace:*",
+    "@player-devtools/types": "workspace:*"
+  }
+}
