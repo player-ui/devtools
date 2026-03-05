@@ -22,7 +22,7 @@ import { produce } from "immer";
 
 import { BASE_PLUGIN_DATA, INTERACTIONS } from "./constants";
 import { Evaluation } from "./types";
-import flow from "./plugin-flow.json";
+import flow from "../_generated/content/index.json";
 
 /** This package is not targeting web environments: shadow global localStorage to force a TS error if used. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
