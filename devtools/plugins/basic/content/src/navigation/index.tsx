@@ -1,4 +1,4 @@
-import { VIEWS_IDS } from "../../constants";
+import { VIEWS_IDS } from "../constants";
 
 const transitions = Object.entries(VIEWS_IDS).reduce(
   (acc, [key, value]) => ({

@@ -2,6 +2,68 @@ import { defineConfig, Options } from "tsup";
 import fs from "fs";
 import path from "path";
 
+/** Adds support for replacing process.env.* references with stamped values from bazel */
+function getStampedSubstitutions(): Record<string, string> {
+  const contextDir = path.join(
+    process.env.BAZEL_BINDIR ?? "",
+    process.env.BAZEL_PACKAGE ?? "",
+  );
+  const contextDirRelative = contextDir.split(path.sep).map(() => "..");
+  const rootDir = path.join(process.cwd(), ...contextDirRelative);
+
+  if (
+    !process.env.BAZEL_STABLE_STATUS_FILE ||
+    !process.env.BAZEL_VOLATILE_STATUS_FILE
+  ) {
+    return {};
+  }
+
+  const stableStatusFile = path.join(
+    rootDir,
+    process.env.BAZEL_STABLE_STATUS_FILE,
+  );
+
+  const volatileStatusFile = path.join(
+    rootDir,
+    process.env.BAZEL_VOLATILE_STATUS_FILE,
+  );
+
+  const customSubstitutions = {
+    __VERSION__: "{STABLE_VERSION}",
+    __GIT_COMMIT__: "{STABLE_GIT_COMMIT}",
+  };
+
+  const substitutions: Record<string, string> = {};
+
+  [stableStatusFile, volatileStatusFile].forEach((statusFile) => {
+    if (!fs.existsSync(statusFile)) {
+      return;
+    }
+
+    const contents = fs.readFileSync(statusFile, "utf-8");
+
+    contents.split("\n").forEach((statusLine) => {
+      if (!statusLine.trim()) {
+        return;
+      }
+
+      const firstSpace = statusLine.indexOf(" ");
+      const varName = statusLine.substring(0, firstSpace);
+      const varVal = statusLine.substring(firstSpace + 1);
+
+      substitutions[`process.env.${varName}`] = JSON.stringify(varVal);
+
+      Object.entries(customSubstitutions).forEach(([key, value]) => {
+        if (value === `{${varName}}`) {
+          substitutions[key] = JSON.stringify(varVal);
+        }
+      });
+    });
+  });
+
+  return substitutions;
+}
+
 export function createConfig():
   | Options
   | Options[]
@@ -14,6 +76,7 @@ export function createConfig():
     const defaultOptions: Options = {
       entry: [pkgJson.main],
       sourcemap: true,
+      define: getStampedSubstitutions(),
       ...options,
     };
 
@@ -29,6 +92,7 @@ export function createConfig():
           globalName: bundleEntryName,
           external: [],
           define: {
+            ...defaultOptions.define,
             "process.env.NODE_ENV": JSON.stringify("production"),
           },
           target: "es5",
@@ -65,6 +129,7 @@ export function createConfig():
       {
         ...defaultOptions,
         define: {
+          ...defaultOptions.define,
           "process.env.NODE_ENV": JSON.stringify("production"),
         },
         format: ["esm"],

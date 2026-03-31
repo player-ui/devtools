@@ -2,7 +2,7 @@ import { expression as e } from "@player-tools/dsl";
 import type { Expression, BindingTemplateInstance } from "@player-tools/dsl";
 import { CodeEditor } from "@devtools-ui/plugin";
 import React from "react";
-import { VIEWS_IDS, INTERACTIONS } from "../../constants";
+import { VIEWS_IDS, INTERACTIONS } from "../constants";
 import { Screen } from "../common";
 import { bindings } from "../schema";
 

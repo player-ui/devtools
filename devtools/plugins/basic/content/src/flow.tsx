@@ -1,4 +1,4 @@
-import { PLUGIN_ID } from "../constants";
+import { PLUGIN_ID } from "./constants";
 import { navigation } from "./navigation";
 import { schema } from "./schema";
 import { views } from "./views";

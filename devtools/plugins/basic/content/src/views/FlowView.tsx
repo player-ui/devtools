@@ -1,7 +1,7 @@
 import React from "react";
 import { ObjectInspector, CopyToClipboard } from "@devtools-ui/plugin";
 import type { BindingTemplateInstance } from "@player-tools/dsl";
-import { VIEWS_IDS } from "../../constants";
+import { VIEWS_IDS } from "../constants";
 import { Screen } from "../common";
 import { bindings } from "../schema";
 

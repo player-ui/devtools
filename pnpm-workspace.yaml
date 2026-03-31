@@ -4,6 +4,7 @@ packages:
   - devtools/types/core
   - devtools/plugin/core
   - devtools/plugin/react
+  - devtools/plugins/basic/content
   - devtools/plugins/basic/core
   - devtools/plugins/basic/react
   - devtools/messenger/core

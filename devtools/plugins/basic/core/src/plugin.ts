@@ -1,13 +1,14 @@
 import {
+  INTERACTIONS,
+  BasicPluginData,
+} from "@player-devtools/basic-plugin-content";
+import {
   DevtoolsPlugin,
   DevtoolsPluginOptions,
   genDataChangeTransaction,
   generateUUID,
 } from "@player-devtools/plugin";
-import type {
-  DevtoolsPluginInteractionEvent,
-  PluginData,
-} from "@player-devtools/types";
+import type { DevtoolsPluginInteractionEvent } from "@player-devtools/types";
 import type {
   DataController,
   ExpressionEvaluator,
@@ -20,37 +21,16 @@ import { dequal } from "dequal";
 import { dset } from "dset/merge";
 import { produce } from "immer";
 
-import { BASE_PLUGIN_DATA, INTERACTIONS } from "./constants";
 import { Evaluation } from "./types";
-import flow from "../_generated/content/index.json";
 
-/** This package is not targeting web environments: shadow global localStorage to force a TS error if used. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const localStorage: never;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const window: never;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const document: never;
-// We do not set console to never, since it may be polyfilled. The player logger is preferred though.
-
-// interface BasicDevtoolsPluginOptions {
-//     id?: string;
-//     checkIfDevtoolsIsActive: () => boolean;
-// }
-
-const pluginData: PluginData = {
-  ...BASE_PLUGIN_DATA,
-  flow: flow as Flow,
-};
-
-const pluginID = pluginData.id;
+const { id: pluginID } = BasicPluginData;
 
 /** Taps into the Player and ReactPlayer hooks and leverage the WrapperComponent to define and process the content. */
 export class BasicDevtoolsPlugin extends DevtoolsPlugin {
   constructor(options: Omit<DevtoolsPluginOptions, "pluginData">) {
     super({
       ...options,
-      pluginData,
+      pluginData: BasicPluginData,
     });
   }
 
@@ -99,27 +79,34 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
       plugins: player.getPlugins().map((plugin) => plugin.name),
     };
 
-    // const newState = produce(this.store.getState(), (draft) => {
-    //     try {
-    //         dset(draft, ["plugins", pluginID, "flow", "data", "playerConfig"], this.playerConfig);
-    //     } catch {
-    //         player.logger.error(this.name, "Error setting the following data: ", this.playerConfig);
-    //         return;
-    //     }
-    // });
-    //
-    // const transaction = genDataChangeTransaction({
-    //     playerID,
-    //     data: newState.plugins[pluginID]!.flow.data,
-    //     pluginID: pluginID,
-    // });
-    //
-    // this.store.dispatch(transaction);
+    const newState = produce(this.store.getState(), (draft) => {
+      try {
+        dset(
+          draft,
+          ["plugins", pluginID, "flow", "data", "playerConfig"],
+          this.playerConfig,
+        );
+      } catch {
+        player.logger.error(
+          this.name,
+          "Error setting the following data: ",
+          this.playerConfig,
+        );
+        return;
+      }
+    });
+
+    const transaction = genDataChangeTransaction({
+      playerID,
+      data: newState.plugins[pluginID]!.flow.data,
+      pluginID: pluginID,
+    });
+
+    this.store.dispatch(transaction);
 
     // Data
     player.hooks.dataController.tap(this.name, (dataController) => {
       dataController.hooks.onUpdate.tap(this.name, (updates) => {
-        // TODO: Do I even need to store this anymore?
         this.data = produce(this.data, (draft) => {
           updates.forEach(({ binding, newValue }) => {
             dset(draft, ["data", ...binding.asArray()], newValue);
@@ -282,7 +269,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
       const result = this.evaluateExpression(payload);
       const newState = produce(this.store.getState(), (draft) => {
         const current: Array<Evaluation> =
-          // TODO: Verify draft works here instead of getState()
           (draft?.plugins?.[pluginID]?.flow?.data
             ?.history as Array<Evaluation>) || [];
         dset(

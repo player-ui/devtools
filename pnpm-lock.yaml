@@ -384,8 +384,17 @@ importers:
         specifier: workspace:*
         version: link:../../types/core
 
+  devtools/plugins/basic/content:
+    dependencies:
+      '@player-devtools/types':
+        specifier: workspace:*
+        version: link:../../../types/core
+
   devtools/plugins/basic/core:
     dependencies:
+      '@player-devtools/basic-plugin-content':
+        specifier: workspace:*
+        version: link:../content
       '@player-devtools/messenger':
         specifier: workspace:*
         version: link:../../../messenger/core

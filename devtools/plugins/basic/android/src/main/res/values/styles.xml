@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Devtools">
-        <item name="android:background">@drawable/border</item>
+    <style name="BasicAndroidDevtoolsPlugin">
+        <item name="android:background">#330000FF</item>
     </style>
 </resources>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigation, Action, Text, StackedView } from "@devtools-ui/plugin";
-import { VIEWS_IDS } from "../../constants";
+import { VIEWS_IDS } from "../constants";
 
 const Nav = () => (
   <Navigation>
