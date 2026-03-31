@@ -1,13 +1,15 @@
 packages:
   - cli
   - docs/*
-  - devtools/types/core
+  - devtools/client
+  - devtools/flipper-plugin
   - devtools/plugin/core
   - devtools/plugin/react
   - devtools/plugins/basic/content
   - devtools/plugins/basic/core
   - devtools/plugins/basic/react
   - devtools/messenger/core
+  - devtools/types/core
   - devtools/utils/ios/Resources/core
   - mocks/
 

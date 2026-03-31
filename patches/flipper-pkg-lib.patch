@@ -1,0 +1,13 @@
+diff --git a/lib/runBuild.js b/lib/runBuild.js
+index 5560059959e98ca775ff99a96c1c96583c032158..f308370a531e37d7e3b5ce1f57c90cb496dca4e7 100644
+--- a/lib/runBuild.js
++++ b/lib/runBuild.js
+@@ -75,8 +75,6 @@ async function runBuild({ pluginDir, entry, out, dev, node, sourceMapPath, inter
+             'react-is',
+             'antd',
+             'immer',
+-            '@emotion/styled',
+-            '@emotion/css',
+             '@ant-design/icons',
+             // It is an optional dependency for rollup that we use in react-devtools
+             'fsevents',

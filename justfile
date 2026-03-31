@@ -41,6 +41,27 @@ mvn install:
     bazel run "$pkg" --define=maven_repo="file://$HOME/.m2/repository"
   done
 
+[doc('Installs Flipper plugin (flipper-plugin-player-ui-devtools) locally to ~/.flipper/install-plugins')]
+install-flipper-client:
+    #!/usr/bin/env bash
+    set -e
+
+    VERSION=$(cat VERSION)
+    FLIPPER_INSTALL_LOCATION="$HOME/.flipper/installed-plugins"
+    PLUGIN_NAME="flipper-plugin-player-ui-devtools"
+    PREFIX="devtools/flipper-plugin"
+
+    INSTALL_LOCATION=$FLIPPER_INSTALL_LOCATION/$PLUGIN_NAME/$VERSION
+
+    bazel build --stamp --workspace_status_command=./helpers/release/workspace-status.sh //$PREFIX:$PLUGIN_NAME
+
+    echo "Installing $PLUGIN_NAME@$VERSION to $INSTALL_LOCATION"
+
+    mkdir -p $INSTALL_LOCATION
+    rsync -a --delete bazel-bin/$PREFIX/$PLUGIN_NAME/. $INSTALL_LOCATION/
+    chown -R $(whoami) $INSTALL_LOCATION
+
+
 clean: # Force delete all the cached bazel stuff. Be careful!
     # Delete all the bazel build artifacts
     rm -rf .build
