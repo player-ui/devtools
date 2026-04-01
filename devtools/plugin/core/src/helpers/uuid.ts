@@ -1,4 +1,3 @@
-// TODO: Either polyfill crypto or use this (pulled from SO)
 export function generateUUID(): string {
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp

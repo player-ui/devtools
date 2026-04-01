@@ -26,8 +26,7 @@ export const useExtensionState = ({
     MessengerOptions<ExtensionSupportedEvents>,
     "sendMessage" | "addListener" | "removeListener"
   >;
-  }) => {
-  // TODO: This state is causing proxy issues
+}) => {
   const [state, dispatch] = useReducer(reducer, INITIAL_EXTENSION_STATE);
 
   const messengerOptions = useMemo<MessengerOptions<ExtensionSupportedEvents>>(

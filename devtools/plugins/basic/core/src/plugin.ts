@@ -43,7 +43,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
   flow?: Flow;
 
-  // TODO: Potentially push up?
   logger?: WeakRef<Logger>;
 
   expressionEvaluator?: WeakRef<ExpressionEvaluator>;
@@ -114,7 +113,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
     this.overrideFlow = player.start.bind(player);
   }
 
-  // TODO: Maybe move to helper
   private evaluateExpression(expression: string): Evaluation {
     const evaluator = this.expressionEvaluator?.deref();
 
