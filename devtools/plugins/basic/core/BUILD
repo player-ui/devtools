@@ -17,6 +17,7 @@ js_pipeline(
         ":node_modules/@player-devtools/messenger",
         ":node_modules/@player-devtools/plugin",
         ":node_modules/@player-devtools/types",
+        ":node_modules/@player-devtools/utils",
         "//:node_modules/@devtools-ui/plugin",
         "//:node_modules/@player-ui/player",
         "//:node_modules/@types/react",

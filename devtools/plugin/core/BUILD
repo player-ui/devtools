@@ -14,10 +14,10 @@ js_pipeline(
     deps = [
         ":node_modules/@player-devtools/messenger",
         ":node_modules/@player-devtools/types",
+        ":node_modules/@player-devtools/utils",
         "//:node_modules/@player-ui/player",
         "//:node_modules/@swc/core",
         "//:node_modules/dequal",
-        "//:node_modules/dset",
         "//:node_modules/immer",
     ],
 )

@@ -31,9 +31,10 @@ function deepAssign<T, V>(target: T, source: V, merge: boolean = false) {
     const record = target as Record<string, unknown>;
 
     // clear stale keys
-    if (!merge) for (const key of Object.keys(target)) {
-      if (!(key in source)) delete record[key];
-    }
+    if (!merge)
+      for (const key of Object.keys(target)) {
+        if (!(key in source)) delete record[key];
+      }
     // recurse and assign new values
     for (const [key, item] of Object.entries(source)) {
       record[key] = deepAssign(record[key], item, merge);
@@ -75,10 +76,12 @@ export function dsetAssign<V>(
   if (!key) throw Error("Unable to assign at path containing undefined keys");
 
   // Walk the path, auto-vivifying intermediate objects when necessary
-  const target = keys.slice(0, -1).reduce(
-    (acc, key) => (acc[key] ??= {}) as Record<string | number, unknown>,
-    obj,
-  );
+  const target = keys
+    .slice(0, -1)
+    .reduce(
+      (acc, key) => (acc[key] ??= {}) as Record<string | number, unknown>,
+      obj,
+    );
 
   // Deep assign the value into the target object for key
   target[key] = deepAssign(target[key], value, merge);

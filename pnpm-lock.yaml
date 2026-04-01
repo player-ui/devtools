@@ -442,6 +442,9 @@ importers:
       '@player-devtools/types':
         specifier: workspace:*
         version: link:../../../types/core
+      '@player-devtools/utils':
+        specifier: workspace:*
+        version: link:../../../utils/core
 
   devtools/plugins/basic/react:
     dependencies:
@@ -455,11 +458,7 @@ importers:
         specifier: workspace:*
         version: link:../../../types/core
 
-  devtools/types/core:
-    dependencies:
-      '@player-devtools/utils':
-        specifier: workspace:*
-        version: link:../../utils/core
+  devtools/types/core: {}
 
   devtools/utils/core: {}
 

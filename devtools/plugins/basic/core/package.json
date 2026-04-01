@@ -6,6 +6,7 @@
     "@player-devtools/basic-plugin-content": "workspace:*",
     "@player-devtools/messenger": "workspace:*",
     "@player-devtools/plugin": "workspace:*",
-    "@player-devtools/types": "workspace:*"
+    "@player-devtools/types": "workspace:*",
+    "@player-devtools/utils": "workspace:*"
   }
 }

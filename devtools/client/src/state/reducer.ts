@@ -3,7 +3,7 @@ import type {
   ExtensionSupportedEvents,
   Transaction,
 } from "@player-devtools/types";
-import { dset } from "dset/merge";
+import { dsetAssign } from "@player-devtools/utils";
 import { produce } from "immer";
 
 /** Extension state reducer */
@@ -18,16 +18,16 @@ export const reducer = (
           sender,
           payload: { plugins },
         } = transaction;
-        dset(draft, ["current", "player"], sender);
-        dset(
-          draft,
-          ["current", "plugin"],
-          draft.current.plugin || plugins[Object.keys(plugins)[0]].id,
-        );
 
-        // TODO: This one should merge, probably though it is init
-        dset(draft, ["players", sender, "plugins"], plugins);
-        dset(draft, ["players", sender, "active"], true);
+        const [plugin] = Object.values(plugins);
+        if (!plugin) return;
+
+        draft.current.player = sender;
+        draft.current.plugin = draft.current.plugin || plugin.id;
+
+        // TODO: Verify this works with multiple plugins
+        dsetAssign(draft, ["players", sender, "plugins"], plugins, true);
+        dsetAssign(draft.players, [sender, "active"], true);
       });
     case "PLAYER_DEVTOOLS_PLUGIN_FLOW_CHANGE":
       return produce(state, (draft) => {
@@ -36,7 +36,11 @@ export const reducer = (
           payload: { flow, pluginID },
         } = transaction;
 
-        dset(draft, ["players", sender, "plugins", pluginID, "flow"], flow);
+        dsetAssign(
+          draft,
+          ["players", sender, "plugins", pluginID, "flow"],
+          flow,
+        );
       });
     case "PLAYER_DEVTOOLS_PLUGIN_DATA_CHANGE":
       return produce(state, (draft) => {
@@ -44,31 +48,28 @@ export const reducer = (
           sender,
           payload: { data, pluginID },
         } = transaction;
-        dset(
+        dsetAssign(
           draft,
           ["players", sender, "plugins", pluginID, "flow", "data"],
           data,
         );
       });
     case "MESSENGER_EVENT_BATCH":
-      return produce(state, (draft) => {
-        return transaction.payload.events.reduce(reducer, draft);
-      });
+      return transaction.payload.events.reduce(reducer, state);
     case "PLAYER_DEVTOOLS_PLAYER_STOPPED":
       return produce(state, (draft) => {
         const { sender } = transaction;
-
-        dset(draft, ["players", sender, "active"], false);
+        dsetAssign(draft, ["players", sender, "active"], false);
       });
     case "PLAYER_DEVTOOLS_PLAYER_SELECTED":
       return produce(state, (draft) => {
         const { playerID } = transaction.payload;
-        dset(draft, ["current", "player"], playerID);
+        draft.current.player = playerID;
       });
     case "PLAYER_DEVTOOLS_PLUGIN_SELECTED":
       return produce(state, (draft) => {
         const { pluginID } = transaction.payload;
-        dset(draft, ["current", "plugin"], pluginID);
+        draft.current.plugin = pluginID;
       });
     default:
       return state;

@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@player-devtools/messenger": "workspace:*",
-    "@player-devtools/types": "workspace:*"
+    "@player-devtools/types": "workspace:*",
+    "@player-devtools/utils": "workspace:*"
   }
 }

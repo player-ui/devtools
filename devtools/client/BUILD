@@ -13,6 +13,7 @@ js_pipeline(
     deps = [
         ":node_modules/@player-devtools/messenger",
         ":node_modules/@player-devtools/types",
+        ":node_modules/@player-devtools/utils",
         "//:node_modules/@chakra-ui/react",
         "//:node_modules/@player-ui/pubsub-plugin",
         "//:node_modules/@player-ui/react",
@@ -22,7 +23,6 @@ js_pipeline(
         "//:node_modules/@devtools-ui/plugin",
         "//:node_modules/@types/react",
         "//:node_modules/immer",
-        "//:node_modules/dset",
         "//:node_modules/react",
         "//:node_modules/react-error-boundary",
         "//:node_modules/dequal",
