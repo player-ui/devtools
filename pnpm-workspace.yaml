@@ -10,6 +10,7 @@ packages:
   - devtools/plugins/basic/react
   - devtools/messenger/core
   - devtools/types/core
+  - devtools/utils/core
   - devtools/utils/ios/Resources/core
   - mocks/
 
