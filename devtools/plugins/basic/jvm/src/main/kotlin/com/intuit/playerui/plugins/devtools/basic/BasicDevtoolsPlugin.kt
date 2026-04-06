@@ -31,7 +31,14 @@ public class BasicDevtoolsPlugin(
 
         public fun Runtime<*>.BasicDevtoolsPlugin(options: Options): BasicDevtoolsPlugin {
             // Polyfill WeakRef if it doesn't exist in the runtime -- should ideally be provided as a plugin like `setTimeout`
-            if (!runtime.contains("WeakRef")) runtime.execute("class WeakRef { value = null; constructor(value) { this.value = value }; deref() { return this.value } }")
+            if (!runtime.contains(
+                    "WeakRef",
+                )
+            ) {
+                runtime.execute(
+                    "class WeakRef { value = null; constructor(value) { this.value = value }; deref() { return this.value } }",
+                )
+            }
 
             // Load module into runtime
             apply(this)

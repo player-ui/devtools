@@ -22,13 +22,26 @@ test-js:
 lint-js:
   bazel test -- $(bazel query "kind(js_test, //...) intersect attr(name, 'eslint$', //...)" --output label 2>/dev/null | tr '\n' ' ')
 
-[doc('Run a dev server of the main docs page')]
-start-docs:
-  bazel run //docs/site:start
+[doc('Test all Kotlin unit tests (kt_jvm_test)')]
+test-kt:
+  bazel test $(bazel query --noshow_progress --output=label "kind('kt_jvm_test rule', //...)" | tr '\n' ' ')
 
-[doc('Run a dev server of storybook')]
-start-storybook:
-  bazel run //docs/storybook:start
+[doc('Test KT for lint errors')]
+lint-kt:
+  bazel test $(bazel query --noshow_progress --output=label "kind('ktlint_test rule', //...)" | tr '\n' ' ')
+
+[doc('Fix all auto-fixable KT lint errors')]
+format-kt:
+  #!/usr/bin/env bash
+  set -u +e -o pipefail
+
+  for target in $(bazel query --noshow_progress --output=label "kind('ktlint_fix rule', //...)"); do
+    bazel run "$target"
+  done
+
+[doc('Resolve Maven lockfile after modifying @maven dependencies')]
+mvn-pin-lockfile:
+  REPIN=1 bazel run @maven//:pin
 
 [doc('Install all Maven artifacts into the users .m2 repository')]
 mvn install:
@@ -60,7 +73,6 @@ install-flipper-client:
     mkdir -p $INSTALL_LOCATION
     rsync -a --delete bazel-bin/$PREFIX/$PLUGIN_NAME/. $INSTALL_LOCATION/
     chown -R $(whoami) $INSTALL_LOCATION
-
 
 clean: # Force delete all the cached bazel stuff. Be careful!
     # Delete all the bazel build artifacts

@@ -1,5 +1,5 @@
 import type { ExtensionState } from "@player-devtools/types";
-import type { Flow } from "@player-ui/react";
+import type { Flow } from "@player-ui/player";
 
 export const INITIAL_FLOW: Flow = {
   id: "initial-flow",
