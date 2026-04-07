@@ -59,7 +59,7 @@ commands:
           fingerprints:
             - "SHA256:9T15zSs+DPoCIc6I8CBPoArfXwblVrVlPwHkDgZfTrs"
 
-      - run: mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+      - run: mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
       - run: echo "//registry.npmjs.com/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run: git config --global user.name "Intuit Service"
       - run: git config --global user.email "opensource-svc@intuit.com"
