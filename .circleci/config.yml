@@ -57,7 +57,7 @@ commands:
 
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:RhnscAi+Ary3YJrwH2O44cTFkszCXAsx8YLECueVzIA"
+            - "SHA256:9T15zSs+DPoCIc6I8CBPoArfXwblVrVlPwHkDgZfTrs"
 
       - run: mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run: echo "//registry.npmjs.com/:_authToken=$NPM_TOKEN" >> ~/.npmrc
