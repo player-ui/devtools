@@ -1,7 +1,7 @@
 import XCTest
 import JavaScriptCore
 import PlayerUI
-import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsPlugin
 import PlayerUIDevtoolsTypes
 @testable import PlayerUIDevtoolsBaseBasicDevtoolsPlugin
 

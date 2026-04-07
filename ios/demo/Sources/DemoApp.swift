@@ -4,7 +4,7 @@ import PlayerUI
 import PlayerUISwiftUI
 import PlayerUIPrintLoggerPlugin
 import SwiftFlipper
-import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsPlugin
 import PlayerUIReferenceAssets
 import PlayerUIDevtoolsBasicPlugin
 

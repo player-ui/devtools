@@ -125,15 +125,41 @@ sh_binary(
 assemble_ios_release(
     name = "spm_publish_zip",
     data = {
-        "Package.swift": "",
-        "LICENSE": "",
+        "//:Package.swift": "",
+        "//:LICENSE": "",
+
+        # Utils
+        "//devtools/utils/ios:PlayerUIDevtoolsUtils_Sources": "devtools/utils/ios/",
+
+        # UtilsSwiftUI
+        "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUI_Sources": "devtools/utils/swiftui/",
+
+        # Types
+        "//devtools/types/ios:PlayerUIDevtoolsTypes_Sources": "devtools/types/ios/",
+
+        # Messenger
+        "//devtools/messenger/ios:PlayerUIDevtoolsMessenger_Sources": "devtools/messenger/ios/",
+        "//devtools/messenger/core:core_native_bundle": "devtools/messenger/ios/Resources/",
+
+        # Plugin
+        "//devtools/plugin/ios:PlayerUIDevtoolsPlugin_Sources": "devtools/plugin/ios/",
+        "//devtools/plugin/core:core_native_bundle": "devtools/plugin/ios/Resources/",
+
+        # SwiftUIPlugin
+        "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPlugin_Sources": "devtools/plugin/swiftui/",
+
+        # BaseBasicDevtoolsPlugin
+        "//devtools/plugins/basic/ios:PlayerUIDevtoolsBaseBasicDevtoolsPlugin_Sources": "devtools/plugins/basic/ios/",
+        "//devtools/plugins/basic/core:core_native_bundle": "devtools/plugins/basic/ios/Resources/",
+
+        # BasicPlugin
+        "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPlugin_Sources": "devtools/plugins/basic/swiftui/",
     },
 )
 
 spm_publish(
     name = "spm_publish",
-    repository = "https://github.intuit.com/player-ui/devtools-ios.git",
-    target_branch = "main",
+    repository = "git@github.com:player-ui/devtools-ios.git",
     zip = "//:spm_publish_zip",
 )
 

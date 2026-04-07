@@ -7,7 +7,7 @@
 
 import SwiftUI
 import PlayerUI
-import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsPlugin
 import PlayerUIDevtoolsTypes
 import PlayerUIReferenceAssets
 import PlayerUIDevtoolsBasicPlugin

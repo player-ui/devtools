@@ -4,7 +4,7 @@ ios_library(
     name = "BaseBasicDevtoolsPlugin",
     resources = ["//devtools/plugins/basic/core:core_native_bundle"],
     deps = [
-      "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+      "//devtools/plugin/ios:PlayerUIDevtoolsPlugin",
       "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUI"
     ],
 )

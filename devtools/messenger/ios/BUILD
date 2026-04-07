@@ -10,7 +10,7 @@ ios_library(
         "//devtools/utils/ios:PlayerUIDevtoolsUtils",
     ],
     test_deps = [
-        "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+        "//devtools/plugin/ios:PlayerUIDevtoolsPlugin",
         "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUI",
     ],
 )

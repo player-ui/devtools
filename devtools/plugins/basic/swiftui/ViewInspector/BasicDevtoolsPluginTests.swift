@@ -2,7 +2,7 @@ import XCTest
 import PlayerUI
 import JavaScriptCore
 import PlayerUIDevtoolsTypes
-import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsPlugin
 import PlayerUIDevtoolsBaseBasicDevtoolsPlugin
 @testable import PlayerUIDevtoolsBasicPlugin
 
