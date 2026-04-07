@@ -31,6 +31,7 @@ core.*
 .eslintcache
 tsconfig.tsbuildinfo
 /.build
+.gitconfig
 
 # AI
 .augment
@@ -58,4 +59,4 @@ test-results
 /.swiftpm
 # DO NOT commit your provisioning profile. It's a secret.
 /ios/demo/ProvisioningProfile 
-.gitconfig
+_ios_coverage/
