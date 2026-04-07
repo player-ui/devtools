@@ -70,7 +70,6 @@ commands:
           echo -e "pinentry-mode loopback\npassphrase $DEPLOY_MAVEN_GPG_PASSPHRASE" > ~/.gnupg/gpg.conf
       - run: |
           source ~/.bashrc
-          bundle install
           npx auto shipit --only-graduate-with-release-label -vv
 
 jobs:
@@ -298,16 +297,16 @@ jobs:
       - codecov/upload:
           files: ./bazel-out/_coverage/_coverage_report.dat,./_ios_coverage/lcov/_coverage_report.dat
 
-  # maybe_release:
-  #   executor: base
-  #   steps:
-  #     - attach_workspace:
-  #         at: ~/devtools
-  #     - run: echo "Should I release? (<< pipeline.parameters.should_release >>)"
-  #     - when:
-  #         condition: << pipeline.parameters.should_release >>
-  #         steps:
-  #           - auto_shipit
+  maybe_release:
+    executor: base
+    steps:
+      - attach_workspace:
+          at: ~/devtools
+      - run: echo "Should I release? (<< pipeline.parameters.should_release >>)"
+      - when:
+          condition: << pipeline.parameters.should_release >>
+          steps:
+            - auto_shipit
 
   release:
     executor: base
@@ -384,16 +383,16 @@ workflows:
             - build-fork
             - bazelrc_fork
 
-      # - maybe_release:
-      #     filters:
-      #       branches:
-      #         ignore:
-      #           - /pull\/.*/
-      #     context:
-      #       - Publish
-      #     requires:
-      #       - build-trunk
-      #       - build-ios-trunk
+      - maybe_release:
+          filters:
+            branches:
+              ignore:
+                - /pull\/.*/
+          context:
+            - Publish
+          requires:
+            - build-trunk
+            - build-ios-trunk
 
       - test:
           name: test-trunk
