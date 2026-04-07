@@ -162,7 +162,6 @@ public open class DevtoolsPlugin(
     )
 
     public companion object Module : RuntimePlugin by ModuleLoader(DevtoolsPlugin.NAME, DevtoolsPlugin.BUNDLED_SOURCE_PATH) {
-        // TODO: Kotlin 2.0: Use AtomicInt
         private val count = AtomicInteger(0)
 
         public fun Runtime<*>.DevtoolsPlugin(options: Options): DevtoolsPlugin {

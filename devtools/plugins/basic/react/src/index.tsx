@@ -2,16 +2,53 @@ import React, { useEffect, useState } from "react";
 import { ReactPlayer } from "@player-ui/react";
 import { ReactDevtoolsPlugin } from "@player-devtools/plugin-react";
 import { BasicDevtoolsPlugin } from "@player-devtools/basic-plugin";
-import type { DevtoolsPluginInteractionEvent } from "@player-devtools/types";
+import type {
+  DevtoolsPluginInteractionEvent,
+  DevtoolsPluginsStore,
+} from "@player-devtools/types";
+
+export type DevtoolsWrapperProps = React.PropsWithChildren<{
+  state: DevtoolsPluginsStore;
+  playerID: string;
+}>;
+
+const BasicDevtoolsWrapper = ({
+  state,
+  playerID,
+  children,
+}: DevtoolsWrapperProps) => {
+  const [highlight, setHighlight] = useState(false);
+  useEffect(() => {
+    if (playerID === state.currentPlayer) {
+      setHighlight(true);
+      const timer = setTimeout(() => {
+        setHighlight(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [playerID, state.currentPlayer]);
+
+  return (
+    <div id={playerID} style={highlight ? { border: "2px solid blue" } : {}}>
+      {children}
+    </div>
+  );
+};
 
 export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsPlugin> {
   name = "BasicReactDevtoolsPlugin";
 
   corePlugin: BasicDevtoolsPlugin;
 
-  constructor(id?: string) {
+  private wrapper: React.ComponentType<DevtoolsWrapperProps>;
+
+  constructor(
+    id?: string,
+    wrapper?: React.ComponentType<DevtoolsWrapperProps>,
+  ) {
     super();
 
+    this.wrapper = wrapper ?? BasicDevtoolsWrapper;
     this.corePlugin = new BasicDevtoolsPlugin({
       playerID: id ?? "default-id",
       handler: this,
@@ -24,32 +61,17 @@ export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsP
     super.applyReact(reactPlayer);
 
     reactPlayer.hooks.webComponent.tap(this.name, (Component) => {
-      const BasicDevtoolsWrapper = () => {
+      const DevtoolsContainer = () => {
+        const Wrapper = this.wrapper;
         const [state, setState] = useState(this.store.getState());
         useEffect(() => this.store.subscribe(setState), [setState]);
-
-        const [highlight, setHighlight] = useState(false);
-        useEffect(() => {
-          if (this.playerID === state.currentPlayer) {
-            setHighlight(true);
-            const timer = setTimeout(() => {
-              setHighlight(false);
-            }, 1000);
-            return () => clearTimeout(timer);
-          }
-        }, [this.playerID, state.currentPlayer]);
-
         return (
-          <div
-            id={this.playerID}
-            style={highlight ? { border: "2px solid blue" } : {}}
-          >
+          <Wrapper state={state} playerID={this.playerID}>
             <Component />
-          </div>
+          </Wrapper>
         );
       };
-
-      return BasicDevtoolsWrapper;
+      return DevtoolsContainer;
     });
   }
 

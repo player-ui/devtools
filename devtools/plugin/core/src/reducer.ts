@@ -7,7 +7,7 @@ import type {
   PlayerInitEvent,
   Transaction,
 } from "@player-devtools/types";
-import { dset } from "dset/merge";
+import { dsetAssign } from "@player-devtools/utils";
 
 const containsInteraction = (
   interactions: DevtoolsPluginsStore["interactions"],
@@ -25,7 +25,7 @@ export const reducer = (
     case "PLAYER_DEVTOOLS_PLAYER_INIT":
       return produce(state, (draft) => {
         const { payload } = transaction;
-        dset(draft, "plugins", payload.plugins);
+        dsetAssign(draft, ["plugins"], payload.plugins);
 
         const message: PlayerInitEvent = {
           type: "PLAYER_DEVTOOLS_PLAYER_INIT",
@@ -41,7 +41,7 @@ export const reducer = (
         if (!payload.data) return state;
 
         try {
-          dset(
+          dsetAssign(
             draft,
             ["plugins", transaction.payload.pluginID, "flow", "data"],
             transaction.payload.data,
@@ -60,14 +60,18 @@ export const reducer = (
       return produce(state, (draft) => {
         if (containsInteraction(draft.interactions, transaction)) return state;
 
-        dset(draft, ["interactions"], [...draft.interactions, transaction]);
+        dsetAssign(
+          draft,
+          ["interactions"],
+          [...draft.interactions, transaction],
+        );
       });
     case "PLAYER_DEVTOOLS_SELECTED_PLAYER_CHANGE": {
       const { playerID } = transaction.payload;
 
       if (!playerID) return state;
       return produce(state, (draft) => {
-        dset(draft, "currentPlayer", playerID);
+        dsetAssign(draft, ["currentPlayer"], playerID);
       });
     }
     default:

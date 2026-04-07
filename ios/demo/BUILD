@@ -18,7 +18,7 @@ swift_library(
         "@swiftpkg_swiftflipper//:SwiftFlipper",
 
         # These are the components under development.
-        "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+        "//devtools/plugin/ios:PlayerUIDevtoolsPlugin",
         "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPlugin",
     ]
 )

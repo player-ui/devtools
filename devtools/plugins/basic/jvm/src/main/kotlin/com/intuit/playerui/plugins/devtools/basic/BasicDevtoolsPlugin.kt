@@ -27,15 +27,23 @@ public class BasicDevtoolsPlugin(
         BasicDevtoolsPlugin.NAME,
         BasicDevtoolsPlugin.BUNDLED_SOURCE_PATH,
     ) {
-        // TODO: Kotlin 2.0: Use AtomicInt
         private val count = AtomicInteger(0)
 
         public fun Runtime<*>.BasicDevtoolsPlugin(options: Options): BasicDevtoolsPlugin {
-            runtime.execute("class WeakRef { value = null; constructor(value) { this.value = value }; deref() { return this.value } }")
+            // Polyfill WeakRef if it doesn't exist in the runtime -- should ideally be provided as a plugin like `setTimeout`
+            if (!runtime.contains(
+                    "WeakRef",
+                )
+            ) {
+                runtime.execute(
+                    "class WeakRef { value = null; constructor(value) { this.value = value }; deref() { return this.value } }",
+                )
+            }
 
+            // Load module into runtime
             apply(this)
 
-            // TODO: This is only really required because the constructor support is lacking, I'd like to let serialization be handled automatically
+            // Create an instance of the plugin
             val argsKey = "basicDevtoolsPluginArgs_${count.getAndIncrement()}"
             runtime.add(argsKey, options)
             val instance =

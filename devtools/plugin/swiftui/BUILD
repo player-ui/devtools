@@ -1,9 +1,9 @@
 load("//helpers:ios.bzl", "swiftui_plugin")
 
 swiftui_plugin(
-    name = "SwiftUIPlugins",
+    name = "SwiftUIPlugin",
     deps = [
-        "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+        "//devtools/plugin/ios:PlayerUIDevtoolsPlugin",
         "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUI",
         "@swiftpkg_playerui_swift_package//:PlayerUILogger",
     ],

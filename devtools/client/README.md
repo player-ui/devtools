@@ -1,0 +1,62 @@
+# @player-devtools/client
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
+The `@player-devtools/client` exposes the Panel with the ReactPlayer, which is responsible for running content sent by Player devtool plugins on the inspected Player UI instance.
+
+You can check how to use it in the [browser-extension](https://github.com/player-ui/browser-devtools) and [Flipper plugin](../flipper-plugin).
+
+## Overview
+
+The Devtools client is a part of the Player UI Devtools architecture. It allows you to create custom devtools panels that can be used to debug and inspect your Player UI experiences, using the same plugin system used by other Player UI plugins.
+
+The Devtools client conveniently receives its content from the devtools plugins running into the Player UI in use by the inspected page. This feature allows you to extend the dev tools with custom panels, without the need to create a new extension. You can create your own devtools plugins and use them in the Player UI Devtools Browser Extension.
+
+For a more comprehensive understanding of the architecture of the Devtools client, you can always refer to the detailed information provided in the Devtools Browser Extension README.
+
+## Installation
+
+The Devtools client is available as an npm package. You can install it using npm or yarn:
+
+```bash
+npm install @player-devtools/client
+```
+
+```bash
+yarn add @player-devtools/client
+```
+
+## Usage
+
+The Devtools client is a React component that receives content from devtools plugins running in the Player UI used by the inspected page. It can be used in your React application like any other React component.
+
+```jsx
+import { Panel } from "@player-devtools/client";
+import type { MessengerOptions } from "@player-devtools/messenger";
+import browser from "webextension-polyfill";
+
+const port = browser.runtime.connect();
+
+const communicationLayer: Pick<
+  MessengerOptions,
+  "sendMessage" | "addListener" | "removeListener"
+> = {
+  sendMessage: async (message) =>
+    port.postMessage({
+      tabId: browser.devtools.inspectedWindow.tabId,
+      body: message,
+    }),
+  addListener: (callback) => {
+    port.onMessage.addListener(({ body }) => callback(body));
+  },
+  removeListener: (callback) => {
+    port.onMessage.removeListener(callback);
+  },
+};
+
+root.render(<Panel communicationLayer={communicationLayer} />);
+```
+
+## Contributing
+
+We welcome contributions to the Player UI Devtools Browser Extension.

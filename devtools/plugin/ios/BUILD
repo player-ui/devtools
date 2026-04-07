@@ -1,7 +1,7 @@
 load("//helpers:ios.bzl", "swiftui_plugin")
 
 swiftui_plugin(
-    name = "Plugins",
+    name = "Plugin",
     resources = ["//devtools/plugin/core:core_native_bundle"],
     deps = [
       "@swiftpkg_swiftflipper//:SwiftFlipper",

@@ -9,7 +9,7 @@ import XCTest
 import JavaScriptCore
 import PlayerUI
 import PlayerUITestUtilitiesCore
-@testable import PlayerUIDevtoolsPlugins
+@testable import PlayerUIDevtoolsPlugin
 @testable import PlayerUIDevtoolsTypes
 @testable import PlayerUIDevtoolsMessenger
 

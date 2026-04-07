@@ -1,5 +1,4 @@
 module(
-    # TODO: Update with your name
     name = "devtools",
     version = "1.0",
 )

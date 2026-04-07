@@ -27,3 +27,8 @@ kt_android(
     unit_test_deps = test_deps,
     unit_test_package = "com.intuit.playerui.devtools",
 )
+
+alias(
+    name = "android",
+    actual = "plugin-android",
+)

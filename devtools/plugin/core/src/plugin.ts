@@ -7,12 +7,14 @@ import {
   Transaction,
   DevtoolsPluginInteractionEvent,
 } from "@player-devtools/types";
-import type { Player, PlayerPlugin } from "@player-ui/player";
-import { dset } from "dset/merge";
+import { dsetAssign } from "@player-devtools/utils";
+import type { DataModel, Player, PlayerPlugin } from "@player-ui/player";
 import { produce } from "immer";
 import { useStateReducer, type Store, type Unsubscribe } from "./state";
 import { reducer } from "./reducer";
 import { PLUGIN_INACTIVE_WARNING, INTERACTIONS } from "./constants";
+import { genDataChangeTransaction } from "./helpers";
+import { dequal } from "dequal";
 
 export interface DevtoolsHandler {
   // TODO: Could return bool to signifiy handled to avoid double processing?
@@ -62,22 +64,7 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
       if (this.lastProcessedInteraction < (interactions.length ?? 0)) {
         interactions
           .slice(this.lastProcessedInteraction)
-          // TODO: Is binding necessary? Verify this calls the super
           .forEach(this.processInteraction.bind(this));
-      }
-    });
-  }
-
-  /** Helper for applying mutations to produce a new immutable plugin state. Note, this does not update state in the store, the result should be dispatched in an appropriate event */
-  // TODO: Pull out into generic helper, but still expose here curried for DevtoolsPluginStore for use on mobile
-  // TODO: Consider simple setPluginFlowData() API for mobile -- the most common use case for plugins is to update the data so that devtools responds accordingly
-  //  Maybe we just end up with a function for each reducer handled event?
-  produceState(
-    ...mutations: [path: string[], update: unknown][]
-  ): DevtoolsPluginsStore {
-    return produce(this.store.getState(), (draft) => {
-      for (const [path, update] of mutations) {
-        dset(draft, path, update);
       }
     });
   }
@@ -115,6 +102,35 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
       timestamp: Date.now(),
       _messenger_: true,
     };
+
+    this.store.dispatch(transaction);
+  }
+
+  // By default, we'll only write to the keys defined in data -- if undefined, data will be cleared
+  protected dispatchDataUpdate(data?: DataModel): void {
+    const state = this.store.getState();
+
+    const { plugins } = produce(this.store.getState(), (draft) => {
+      if (!data)
+        dsetAssign(draft, ["plugins", this.pluginID, "flow", "data"], data);
+      else
+        Object.entries(data).forEach(([key, value]) => {
+          dsetAssign(
+            draft,
+            ["plugins", this.pluginID, "flow", "data", key],
+            value,
+          );
+        });
+    });
+
+    const newData = plugins[this.pluginID]!.flow.data;
+    if (dequal(state.plugins[this.pluginID]?.flow?.data, newData)) return;
+
+    const transaction = genDataChangeTransaction({
+      playerID: this.playerID,
+      pluginID: this.pluginID,
+      data: newData,
+    });
 
     this.store.dispatch(transaction);
   }

@@ -1,0 +1,10 @@
+{
+  "name": "@player-devtools/client",
+  "version": "0.0.0-PLACEHOLDER",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@player-devtools/messenger": "workspace:*",
+    "@player-devtools/types": "workspace:*",
+    "@player-devtools/utils": "workspace:*"
+  }
+}

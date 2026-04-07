@@ -3,7 +3,7 @@ import JavaScriptCore
 import SwiftFlipper
 import PlayerUIDevtoolsTypes
 import PlayerUIDevtoolsMessenger
-import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsPlugin
 import PlayerUIDevtoolsUtilsSwiftUI
 import PlayerUILogger
 
