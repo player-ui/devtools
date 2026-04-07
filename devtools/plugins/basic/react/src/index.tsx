@@ -2,14 +2,21 @@ import React, { useEffect, useState } from "react";
 import { ReactPlayer } from "@player-ui/react";
 import { ReactDevtoolsPlugin } from "@player-devtools/plugin-react";
 import { BasicDevtoolsPlugin } from "@player-devtools/basic-plugin";
-import type { DevtoolsPluginInteractionEvent, DevtoolsPluginsStore } from "@player-devtools/types";
+import type {
+  DevtoolsPluginInteractionEvent,
+  DevtoolsPluginsStore,
+} from "@player-devtools/types";
 
 export type DevtoolsWrapperProps = React.PropsWithChildren<{
   state: DevtoolsPluginsStore;
   playerID: string;
 }>;
 
-const BasicDevtoolsWrapper = ({ state, playerID, children }: DevtoolsWrapperProps) => {
+const BasicDevtoolsWrapper = ({
+  state,
+  playerID,
+  children,
+}: DevtoolsWrapperProps) => {
   const [highlight, setHighlight] = useState(false);
   useEffect(() => {
     if (playerID === state.currentPlayer) {
@@ -22,10 +29,7 @@ const BasicDevtoolsWrapper = ({ state, playerID, children }: DevtoolsWrapperProp
   }, [playerID, state.currentPlayer]);
 
   return (
-    <div
-      id={playerID}
-      style={highlight ? { border: "2px solid blue" } : {}}
-    >
+    <div id={playerID} style={highlight ? { border: "2px solid blue" } : {}}>
       {children}
     </div>
   );
@@ -38,7 +42,10 @@ export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsP
 
   private wrapper: React.ComponentType<DevtoolsWrapperProps>;
 
-  constructor(id?: string, wrapper?: React.ComponentType<DevtoolsWrapperProps>) {
+  constructor(
+    id?: string,
+    wrapper?: React.ComponentType<DevtoolsWrapperProps>,
+  ) {
     super();
 
     this.wrapper = wrapper ?? BasicDevtoolsWrapper;
