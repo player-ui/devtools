@@ -16,6 +16,7 @@ js_pipeline(
         ":node_modules/@player-devtools/utils",
         "//:node_modules/@chakra-ui/react",
         "//:node_modules/@player-ui/pubsub-plugin",
+        "//:node_modules/@player-ui/player",
         "//:node_modules/@player-ui/react",
         "//:node_modules/@player-ui/common-expressions-plugin",
         "//:node_modules/@player-ui/common-types-plugin",
