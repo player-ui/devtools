@@ -1,6 +1,9 @@
 
 #!/usr/bin/env bash
-# See https://github.com/bazelbuild/rules_nodejs/blob/stable/scripts/publish_release.sh 
+# See https://github.com/bazelbuild/rules_nodejs/blob/stable/scripts/publish_release.sh
+
+# Re-exec under bash if running under sh (e.g. when invoked via Node's execPromise)
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -u -o pipefail
 

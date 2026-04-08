@@ -1,9 +1,7 @@
 load("@aspect_rules_js//js:defs.bzl", "js_library")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config")
 load("@npm//:defs.bzl", "npm_link_all_packages")
-load("@rules_player//internal:defs.bzl", "stamp")
 load("@rules_player//ios:defs.bzl", "assemble_ios_release", "spm_publish")
-load("//helpers:defs.bzl", "as_target")
 
 package(default_visibility = ["//visibility:public"])
 

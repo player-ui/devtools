@@ -5,8 +5,6 @@
   "noVersionPrefix": true,
   "owner": "player-ui",
   "repo": "devtools",
-  "githubApi": "https://github.com/api/v3",
-  "githubGraphqlApi": "https://github.com/api",
   "plugins": [
     [
       "version-file",
