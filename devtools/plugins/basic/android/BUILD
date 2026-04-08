@@ -19,8 +19,8 @@ test_deps = [
 ]
 
 kt_android(
-    name = "plugin-android",
-    group = "com.intuit.playerui.plugins.devtools.basic",
+    name = "basic-android",
+    group = "%s.plugins" % GROUP,
     main_deps = main_deps,
     main_exports = main_exports,
     main_resources = main_resources,
@@ -30,5 +30,5 @@ kt_android(
 
 alias(
     name = "android",
-    actual = "plugin-android",
+    actual = "basic-android",
 )
