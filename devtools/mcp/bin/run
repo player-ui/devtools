@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+const { FlipperServerTransport, MCPServer } = require("@player-devtools/mcp");
+
+const transport = new FlipperServerTransport();
+const server = new MCPServer(transport);
+
+server.start().catch((err) => {
+  console.error("Failed to start MCP server:", err);
+  process.exit(1);
+});
+
+process.on("SIGINT", () => {
+  server.stop().then(() => process.exit(0));
+});
+
+process.on("SIGTERM", () => {
+  server.stop().then(() => process.exit(0));
+});
