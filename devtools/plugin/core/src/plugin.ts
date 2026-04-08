@@ -10,7 +10,11 @@ import {
 import { dsetAssign } from "@player-devtools/utils";
 import type { DataModel, Player, PlayerPlugin } from "@player-ui/player";
 import { produce } from "immer";
-import { useStateReducer, type Store, type Unsubscribe } from "./state";
+import {
+  useStateReducer,
+  type Store,
+  type Unsubscribe,
+} from "@player-devtools/utils";
 import { reducer } from "./reducer";
 import { PLUGIN_INACTIVE_WARNING, INTERACTIONS } from "./constants";
 import { genDataChangeTransaction } from "./helpers";
