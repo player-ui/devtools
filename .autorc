@@ -10,7 +10,12 @@
       "version-file",
       {
         "versionFile": "./VERSION",
-        "publishScript": "./helpers/release/release.sh"
+        "publishScript": "./helpers/release/release.sh",
+        "publishScriptReleaseTypeArgs": {
+          "next": [
+            "next"
+          ]
+        }
       }
     ],
     "./helpers/release/delete-old-prerelease.js",

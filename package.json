@@ -15,8 +15,8 @@
     ]
   },
   "dependencies": {
-    "@auto-it/omit-release-notes": "^11.0.4",
-    "@auto-it/version-file": "^10.46.0",
+    "@auto-it/omit-release-notes": "^11.3.3",
+    "@auto-it/version-file": "^11.3.3",
     "@babel/plugin-transform-react-jsx-source": "^7.23.3",
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-react": "^7.23.3",
