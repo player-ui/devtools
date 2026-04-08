@@ -1,8 +1,8 @@
-package com.intuit.playerui.plugins.devtools.basic
+package com.intuit.playerui.devtools.plugins.basic
 
 import com.intuit.playerui.devtools.DevtoolsHandler
 import com.intuit.playerui.devtools.DevtoolsPluginInteractionEvent
-import com.intuit.playerui.plugins.devtools.basic.BasicDevtoolsPlugin.Module.BasicDevtoolsPlugin
+import com.intuit.playerui.devtools.plugins.basic.BasicDevtoolsPlugin.Module.BasicDevtoolsPlugin
 import com.intuit.playerui.utils.test.RuntimeTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

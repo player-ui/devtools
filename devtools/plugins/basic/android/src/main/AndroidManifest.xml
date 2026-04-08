@@ -1,4 +1,4 @@
-<manifest package="com.intuit.playerui.plugins.devtools.basic"
+<manifest package="com.intuit.playerui.devtools.plugins.basic"
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 

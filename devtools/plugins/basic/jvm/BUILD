@@ -1,4 +1,5 @@
 # Wrap core
+load("@build_constants//:constants.bzl", "GROUP")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 load("//helpers:jvm.bzl", "kt_jvm")
 
@@ -18,11 +19,11 @@ test_deps = [
 ]
 
 kt_jvm(
-    name = "plugin",
-    group = "com.intuit.playerui.plugins.devtools.basic",
+    name = "basic",
+    group = "%s.plugins" % GROUP,
     main_deps = main_deps,
     main_exports = main_exports,
     main_resources = main_resources,
     test_deps = test_deps,
-    test_package = "com.intuit.playerui.plugins.devtools.basic",
+    test_package = "com.intuit.playerui.devtools.plugins",
 )

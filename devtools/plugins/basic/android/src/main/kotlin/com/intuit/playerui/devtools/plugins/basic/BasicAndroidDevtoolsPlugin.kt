@@ -1,11 +1,11 @@
-package com.intuit.playerui.plugins.devtools.basic
+package com.intuit.playerui.devtools.plugins.basic
 
 import androidx.annotation.StyleRes
 import com.intuit.playerui.android.AndroidPlayer
 import com.intuit.playerui.core.bridge.runtime.Runtime
 import com.intuit.playerui.devtools.AndroidDevtoolsPlugin
-import com.intuit.playerui.plugins.devtools.basic.BasicDevtoolsPlugin.Module.BasicDevtoolsPlugin
-import com.intuit.playerui.plugins.devtools.basic.R
+import com.intuit.playerui.devtools.plugins.basic.BasicDevtoolsPlugin.Module.BasicDevtoolsPlugin
+import com.intuit.playerui.devtools.plugins.basic.R
 
 public class BasicAndroidDevtoolsPlugin(
     private val id: String,

@@ -1,4 +1,4 @@
-package com.intuit.playerui.plugins.devtools.basic
+package com.intuit.playerui.devtools.plugins.basic
 
 import com.intuit.playerui.core.bridge.Node
 import com.intuit.playerui.core.bridge.runtime.Runtime

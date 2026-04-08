@@ -1,4 +1,5 @@
 # Android lib that consumes jvm similar to how react consumes core
+load("@build_constants//:constants.bzl", "GROUP")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 load("//helpers:android.bzl", "kt_android")
 
@@ -7,7 +8,7 @@ main_exports = [
 ]
 
 main_deps = main_exports + [
-    "//devtools/plugins/basic/jvm:plugin",
+    "//devtools/plugins/basic/jvm:basic",
 ]
 
 main_resources = []
@@ -19,8 +20,8 @@ test_deps = [
 ]
 
 kt_android(
-    name = "plugin-android",
-    group = "com.intuit.playerui.plugins.devtools.basic",
+    name = "basic-android",
+    group = "%s.plugins" % GROUP,
     main_deps = main_deps,
     main_exports = main_exports,
     main_resources = main_resources,
@@ -30,5 +31,5 @@ kt_android(
 
 alias(
     name = "android",
-    actual = "plugin-android",
+    actual = "basic-android",
 )
