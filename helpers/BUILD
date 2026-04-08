@@ -6,9 +6,10 @@ load("@rules_kotlin//kotlin:lint.bzl", "ktlint_config")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 
 exports_files([
+    "defs.bzl",
+    "pom.tpl",
     "tsup.config.ts.tmpl",
     "vitest.config.mts.tmpl",
-    "defs.bzl",
 ])
 
 js_library(

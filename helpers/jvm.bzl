@@ -10,6 +10,7 @@ def kt_jvm(
         main_opts = "//helpers:kt_main_options",
         test_opts = "//helpers:kt_test_options",
         version = VERSION,
+        pom_template = "//helpers:pom.tpl",
         **kwargs):
     _kt_jvm(
         name = name,
@@ -19,5 +20,6 @@ def kt_jvm(
         test_opts = test_opts,
         test_package = test_package if test_package else group,
         version = version,
+        pom_template = pom_template,
         **kwargs
     )

@@ -19,6 +19,7 @@ def kt_android(
         main_opts = "//helpers:kt_main_options",
         unit_test_opts = "//helpers:kt_test_options",
         version = VERSION,
+        pom_template = "//helpers:pom.tpl",
         **kwargs):
     _kt_android(
         name = name,
@@ -29,5 +30,6 @@ def kt_android(
         main_opts = main_opts,
         unit_test_opts = unit_test_opts,
         version = version,
+        pom_template = pom_template,
         **kwargs
     )
