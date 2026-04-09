@@ -132,7 +132,8 @@ let package = Package(
     products: allTargets.map { .library(name: $0.name, targets: [$0.name]) },
     dependencies: [
         .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.11.2"),
-        .package(url: "https://github.com/chiragramani/SwiftFlipper.git", from: "0.1.0"),
+        // Pin SwiftFlipper because it transitively defines unstable dependencies
+        .package(url: "https://github.com/chiragramani/SwiftFlipper.git", revision: "23ab427d3dd076e14f0028e30d174e004a2faa00"),
     ],
     targets: allTargets
 )
