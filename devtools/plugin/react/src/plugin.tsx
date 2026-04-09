@@ -38,6 +38,7 @@ export abstract class ReactDevtoolsPlugin<T extends DevtoolsPlugin>
   applyReact(reactPlayer: ReactPlayer): void {
     if (!this.checkIfDevtoolsIsActive()) return;
 
+    this.corePlugin.apply(reactPlayer.player);
     reactPlayer.hooks.webComponent.tap(this.name, (Component) => {
       const DevtoolsWrapper = () => {
         const { sendMessage, addListener, removeListener } =
