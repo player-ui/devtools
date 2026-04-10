@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import type { PluginStore } from "@player-devtools/plugin";
-import type { DevtoolsPluginsStore } from "@player-devtools/types";
-
-export type DevtoolsWrapperProps = React.PropsWithChildren<{
-  state: DevtoolsPluginsStore;
-  playerID: string;
-}>;
+import type { PluginStore } from "@player-devtools/plugin-react";
+import { DevtoolsWrapperProps } from "./types";
 
 export type WrapperComponentProps = {
   Component: React.ComponentType;

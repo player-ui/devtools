@@ -1,34 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import type { ReactPlayer } from "@player-ui/react";
 import { ReactDevtoolsPlugin } from "@player-devtools/plugin-react";
 import { BasicDevtoolsPlugin } from "@player-devtools/basic-plugin";
 import type { DevtoolsPluginInteractionEvent } from "@player-devtools/types";
-import { WrapperComponent, type DevtoolsWrapperProps } from "./WrapperComponent";
-
-export type { DevtoolsWrapperProps };
-
-const BasicDevtoolsWrapper = ({
-  state,
-  playerID,
-  children,
-}: DevtoolsWrapperProps) => {
-  const [highlight, setHighlight] = useState(false);
-  useEffect(() => {
-    if (playerID === state.currentPlayer) {
-      setHighlight(true);
-      const timer = setTimeout(() => {
-        setHighlight(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [playerID, state.currentPlayer]);
-
-  return (
-    <div id={playerID} style={highlight ? { border: "2px solid blue" } : {}}>
-      {children}
-    </div>
-  );
-};
+import { WrapperComponent } from "./WrapperComponent";
+import { DefaultBasicDevtoolsWrapper } from "./DefaultBasicDevtoolsWrapper";
+import type { DevtoolsWrapperProps } from "./types";
 
 export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsPlugin> {
   name = "BasicReactDevtoolsPlugin";
@@ -43,7 +20,7 @@ export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsP
   ) {
     super();
 
-    this.wrapper = wrapper ?? BasicDevtoolsWrapper;
+    this.wrapper = wrapper ?? DefaultBasicDevtoolsWrapper;
     this.corePlugin = new BasicDevtoolsPlugin({
       playerID: id ?? "default-id",
       handler: this,
@@ -56,7 +33,7 @@ export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsP
     super.applyReact(reactPlayer);
 
     reactPlayer.hooks.webComponent.tap(this.name, (Component) => {
-      return () => (
+      const BasicReactDevtoolsComponent = () => (
         <WrapperComponent
           Component={Component}
           Wrapper={this.wrapper}
@@ -64,6 +41,8 @@ export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsP
           playerID={this.playerID}
         />
       );
+
+      return BasicReactDevtoolsComponent;
     });
   }
 

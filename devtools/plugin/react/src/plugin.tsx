@@ -4,9 +4,7 @@ import {
   type DevtoolsHandler,
   type PluginStore,
 } from "@player-devtools/plugin";
-import type {
-  DevtoolsPluginInteractionEvent,
-} from "@player-devtools/types";
+import type { DevtoolsPluginInteractionEvent } from "@player-devtools/types";
 import type { ReactPlayerPlugin, ReactPlayer } from "@player-ui/react";
 import { WrapperComponent } from "./WrapperComponent";
 
@@ -37,7 +35,7 @@ export abstract class ReactDevtoolsPlugin<T extends DevtoolsPlugin>
 
     this.corePlugin.apply(reactPlayer.player);
     reactPlayer.hooks.webComponent.tap(this.name, (Component) => {
-      return () => (
+      const ReactDevtoolsComponent = () => (
         <WrapperComponent
           Component={Component}
           playerID={this.playerID}
@@ -46,6 +44,7 @@ export abstract class ReactDevtoolsPlugin<T extends DevtoolsPlugin>
           reactPlayer={reactPlayer}
         />
       );
+      return ReactDevtoolsComponent;
     });
   }
 }

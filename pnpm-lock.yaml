@@ -451,9 +451,6 @@ importers:
       '@player-devtools/basic-plugin':
         specifier: workspace:*
         version: link:../core
-      '@player-devtools/plugin':
-        specifier: workspace:*
-        version: link:../../../plugin/core
       '@player-devtools/plugin-react':
         specifier: workspace:*
         version: link:../../../plugin/react

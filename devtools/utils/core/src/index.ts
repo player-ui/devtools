@@ -75,7 +75,8 @@ export function dsetAssign<V>(
   merge: boolean = false,
 ): void {
   const key = keys[keys.length - 1];
-  if (key === undefined) throw Error("Unable to assign at path containing undefined keys");
+  if (key === undefined)
+    throw Error("Unable to assign at path containing undefined keys");
 
   // Walk the path, auto-vivifying intermediate objects when necessary
   const target = keys
