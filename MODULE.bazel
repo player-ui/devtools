@@ -107,8 +107,8 @@ bazel_dep(name = "rules_jvm_external", version = "6.8")
 # Override for AAR publishing support
 git_override(
     module_name = "rules_jvm_external",
-    # branch = "maven-export-aar-6.8",
-    commit = "0dc1a97c0403de02e0bf9a03244212a15dae3333",
+    # branch = "maven-export-aar-6.10",
+    commit = "6982dfaef224a948c6d9df8f1f68330f46d71e47",
     remote = "https://github.com/sugarmanz/rules_jvm_external.git",
 )
 
@@ -130,7 +130,8 @@ maven.amend_artifact(
     coordinates = "com.facebook.flipper:flipper",
     exclusions = [
         # TODO: Try to override
-        "com.android.ndk.thirdparty:openssl",
+        # "com.android.ndk.thirdparty:openssl",
+        "com.facebook.fbjni:fbjni"
     ],
 )
 maven.install(
