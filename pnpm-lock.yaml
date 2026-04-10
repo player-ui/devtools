@@ -451,6 +451,9 @@ importers:
       '@player-devtools/basic-plugin':
         specifier: workspace:*
         version: link:../core
+      '@player-devtools/plugin':
+        specifier: workspace:*
+        version: link:../../../plugin/core
       '@player-devtools/plugin-react':
         specifier: workspace:*
         version: link:../../../plugin/react
@@ -9645,7 +9648,7 @@ packages:
     engines: {node: '>=0.10.0'}
 
   source-map@0.6.1:
-    resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
+    resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==, tarball: https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz}
     engines: {node: '>=0.10.0'}
 
   source-map@0.7.6:

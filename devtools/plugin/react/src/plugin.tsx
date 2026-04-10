@@ -1,17 +1,14 @@
-import React, { useEffect, useMemo } from "react";
-import { Messenger } from "@player-devtools/messenger";
+import React from "react";
 import {
   DevtoolsPlugin,
   type DevtoolsHandler,
   type PluginStore,
 } from "@player-devtools/plugin";
 import type {
-  MessengerOptions,
-  ExtensionSupportedEvents,
   DevtoolsPluginInteractionEvent,
 } from "@player-devtools/types";
 import type { ReactPlayerPlugin, ReactPlayer } from "@player-ui/react";
-import { useCommunicationLayer } from "./useCommunicationLayer";
+import { WrapperComponent } from "./WrapperComponent";
 
 /** Entrypoint for devtools plugins with [ReactPlayer]-specific components */
 export abstract class ReactDevtoolsPlugin<T extends DevtoolsPlugin>
@@ -40,43 +37,15 @@ export abstract class ReactDevtoolsPlugin<T extends DevtoolsPlugin>
 
     this.corePlugin.apply(reactPlayer.player);
     reactPlayer.hooks.webComponent.tap(this.name, (Component) => {
-      const DevtoolsWrapper = () => {
-        const { sendMessage, addListener, removeListener } =
-          useCommunicationLayer();
-
-        const messenger = useMemo(() => {
-          const options: MessengerOptions<ExtensionSupportedEvents> = {
-            id: this.playerID,
-            context: "player",
-            messageCallback: (message) =>
-              this.store.dispatch(
-                message as Parameters<typeof this.store.dispatch>[0],
-              ),
-            sendMessage,
-            addListener,
-            removeListener,
-            logger: { log: reactPlayer.player.logger.info },
-          };
-
-          return new Messenger(options);
-        }, [addListener, removeListener, sendMessage]);
-
-        useEffect(() => {
-          const unsubscribe = this.corePlugin.registerMessenger(messenger);
-          return () => {
-            unsubscribe();
-            messenger.destroy();
-          };
-        }, [messenger]);
-
-        return (
-          <>
-            <Component />
-          </>
-        );
-      };
-
-      return DevtoolsWrapper;
+      return () => (
+        <WrapperComponent
+          Component={Component}
+          playerID={this.playerID}
+          store={this.store}
+          corePlugin={this.corePlugin}
+          reactPlayer={reactPlayer}
+        />
+      );
     });
   }
 }

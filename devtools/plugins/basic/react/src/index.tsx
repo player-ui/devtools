@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { ReactPlayer } from "@player-ui/react";
+import type { ReactPlayer } from "@player-ui/react";
 import { ReactDevtoolsPlugin } from "@player-devtools/plugin-react";
 import { BasicDevtoolsPlugin } from "@player-devtools/basic-plugin";
-import type {
-  DevtoolsPluginInteractionEvent,
-  DevtoolsPluginsStore,
-} from "@player-devtools/types";
+import type { DevtoolsPluginInteractionEvent } from "@player-devtools/types";
+import { WrapperComponent, type DevtoolsWrapperProps } from "./WrapperComponent";
 
-export type DevtoolsWrapperProps = React.PropsWithChildren<{
-  state: DevtoolsPluginsStore;
-  playerID: string;
-}>;
+export type { DevtoolsWrapperProps };
 
 const BasicDevtoolsWrapper = ({
   state,
@@ -61,17 +56,14 @@ export class BasicReactDevtoolsPlugin extends ReactDevtoolsPlugin<BasicDevtoolsP
     super.applyReact(reactPlayer);
 
     reactPlayer.hooks.webComponent.tap(this.name, (Component) => {
-      const DevtoolsContainer = () => {
-        const Wrapper = this.wrapper;
-        const [state, setState] = useState(this.store.getState());
-        useEffect(() => this.store.subscribe(setState), [setState]);
-        return (
-          <Wrapper state={state} playerID={this.playerID}>
-            <Component />
-          </Wrapper>
-        );
-      };
-      return DevtoolsContainer;
+      return () => (
+        <WrapperComponent
+          Component={Component}
+          Wrapper={this.wrapper}
+          store={this.store}
+          playerID={this.playerID}
+        />
+      );
     });
   }
 

@@ -4,6 +4,7 @@
   "main": "src/index.tsx",
   "dependencies": {
     "@player-devtools/basic-plugin": "workspace:*",
+    "@player-devtools/plugin": "workspace:*",
     "@player-devtools/plugin-react": "workspace:*",
     "@player-devtools/types": "workspace:*"
   }
