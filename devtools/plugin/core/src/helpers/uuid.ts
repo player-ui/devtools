@@ -1,11 +1,10 @@
+const getNowTime = globalThis.performance ? performance.now : Date.now;
+
+// TODO: Either polyfill crypto or use this (pulled from SO)
 export function generateUUID(): string {
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp
-  let d2 =
-    (typeof performance !== "undefined" &&
-      performance.now &&
-      performance.now() * 1000) ||
-    0; //Time in microseconds since page-load or 0 if unsupported
+  let d2 = getNowTime() * 1000;
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     let r = Math.random() * 16; //random number between 0 and 16
     if (d > 0) {

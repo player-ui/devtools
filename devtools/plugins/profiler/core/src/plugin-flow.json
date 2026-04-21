@@ -1,0 +1,317 @@
+{
+  "id": "player-ui-profiler-devtools-plugin",
+  "views": [
+    {
+      "id": "Profile",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Profile-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Profile-header-values-0",
+                "type": "action",
+                "value": "Profile",
+                "label": {
+                  "asset": {
+                    "id": "Profile-header-values-0-label",
+                    "type": "text",
+                    "value": "Profile"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Profile-main",
+          "type": "object-inspector",
+          "binding": "durations",
+          "label": {
+            "asset": {
+              "id": "Profile-main-label",
+              "type": "text",
+              "value": "Profile"
+            }
+          }
+        }
+      },
+      "footer": {
+        "asset": {
+          "id": "Editor-header-values-0",
+          "type": "action",
+          "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
+          "label": {
+            "asset": {
+              "id": "Editor-header-values-0-label",
+              "type": "text",
+              "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "navigation": {
+    "BEGIN": "Plugin",
+    "Plugin": {
+      "startState": "PROFILE",
+      "PROFILE": {
+        "state_type": "VIEW",
+        "ref": "Profile",
+        "transitions": {
+          "Profile": "PROFILE"
+        }
+      }
+    }
+  },
+  "schema": {
+    "ROOT": {
+      "playerConfig": {
+        "type": "RecordType"
+      },
+      "flow": {
+        "type": "RecordType"
+      },
+      "expression": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "code": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "history": {
+        "type": "historyType",
+        "isArray": true
+      },
+      "logs": {
+        "type": "logsType",
+        "isArray": true
+      }
+    },
+    "logsType": {
+      "id": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "time": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "type": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "message": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "severity": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "binding": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "from": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "to": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "state": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "error": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "outcome": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "metricType": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      }
+    },
+    "historyType": {
+      "id": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "expression": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "result": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      },
+      "severity": {
+        "type": "StringType",
+        "default": "",
+        "validation": [
+          {
+            "type": "string"
+          }
+        ],
+        "format": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "data": {
+    "expression": "",
+    "flow": {},
+    "history": [],
+    "logs": [],
+    "playerConfig": {}
+  }
+}

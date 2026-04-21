@@ -18,5 +18,6 @@ xcodeproj(
         "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPluginViewInspectorTests",
         "//devtools/plugins/basic/ios:PlayerUIDevtoolsBaseBasicDevtoolsPluginTests",
         "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPluginViewInspectorTests",
+        "//devtools/plugins/profiler/ios:PlayerUIDevtoolsProfilerDevtoolsPluginTests",
     ],
 )

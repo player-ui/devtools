@@ -1,6 +1,8 @@
 import type { Profiler, ProfilerNode } from "../types";
 
-const getNowTime = () => (performance ? performance.now() : Date.now());
+const getNowTime = globalThis.performance
+  ? () => globalThis.performance.now()
+  : () => Date.now();
 
 export const profiler = (): Profiler => {
   let rootNode: ProfilerNode = {

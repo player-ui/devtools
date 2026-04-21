@@ -4,7 +4,8 @@ ios_library(
     name = "ProfilerDevtoolsPlugin",
     resources = ["//devtools/plugins/profiler/core:core_native_bundle"],
     deps = [
-        "//devtools/types/ios:PlayerUIDevToolsTypes",
-        "//devtools/utils/ios:PlayerUIDevToolsUtils",
+      "//devtools/plugin/ios:PlayerUIDevtoolsPlugins",
+      "//devtools/utils/swiftui:PlayerUIDevtoolsUtilsSwiftUI",
+      "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPlugins",
     ],
 )

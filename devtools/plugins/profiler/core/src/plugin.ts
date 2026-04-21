@@ -14,9 +14,7 @@ import { BASE_PLUGIN_DATA, INTERACTIONS } from "./constants";
 import { profiler } from "./helpers";
 import type { Profiler } from "./types";
 import { addProfilerInterceptorsToHooks } from "./addProfilerInterceptorsToHooks";
-
-// TODO: Import content
-const flow: Flow = {} as Flow;
+import flow from "./plugin-flow.json";
 
 const pluginData: PluginData = {
   ...BASE_PLUGIN_DATA,
@@ -47,19 +45,22 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
 
     const profilerObj = profiler();
 
-    this.stopProfiler = this.createProfilerStopFunction(profilerObj);
+    this.stopProfiler = this.createProfilerStopFunction(player, profilerObj);
     /** function to tap into hooks and start the profiler */
     this.startProfiler = this.createProfileStartFunction(player, profilerObj);
+    this.startProfiler();
   }
 
   private createProfileStartFunction = (
     player: Player,
     profilerObj: Profiler
   ): Profiler["start"] => {
-    const { start } = profilerObj;
+    const { start, startTimer } = profilerObj;
 
     return () => {
+      player.logger.debug("[ProfilerPlugin]: Starting...");
       start();
+      startTimer("profiler");
 
       addProfilerInterceptorsToHooks(player, profilerObj);
 
@@ -84,16 +85,17 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       });
 
       this.store.dispatch(transaction);
-
-      this.lastProcessedInteraction += 1;
     };
   };
 
   private createProfilerStopFunction = (
+    player: Player,
     profiler: Profiler
   ): Profiler["stopProfiler"] => {
     return () => {
-      const { stopProfiler } = profiler;
+      player.logger.debug("[ProfilerPlugin]: Stopping...");
+      const { stopProfiler, endTimer } = profiler;
+      endTimer({ hookName: "profiler" });
       const stopProfilerResult = stopProfiler();
       const { rootNode, durations } = stopProfilerResult;
 
@@ -111,13 +113,13 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       });
 
       this.store.dispatch(transaction);
-
-      this.lastProcessedInteraction += 1;
       return stopProfilerResult;
     };
   };
 
   processInteraction(interaction: DevtoolsPluginInteractionEvent): void {
+    super.processInteraction(interaction);
+
     const {
       payload: { type },
     } = interaction;
