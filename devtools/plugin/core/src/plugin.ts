@@ -70,7 +70,7 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
   }
 
   registerMessenger(
-    messenger: Messenger<ExtensionSupportedEvents>
+    messenger: Messenger<ExtensionSupportedEvents>,
   ): Unsubscribe {
     // Propagate new messages from state to devtools via the messenger
     let lastMessageIndex = -1;

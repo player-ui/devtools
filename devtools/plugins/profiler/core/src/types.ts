@@ -10,6 +10,10 @@ export interface Profiler {
     rootNode: ProfilerNode;
     durations: { name: string; duration: string }[];
   };
+  getSnapshot(): {
+    rootNode: ProfilerNode;
+    durations: { name: string; duration: string }[];
+  };
 }
 
 export type ProfilerNode = {

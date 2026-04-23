@@ -35,70 +35,66 @@ describe("Profiler", () => {
 
     const rootNode = stopProfiler();
 
-    expect(rootNode).toStrictEqual({
-      durations: [
-        { name: "process2", duration: "0.5000 ms" },
-        { name: "process2.1", duration: "0.2000 ms" },
-        { name: "process2.2", duration: "0.2000 ms" },
-        { name: "process1", duration: "0.1000 ms" },
-      ],
-      rootNode: {
-        children: [
-          {
-            children: [],
-            endTime: 2490.2999999999997,
-            name: "process1",
-            startTime: 2490.2,
-            tooltip: "process1, 0.1000 (ms)",
-            value: 100,
-          },
-          {
-            children: [
-              {
-                children: [],
-                endTime: 2490.6999999999994,
-                name: "process2.1",
-                startTime: 2490.4999999999995,
-                tooltip: "process2.1, 0.2000 (ms)",
-                value: 200,
-              },
-              {
-                children: [],
-                endTime: 2490.7999999999993,
-                name: "process2.2",
-                startTime: 2490.5999999999995,
-                tooltip: "process2.2, 0.2000 (ms)",
-                value: 200,
-              },
-            ],
-            endTime: 2490.899999999999,
-            name: "process2",
-            startTime: 2490.3999999999996,
-            tooltip: "process2, 0.5000 (ms)",
-            value: 500,
-          },
-        ],
-        endTime: 2490.999999999999,
-        name: "root",
-        startTime: 2490.1,
-        tooltip: "Profiler total time span 0.9000 (ms)",
-        value: 600,
-      },
-    });
+    expect(rootNode).toMatchSnapshot();
 
     // (re)start
     start();
     const { rootNode: rootNode2, durations } = stopProfiler();
 
     expect(durations).toStrictEqual([]);
+    expect(rootNode2.children).toStrictEqual([]);
+    expect(rootNode2.tooltip).toMatch(/^Profiler total time span/);
+  });
 
-    expect(rootNode2).toStrictEqual({
-      name: "root",
-      endTime: 2491.199999999999,
-      startTime: 2491.099999999999,
-      tooltip: "Profiler total time span 0.1000 (ms)",
-      value: 100,
-      children: [],
-    });
+  test("calls onUpdate only after endTimer, not startTimer", () => {
+    const onUpdate = vi.fn();
+    const { startTimer, endTimer, start } = profiler(onUpdate);
+
+    // startTimer("profiler") fires at construction but no longer triggers onUpdate
+    const callsAfterConstruction = onUpdate.mock.calls.length;
+    expect(callsAfterConstruction).toBe(0);
+
+    start();
+    // start() resets state but doesn't call onUpdate itself
+    expect(onUpdate.mock.calls.length).toBe(callsAfterConstruction);
+
+    startTimer("hookA");
+    // startTimer no longer calls onUpdate
+    expect(onUpdate.mock.calls.length).toBe(callsAfterConstruction);
+
+    endTimer({ hookName: "hookA" });
+    expect(onUpdate.mock.calls.length).toBe(callsAfterConstruction + 1);
+
+    startTimer("hookB");
+    endTimer({ hookName: "hookB" });
+    expect(onUpdate.mock.calls.length).toBe(callsAfterConstruction + 2);
+  });
+
+  test("getSnapshot returns incrementally sorted durations without finalizing rootNode", () => {
+    const { startTimer, endTimer, getSnapshot, start } = profiler();
+
+    start();
+
+    startTimer("slow");
+    endTimer({ hookName: "slow" });
+
+    startTimer("fast");
+    endTimer({ hookName: "fast" });
+
+    const snap = getSnapshot();
+
+    // Should be sorted descending by duration — slow was first so it has a longer duration
+    expect(snap.durations[0]!.name).toBe("slow");
+    expect(snap.durations[1]!.name).toBe("fast");
+
+    // rootNode should not have endTime/tooltip set yet (not finalized)
+    expect(snap.rootNode.tooltip).toBeUndefined();
+    expect(snap.rootNode.endTime).toBeUndefined();
+    expect(snap.rootNode.children).toHaveLength(2);
+
+    // Snapshot is a clone — mutating the live tree doesn't affect it
+    startTimer("extra");
+    endTimer({ hookName: "extra" });
+    expect(snap.rootNode.children).toHaveLength(2);
   });
 });

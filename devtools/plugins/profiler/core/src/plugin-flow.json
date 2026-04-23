@@ -28,16 +28,31 @@
       },
       "main": {
         "asset": {
-          "id": "Profile-main",
-          "type": "object-inspector",
-          "binding": "durations",
-          "label": {
-            "asset": {
-              "id": "Profile-main-label",
-              "type": "text",
-              "value": "Profile"
+          "type": "collection",
+          "id": "Profile-collection",
+          "values": [
+            {
+              "asset": {
+                "id": "Profile-title",
+                "type": "text",
+                "value": "Flame Graph:"
+              }
+            },
+            {
+              "asset": {
+                "id": "Profile-main",
+                "type": "flame-graph",
+                "binding": "rootNode",
+                "label": {
+                  "asset": {
+                    "id": "Profile-main-label",
+                    "type": "text",
+                    "value": "Profile"
+                  }
+                }
+              }
             }
-          }
+          ]
         }
       },
       "footer": {
@@ -71,47 +86,22 @@
   },
   "schema": {
     "ROOT": {
-      "playerConfig": {
+      "profiling": {
+        "type": "BooleanType"
+      },
+      "displayFlameGraph": {
+        "type": "BooleanType"
+      },
+      "rootNode": {
         "type": "RecordType"
       },
-      "flow": {
-        "type": "RecordType"
-      },
-      "expression": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "code": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "history": {
-        "type": "historyType",
-        "isArray": true
-      },
-      "logs": {
-        "type": "logsType",
+      "durations": {
+        "type": "durationType",
         "isArray": true
       }
     },
-    "logsType": {
-      "id": {
+    "durationType": {
+      "name": {
         "type": "StringType",
         "default": "",
         "validation": [
@@ -123,177 +113,7 @@
           "type": "string"
         }
       },
-      "time": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "type": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "message": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "severity": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "binding": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "from": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "to": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "state": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "error": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "outcome": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "metricType": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      }
-    },
-    "historyType": {
-      "id": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "expression": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "result": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "severity": {
+      "duration": {
         "type": "StringType",
         "default": "",
         "validation": [
@@ -308,10 +128,9 @@
     }
   },
   "data": {
-    "expression": "",
-    "flow": {},
-    "history": [],
-    "logs": [],
-    "playerConfig": {}
+    "profiling": false,
+    "displayFlameGraph": false,
+    "rootNode": {},
+    "durations": []
   }
 }

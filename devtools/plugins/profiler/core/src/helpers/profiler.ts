@@ -4,7 +4,7 @@ const getNowTime = globalThis.performance
   ? () => globalThis.performance.now()
   : () => Date.now();
 
-export const profiler = (): Profiler => {
+export const profiler = (onUpdate?: () => void): Profiler => {
   let rootNode: ProfilerNode = {
     name: "root",
     children: [],
@@ -26,6 +26,32 @@ export const profiler = (): Profiler => {
   const addNodeToTree = (newNode: ProfilerNode, parentNode: ProfilerNode) => {
     parentNode.children.push(newNode);
     return newNode;
+  };
+
+  const cloneNode = (node: ProfilerNode): ProfilerNode => {
+    const children = node.children.map(cloneNode);
+    const value =
+      node.value ??
+      children.reduce((prev, current) => prev + (current?.value ?? 0), 0);
+
+    return {
+      ...node,
+      value,
+      children,
+    };
+  };
+
+  const getSnapshot = (): {
+    rootNode: ProfilerNode;
+    durations: { name: string; duration: string }[];
+  } => {
+    const sorted = [...durations]
+      .sort((a, b) => b.duration - a.duration)
+      .map(({ hookName, duration }) => ({
+        name: hookName,
+        duration: `${duration.toFixed(4)} ms`,
+      }));
+    return { rootNode: cloneNode(rootNode), durations: sorted };
   };
 
   const startTimer = (hookName: string) => {
@@ -75,6 +101,8 @@ export const profiler = (): Profiler => {
     // Push the hookName and duration into durations array
     durations.push({ hookName, duration: duration ? duration : 0.01 });
 
+    onUpdate?.();
+
     return newNode;
   };
 
@@ -106,10 +134,15 @@ export const profiler = (): Profiler => {
     };
   };
 
+  // Start profiling immediately on construction
+  start();
+  startTimer("profiler");
+
   return {
     start,
     startTimer,
     endTimer,
     stopProfiler,
+    getSnapshot,
   };
 };

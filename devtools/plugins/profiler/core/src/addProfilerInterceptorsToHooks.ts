@@ -11,6 +11,7 @@ import {
   SyncWaterfallHook,
 } from "tapable-ts";
 import { Profiler, ProfilerNode } from "./types";
+import { Logger } from "@player-ui/player";
 
 /* Paths to hooks to ignore.
  * Currently ignoring "view" hook on player since it acts as a shortcut to the viewController's view hook. Including it would duplicate a lot of profiling work.
@@ -30,18 +31,26 @@ type AnyHook =
   | SyncLoopHook<unknown[]>
   | SyncWaterfallHook<unknown[]>;
 
+// const isAnyHook = (obj: unknown): obj is AnyHook => {
+//   return (
+//     obj instanceof AsyncParallelBailHook ||
+//     obj instanceof AsyncParallelHook ||
+//     obj instanceof AsyncSeriesBailHook ||
+//     obj instanceof AsyncSeriesHook ||
+//     obj instanceof AsyncSeriesLoopHook ||
+//     obj instanceof AsyncSeriesWaterfallHook ||
+//     obj instanceof SyncBailHook ||
+//     obj instanceof SyncHook ||
+//     obj instanceof SyncLoopHook ||
+//     obj instanceof SyncWaterfallHook
+//   );
+// };
+
 const isAnyHook = (obj: unknown): obj is AnyHook => {
   return (
-    obj instanceof AsyncParallelBailHook ||
-    obj instanceof AsyncParallelHook ||
-    obj instanceof AsyncSeriesBailHook ||
-    obj instanceof AsyncSeriesHook ||
-    obj instanceof AsyncSeriesLoopHook ||
-    obj instanceof AsyncSeriesWaterfallHook ||
-    obj instanceof SyncBailHook ||
-    obj instanceof SyncHook ||
-    obj instanceof SyncLoopHook ||
-    obj instanceof SyncWaterfallHook
+    isRecordType(obj) &&
+    "intercept" in obj &&
+    typeof obj.intercept === "function"
   );
 };
 
