@@ -40,9 +40,17 @@
             },
             {
               "asset": {
+                "id": "Profile-index",
+                "binding": "profilerIndex",
+                "type": "input"
+              }
+            },
+            {
+              "asset": {
                 "id": "Profile-main",
                 "type": "flame-graph",
-                "binding": "rootNode",
+                "binding": "rootNodes[{{profilerIndex}}]",
+                "width": "1500",
                 "label": {
                   "asset": {
                     "id": "Profile-main-label",
@@ -92,8 +100,9 @@
       "displayFlameGraph": {
         "type": "BooleanType"
       },
-      "rootNode": {
-        "type": "RecordType"
+      "rootNodes": {
+        "type": "RecordType",
+        "isArray": true
       },
       "durations": {
         "type": "durationType",
@@ -130,7 +139,8 @@
   "data": {
     "profiling": false,
     "displayFlameGraph": false,
-    "rootNode": {},
-    "durations": []
+    "rootNodes": [],
+    "durations": [],
+    "profilerIndex": 0
   }
 }

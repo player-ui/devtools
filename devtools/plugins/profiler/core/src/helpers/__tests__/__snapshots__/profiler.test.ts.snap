@@ -1,0 +1,18 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Profiler > stopProfiler returns the full rootNodes forest with sorted durations 1`] = `
+[
+  {
+    "duration": "0.3000 ms",
+    "name": "a",
+  },
+  {
+    "duration": "0.1000 ms",
+    "name": "a.child",
+  },
+  {
+    "duration": "0.1000 ms",
+    "name": "b",
+  },
+]
+`;

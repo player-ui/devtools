@@ -45,20 +45,23 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
 
     super.apply(player);
 
-    // Wire live updates: dispatch to store on every startTimer/endTimer call
+    // Wire live updates: dispatch to store on every endTimer call
     this.profilerObj = profiler(() => {
       if (!this.profilerObj) return;
-      const { durations, rootNode } = this.profilerObj.getSnapshot();
+      const { durations, rootNodes } = this.profilerObj.getSnapshot();
       const newState = this.produceState(
         [["plugins", pluginID, "flow", "data", "durations"], durations],
-        [["plugins", pluginID, "flow", "data", "rootNode"], rootNode]
+        [
+          ["plugins", pluginID, "flow", "data", "rootNodes"],
+          rootNodes.filter((x) => x.value !== undefined && x.value > 0),
+        ],
       );
       this.store.dispatch(
         genDataChangeTransaction({
           playerID: this.playerID,
           data: newState.plugins[pluginID]?.flow.data,
           pluginID,
-        })
+        }),
       );
     });
 
@@ -66,12 +69,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
     this.stopProfiler = this.createProfilerStopFunction(player);
 
     // Hook once for the lifetime of this Player instance
-    addProfilerInterceptorsToHooks(
-      player,
-      this.profilerObj,
-      undefined,
-      undefined
-    );
+    addProfilerInterceptorsToHooks(player, this.profilerObj);
 
     // Dispatch initial profiling-active state
     const initialState = produce(this.store.getState(), (draft) => {
@@ -79,7 +77,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       dset(
         draft,
         ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
-        false
+        false,
       );
     });
 
@@ -88,24 +86,24 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         playerID: this.playerID,
         data: initialState.plugins[pluginID]?.flow.data,
         pluginID,
-      })
+      }),
     );
   }
 
   private createProfileStartFunction = (player: Player): (() => void) => {
     return () => {
       if (!this.profilerObj) return;
+      player.logger.debug("[ProfilerPlugin]: Starting...");
 
       // Reset internal profiler state; interceptors remain on the hooks
       this.profilerObj.start();
-      this.profilerObj.startTimer("profiler");
 
       const newState = produce(this.store.getState(), (draft) => {
         dset(draft, ["plugins", pluginID, "flow", "data", "profiling"], true);
         dset(
           draft,
           ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
-          false
+          false,
         );
       });
 
@@ -114,27 +112,29 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
           playerID: this.playerID,
           data: newState.plugins[pluginID]?.flow.data,
           pluginID,
-        })
+        }),
       );
     };
   };
 
   private createProfilerStopFunction = (
-    player: Player
+    player: Player,
   ): Profiler["stopProfiler"] => {
     return () => {
-      if (!this.profilerObj)
-        return { rootNode: { name: "root", children: [] }, durations: [] };
-      const { stopProfiler, endTimer } = this.profilerObj;
-      endTimer({ hookName: "profiler" });
+      if (!this.profilerObj) return { rootNodes: [], durations: [] };
+      player.logger.debug("[ProfilerPlugin]: Stopping...");
+      const { stopProfiler } = this.profilerObj;
       const stopProfilerResult = stopProfiler();
-      const { rootNode, durations } = stopProfilerResult;
+      const { rootNodes, durations } = stopProfilerResult;
 
       const newState = this.produceState(
-        [["plugins", pluginID, "flow", "data", "rootNode"], rootNode],
+        [
+          ["plugins", pluginID, "flow", "data", "rootNodes"],
+          rootNodes.filter((x) => x.value !== undefined && x.value > 0),
+        ],
         [["plugins", pluginID, "flow", "data", "durations"], durations],
         [["plugins", pluginID, "flow", "data", "profiling"], false],
-        [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true]
+        [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true],
       );
 
       this.store.dispatch(
@@ -142,7 +142,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
           playerID: this.playerID,
           data: newState.plugins[pluginID]?.flow.data,
           pluginID,
-        })
+        }),
       );
 
       return stopProfilerResult;

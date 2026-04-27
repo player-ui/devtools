@@ -10,8 +10,7 @@ import {
   SyncLoopHook,
   SyncWaterfallHook,
 } from "tapable-ts";
-import { Profiler, ProfilerNode } from "./types";
-import { Logger } from "@player-ui/player";
+import { Profiler } from "./types";
 
 /* Paths to hooks to ignore.
  * Currently ignoring "view" hook on player since it acts as a shortcut to the viewController's view hook. Including it would duplicate a lot of profiling work.
@@ -31,21 +30,6 @@ type AnyHook =
   | SyncLoopHook<unknown[]>
   | SyncWaterfallHook<unknown[]>;
 
-// const isAnyHook = (obj: unknown): obj is AnyHook => {
-//   return (
-//     obj instanceof AsyncParallelBailHook ||
-//     obj instanceof AsyncParallelHook ||
-//     obj instanceof AsyncSeriesBailHook ||
-//     obj instanceof AsyncSeriesHook ||
-//     obj instanceof AsyncSeriesLoopHook ||
-//     obj instanceof AsyncSeriesWaterfallHook ||
-//     obj instanceof SyncBailHook ||
-//     obj instanceof SyncHook ||
-//     obj instanceof SyncLoopHook ||
-//     obj instanceof SyncWaterfallHook
-//   );
-// };
-
 const isAnyHook = (obj: unknown): obj is AnyHook => {
   return (
     isRecordType(obj) &&
@@ -58,8 +42,8 @@ const isAnyHook = (obj: unknown): obj is AnyHook => {
 export const addProfilerInterceptorsToHooks = (
   obj: unknown,
   profiler: Profiler,
-  getParent?: () => ProfilerNode,
-  currentPath: string[] = []
+  currentPath: string[] = [],
+  intercepted: WeakSet<object> = new WeakSet(),
 ): void => {
   if (!hasHooks(obj)) {
     return;
@@ -71,49 +55,35 @@ export const addProfilerInterceptorsToHooks = (
     const nextPath = [...currentPath, key];
     if (
       !isAnyHook(value) ||
-      IGNORED_PATHS.some((path) => isMatchingPaths(path, nextPath))
+      IGNORED_PATHS.some((path) => isMatchingPaths(path, nextPath)) ||
+      intercepted.has(value)
     ) {
       return;
     }
 
-    let profilerNode: ProfilerNode = {
-      name: key,
-      children: [],
-    };
-
-    /** Since the object reference changing with `endTimer` calls needs to be kept for future parent references, use a function to get it. */
-    const getNode = () => profilerNode;
+    intercepted.add(value);
 
     value.intercept({
       call: (...args) => {
-        // Might want to also check if `value` is specifically a `SyncHook` since other hooks aren't providing anything with more tapable stuff.
         if (args.length > 0) {
-          addProfilerInterceptorsToHooks(args[0], profiler, getNode, nextPath);
+          addProfilerInterceptorsToHooks(
+            args[0],
+            profiler,
+            nextPath,
+            intercepted,
+          );
         }
 
         startTimer(key);
       },
       done: () => {
-        profilerNode = endTimer({
-          hookName: key,
-          parentNode: getParent?.(),
-          children: profilerNode.children,
-        });
+        endTimer({ hookName: key });
       },
       result: () => {
-        profilerNode = endTimer({
-          hookName: key,
-          parentNode: getParent?.(),
-          children: profilerNode.children,
-        });
+        endTimer({ hookName: key });
       },
       error: () => {
-        // TODO: Can we mark this as "interrupted" instead of ending the timer as normal?
-        profilerNode = endTimer({
-          hookName: key,
-          parentNode: getParent?.(),
-          children: profilerNode.children,
-        });
+        endTimer({ hookName: key });
       },
     });
   });

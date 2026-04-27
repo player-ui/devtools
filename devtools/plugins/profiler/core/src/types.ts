@@ -1,19 +1,16 @@
 export interface Profiler {
   start(): void;
   startTimer(hookName: string): void;
-  endTimer(args: {
-    hookName: string;
-    parentNode?: ProfilerNode;
-    children?: ProfilerNode[];
-  }): ProfilerNode;
+  endTimer(args: { hookName: string }): void;
   stopProfiler(): {
-    rootNode: ProfilerNode;
+    rootNodes: ProfilerNode[];
     durations: { name: string; duration: string }[];
   };
   getSnapshot(): {
-    rootNode: ProfilerNode;
+    rootNodes: ProfilerNode[];
     durations: { name: string; duration: string }[];
   };
+  insertSpacers(node: ProfilerNode): ProfilerNode;
 }
 
 export type ProfilerNode = {
@@ -29,4 +26,6 @@ export type ProfilerNode = {
   tooltip?: string;
   /** subhook profiler nodes */
   children: ProfilerNode[];
+  backgroundColor?: string;
+  color?: string;
 };
