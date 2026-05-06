@@ -12,7 +12,7 @@ import { dset } from "dset/merge";
 import { produce } from "immer";
 import { BASE_PLUGIN_DATA, INTERACTIONS } from "./constants";
 import { profiler } from "./helpers";
-import type { Profiler } from "./types";
+import type { Profiler, ProfilerNode } from "./types";
 import { addProfilerInterceptorsToHooks } from "./addProfilerInterceptorsToHooks";
 import flow from "./plugin-flow.json";
 
@@ -38,6 +38,32 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
   startProfiler?: () => void;
   stopProfiler?: Profiler["stopProfiler"];
 
+  private transformProfilerData(nodes: ProfilerNode[]): ProfilerNode[] {
+    let previous: ProfilerNode | undefined;
+    const result: ProfilerNode[] = [];
+
+    for (const node of nodes) {
+      if (node.value === undefined || node.value <= 0) {
+        continue;
+      }
+
+      if (node.name === "(work)" && previous?.name === "(work)") {
+        previous.value = (previous.value ?? 0) + node.value;
+        previous.endTime = node.endTime;
+        continue;
+      }
+
+      previous = {
+        ...node,
+        children: this.transformProfilerData(node.children),
+      };
+
+      result.push(previous);
+    }
+
+    return result;
+  }
+
   apply(player: Player): void {
     if (!this.checkIfDevtoolsIsActive()) {
       return;
@@ -53,7 +79,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         [["plugins", pluginID, "flow", "data", "durations"], durations],
         [
           ["plugins", pluginID, "flow", "data", "rootNodes"],
-          rootNodes.filter((x) => x.value !== undefined && x.value > 0),
+          this.transformProfilerData(rootNodes),
         ],
       );
       this.store.dispatch(
@@ -130,7 +156,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       const newState = this.produceState(
         [
           ["plugins", pluginID, "flow", "data", "rootNodes"],
-          rootNodes.filter((x) => x.value !== undefined && x.value > 0),
+          this.transformProfilerData(rootNodes),
         ],
         [["plugins", pluginID, "flow", "data", "durations"], durations],
         [["plugins", pluginID, "flow", "data", "profiling"], false],

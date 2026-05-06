@@ -371,7 +371,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 100,
         },
         {
@@ -387,7 +387,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -397,7 +397,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 100,
             },
             {
@@ -420,7 +420,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -436,7 +436,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -452,7 +452,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -468,7 +468,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -484,7 +484,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -500,7 +500,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -516,7 +516,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -532,7 +532,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -548,7 +548,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -564,7 +564,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -580,7 +580,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -596,7 +596,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -612,7 +612,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -628,7 +628,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -644,7 +644,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -660,7 +660,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -676,7 +676,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -692,7 +692,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -757,7 +757,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 100,
         },
         {
@@ -773,7 +773,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -789,7 +789,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -799,7 +799,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 100,
             },
             {
@@ -815,7 +815,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 200,
             },
             {
@@ -831,7 +831,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 200,
             },
             {
@@ -847,7 +847,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 200,
             },
             {
@@ -857,7 +857,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
                   "children": [],
                   "color": "#000000",
                   "name": "(work)",
-                  "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+                  "tooltip": "Placeholder time between hooks",
                   "value": 100,
                 },
                 {
@@ -880,7 +880,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 200,
             },
             {
@@ -896,7 +896,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 200,
             },
             {
@@ -912,7 +912,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
               "children": [],
               "color": "#000000",
               "name": "(work)",
-              "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+              "tooltip": "Placeholder time between hooks",
               "value": 200,
             },
             {
@@ -935,7 +935,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -951,7 +951,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -967,7 +967,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -983,7 +983,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {
@@ -999,7 +999,7 @@ exports[`Plugin > should profile player hooks when navigating through a flow 1`]
           "children": [],
           "color": "#000000",
           "name": "(work)",
-          "tooltip": "This interval does not represent a single unit of work — it covers untracked time between hooks.",
+          "tooltip": "Placeholder time between hooks",
           "value": 200,
         },
         {

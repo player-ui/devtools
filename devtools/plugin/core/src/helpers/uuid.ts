@@ -1,4 +1,4 @@
-const getNowTime = globalThis.performance ? performance.now : Date.now;
+import { getNowTime } from "./getNowTime";
 
 // TODO: Either polyfill crypto or use this (pulled from SO)
 export function generateUUID(): string {

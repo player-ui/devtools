@@ -1,8 +1,5 @@
 import type { Profiler, ProfilerNode } from "../types";
-
-const getNowTime = globalThis.performance
-  ? () => globalThis.performance.now()
-  : () => Date.now();
+import { getNowTime } from "@player-devtools/plugin";
 
 export const profiler = (onUpdate?: () => void): Profiler => {
   let rootNodes: ProfilerNode[] = [];
@@ -17,7 +14,7 @@ export const profiler = (onUpdate?: () => void): Profiler => {
 
   const cloneNode = (
     node: ProfilerNode,
-    snapshotTime?: number
+    snapshotTime?: number,
   ): ProfilerNode => {
     const children = node.children.map((c) => cloneNode(c, snapshotTime));
     const endTime =
@@ -137,7 +134,7 @@ export const profiler = (onUpdate?: () => void): Profiler => {
     for (let i = stack.length - 1; i > targetIdx; i--) {
       const orphan = stack[i]!;
       console.warn(
-        `endTimer: popping '${orphan.name}' — timer was never explicitly ended`
+        `endTimer: popping '${orphan.name}' — timer was never explicitly ended`,
       );
       finalizeNode(orphan, endTime);
     }

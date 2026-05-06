@@ -2,13 +2,17 @@ import { Flow, InProgressState, Player } from "@player-ui/player";
 import { describe, expect, test, vi } from "vitest";
 import { ProfilerDevtoolsPlugin } from "../plugin";
 
-// mock performance.now
 let count = 2490.0;
-const now = vi.fn(() => {
-  count += 0.1;
-  return count;
+vi.mock("@player-devtools/plugin", async () => {
+  const actual = await vi.importActual("@player-devtools/plugin");
+  return {
+    ...actual,
+    getNowTime: vi.fn(() => {
+      count += 0.1;
+      return count;
+    }),
+  };
 });
-global.performance = { ...global.performance, now };
 
 describe("Plugin", () => {
   // This test is being used to setup a baseline snapshot of perf on a basic player flow.

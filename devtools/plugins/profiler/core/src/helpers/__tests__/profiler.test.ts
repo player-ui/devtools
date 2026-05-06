@@ -1,13 +1,17 @@
 import { describe, expect, test, vi } from "vitest";
 import { profiler } from "../profiler";
 
-// mock performance.now
 let count = 2490.0;
-const now = vi.fn(() => {
-  count += 0.1;
-  return count;
+vi.mock("@player-devtools/plugin", async () => {
+  const actual = await vi.importActual("@player-devtools/plugin");
+  return {
+    ...actual,
+    getNowTime: vi.fn(() => {
+      count += 0.1;
+      return count;
+    }),
+  };
 });
-global.performance = { ...global.performance, now };
 
 describe("Profiler", () => {
   test("sequential top-level timers each become a separate rootNodes entry", () => {
