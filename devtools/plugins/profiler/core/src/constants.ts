@@ -15,6 +15,7 @@ export const VIEWS_IDS = {
 export const INTERACTIONS = {
   START_PROFILING: "start-profiling",
   STOP_PROFILING: "stop-profiling",
+  RESET_PROFILING: "reset-profiling",
 };
 
 export const BASE_PLUGIN_DATA: Omit<PluginData, "flow"> = {

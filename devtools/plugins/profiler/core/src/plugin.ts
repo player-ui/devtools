@@ -54,6 +54,12 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
 
   private readonly profilerObj: Profiler;
 
+  private readonly interactionMap: Map<string, () => void> = new Map([
+    [INTERACTIONS.START_PROFILING, () => this.startProfiler()],
+    [INTERACTIONS.STOP_PROFILING, () => this.stopProfiler()],
+    [INTERACTIONS.RESET_PROFILING, () => this.clearProfiler()],
+  ]);
+
   constructor(options: Omit<DevtoolsPluginOptions, "pluginData">) {
     super({
       ...options,
@@ -61,9 +67,8 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
     });
 
     this.profilerObj = new Profiler(() => {
-      const { durations, rootNodes } = this.profilerObj.getSnapshot();
+      const { rootNodes } = this.profilerObj.getSnapshot();
       const newState = this.produceState(
-        [["plugins", pluginID, "flow", "data", "durations"], durations],
         [
           ["plugins", pluginID, "flow", "data", "rootNode"],
           transformProfilerData(wrapInRoot(rootNodes)),
@@ -99,16 +104,19 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
     );
   }
 
+  private clearProfiler(): void {
+    this.profilerObj.clear();
+  }
+
   private stopProfiler(): ReturnType<Profiler["stopProfiler"]> {
     const result = this.profilerObj.stopProfiler();
-    const { rootNodes, durations } = result;
+    const { rootNodes } = result;
     const newState = this.produceState(
       [
         ["plugins", pluginID, "flow", "data", "rootNode"],
         transformProfilerData(wrapInRoot(rootNodes)),
       ],
       [["plugins", pluginID, "flow", "data", "rawNodes"], rootNodes],
-      [["plugins", pluginID, "flow", "data", "durations"], durations],
       [["plugins", pluginID, "flow", "data", "profiling"], false],
       [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true]
     );
@@ -159,12 +167,6 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       payload: { type },
     } = interaction;
 
-    if (type === INTERACTIONS.START_PROFILING) {
-      this.startProfiler();
-    }
-
-    if (type === INTERACTIONS.STOP_PROFILING) {
-      this.stopProfiler();
-    }
+    this.interactionMap.get(type)?.();
   }
 }

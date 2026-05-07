@@ -25,12 +25,11 @@ describe("Profiler", () => {
     p.startTimer("hookB");
     p.endTimer({ hookName: "hookB" });
 
-    const { rootNodes, durations } = p.stopProfiler();
+    const { rootNodes } = p.stopProfiler();
 
     expect(rootNodes).toHaveLength(2);
     expect(rootNodes[0]!.name).toBe("hookA");
     expect(rootNodes[1]!.name).toBe("hookB");
-    expect(durations).toHaveLength(2);
   });
 
   test("nested timers become children of the outer timer", () => {
@@ -94,12 +93,11 @@ describe("Profiler", () => {
       expect.stringContaining("popping 'middle'"),
     );
 
-    const { rootNodes, durations } = p.stopProfiler();
+    const { rootNodes } = p.stopProfiler();
 
     // All three should be finalized
     expect(rootNodes).toHaveLength(1);
     expect(rootNodes[0]!.name).toBe("outer");
-    expect(durations).toHaveLength(3);
 
     warnSpy.mockRestore();
   });
@@ -112,17 +110,15 @@ describe("Profiler", () => {
     p.endTimer({ hookName: "hookA" });
 
     p.start();
-    const { rootNodes, durations } = p.stopProfiler();
+    const { rootNodes } = p.stopProfiler();
 
     expect(rootNodes).toHaveLength(0);
-    expect(durations).toHaveLength(0);
   });
 
-  test("calls onUpdate only after endTimer, not startTimer", () => {
+  test("calls onUpdate on endTimer() and clear(), not on startTimer() or start()", () => {
     const onUpdate = vi.fn();
     const p = new Profiler(onUpdate);
 
-    // No auto-start, so no calls yet
     expect(onUpdate.mock.calls.length).toBe(0);
 
     p.start();
@@ -137,9 +133,13 @@ describe("Profiler", () => {
     p.startTimer("hookB");
     p.endTimer({ hookName: "hookB" });
     expect(onUpdate.mock.calls.length).toBe(2);
+
+    p.startTimer("hookC");
+    p.clear();
+    expect(onUpdate.mock.calls.length).toBe(3);
   });
 
-  test("getSnapshot returns sorted durations and a deep clone of rootNodes", () => {
+  test("getSnapshot returns a deep clone of rootNodes", () => {
     const p = new Profiler();
 
     p.start();
@@ -151,10 +151,6 @@ describe("Profiler", () => {
     p.endTimer({ hookName: "fast" });
 
     const snap = p.getSnapshot();
-
-    // Sorted descending by duration — slow was measured first so has larger elapsed
-    expect(snap.durations[0]!.name).toBe("slow");
-    expect(snap.durations[1]!.name).toBe("fast");
 
     expect(snap.rootNodes).toHaveLength(2);
 
@@ -203,7 +199,69 @@ describe("Profiler", () => {
     expect(liveAfter.value).toBeGreaterThan(0);
   });
 
-  test("stopProfiler returns the full rootNodes forest with sorted durations", () => {
+  describe("clear()", () => {
+    test("clears rootNodes but leaves in-progress timers on the stack", () => {
+      const p = new Profiler();
+      p.start();
+
+      p.startTimer("finished");
+      p.endTimer({ hookName: "finished" });
+
+      p.startTimer("inflight");
+
+      p.clear();
+
+      const { rootNodes } = p.stopProfiler();
+      // rootNodes from before the clear are gone; the in-flight timer produces one new root
+      expect(rootNodes.find((n) => n.name === "finished")).toBeUndefined();
+      expect(rootNodes.find((n) => n.name === "inflight")).toBeDefined();
+    });
+
+    test("resets startTime of in-progress timers to current time", () => {
+      const p = new Profiler();
+      p.start();
+
+      p.startTimer("inflight");
+      const beforeClear = p.getSnapshot().rootNodes[0]!.startTime!;
+
+      p.clear();
+
+      const afterClear = p.getSnapshot().rootNodes[0]!.startTime!;
+      expect(afterClear).toBeGreaterThan(beforeClear);
+    });
+
+    test("fires onUpdate", () => {
+      const onUpdate = vi.fn();
+      const p = new Profiler(onUpdate);
+      p.start();
+      p.startTimer("hookA");
+      onUpdate.mockClear();
+
+      p.clear();
+
+      expect(onUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test("endTimer still works normally for in-progress timers after clear", () => {
+      const p = new Profiler();
+      p.start();
+
+      p.startTimer("outer");
+      p.startTimer("inner");
+
+      p.clear();
+
+      p.endTimer({ hookName: "inner" });
+      p.endTimer({ hookName: "outer" });
+
+      const { rootNodes } = p.stopProfiler();
+      expect(rootNodes).toHaveLength(1);
+      expect(rootNodes[0]!.name).toBe("outer");
+      expect(rootNodes[0]!.children).toHaveLength(1);
+    });
+  });
+
+  test("stopProfiler returns the full rootNodes forest", () => {
     const p = new Profiler();
 
     p.start();
@@ -216,12 +274,9 @@ describe("Profiler", () => {
     p.startTimer("b");
     p.endTimer({ hookName: "b" });
 
-    const { rootNodes, durations } = p.stopProfiler();
+    const { rootNodes } = p.stopProfiler();
 
     expect(rootNodes).toHaveLength(2);
     expect(rootNodes[0]!.children).toHaveLength(1);
-    // durations sorted descending
-    expect(durations[0]!.name).toBe("a");
-    expect(durations).toMatchSnapshot();
   });
 });

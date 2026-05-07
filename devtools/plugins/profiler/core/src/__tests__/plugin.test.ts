@@ -74,12 +74,11 @@ describe("Plugin", () => {
       ).toBeDefined();
     });
 
-    // Live update: durations should already be populated while profiling is active
+    // Live update: profiling is active
     const liveData =
       profilerPlugin.store.getState().plugins["player-ui-profiler-plugin"]?.flow
         .data;
     expect(liveData?.profiling).toBe(true);
-    expect((liveData?.durations as unknown[]).length).toBeGreaterThan(0);
 
     // Transition to action state
     (player.getState() as InProgressState).controllers.flow.transition("go");
@@ -149,7 +148,6 @@ describe("Plugin", () => {
         .data;
     expect(dataAfterStop?.profiling).toBe(false);
     expect(dataAfterStop?.displayFlameGraph).toBe(true);
-    expect((dataAfterStop?.durations as unknown[]).length).toBeGreaterThan(0);
 
     // Restart — state should flip back to active profiling
     profilerPlugin.processInteraction({

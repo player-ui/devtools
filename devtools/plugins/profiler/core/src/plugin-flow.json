@@ -72,16 +72,38 @@
       },
       "footer": {
         "asset": {
-          "id": "Profile-footer-action",
-          "type": "action",
-          "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
-          "label": {
-            "asset": {
-              "id": "Profile-footer-action-label",
-              "type": "text",
-              "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
+          "id": "Profile-footer",
+          "type": "collection",
+          "values": [
+            {
+              "asset": {
+                "id": "Profile-footer-action",
+                "type": "action",
+                "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
+                "label": {
+                  "asset": {
+                    "id": "Profile-footer-action-label",
+                    "type": "text",
+                    "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Profile-footer-clear",
+                "type": "action",
+                "exp": "publish('reset-profiling')",
+                "label": {
+                  "asset": {
+                    "id": "Profile-footer-clear-label",
+                    "type": "text",
+                    "value": "Reset"
+                  }
+                }
+              }
             }
-          }
+          ]
         }
       }
     },
@@ -133,16 +155,38 @@
       },
       "footer": {
         "asset": {
-          "id": "Raw-footer-action",
-          "type": "action",
-          "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
-          "label": {
-            "asset": {
-              "id": "Raw-footer-action-label",
-              "type": "text",
-              "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
+          "id": "Raw-footer",
+          "type": "collection",
+          "values": [
+            {
+              "asset": {
+                "id": "Raw-footer-action",
+                "type": "action",
+                "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
+                "label": {
+                  "asset": {
+                    "id": "Raw-footer-action-label",
+                    "type": "text",
+                    "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Raw-footer-clear",
+                "type": "action",
+                "exp": "publish('clear-profiling')",
+                "label": {
+                  "asset": {
+                    "id": "Raw-footer-clear-label",
+                    "type": "text",
+                    "value": "Clear"
+                  }
+                }
+              }
             }
-          }
+          ]
         }
       }
     }
@@ -184,36 +228,6 @@
       "rawNodes": {
         "type": "RecordType",
         "isArray": true
-      },
-      "durations": {
-        "type": "durationType",
-        "isArray": true
-      }
-    },
-    "durationType": {
-      "name": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
-      },
-      "duration": {
-        "type": "StringType",
-        "default": "",
-        "validation": [
-          {
-            "type": "string"
-          }
-        ],
-        "format": {
-          "type": "string"
-        }
       }
     }
   },
@@ -223,7 +237,6 @@
     "rootNode": {
       "value": 0
     },
-    "rawNodes": [],
-    "durations": []
+    "rawNodes": []
   }
 }
