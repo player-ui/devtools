@@ -40,17 +40,10 @@
             },
             {
               "asset": {
-                "id": "Profile-index",
-                "binding": "profilerIndex",
-                "type": "input"
-              }
-            },
-            {
-              "asset": {
                 "id": "Profile-main",
                 "type": "flame-graph",
-                "binding": "rootNodes[{{profilerIndex}}]",
-                "width": "1500",
+                "binding": "rootNode",
+                "width": "@[{{rootNode.value}} / 200]@",
                 "label": {
                   "asset": {
                     "id": "Profile-main-label",
@@ -139,8 +132,9 @@
   "data": {
     "profiling": false,
     "displayFlameGraph": false,
-    "rootNodes": [],
-    "durations": [],
-    "profilerIndex": 0
+    "rootNode": {
+      "value": 0
+    },
+    "durations": []
   }
 }

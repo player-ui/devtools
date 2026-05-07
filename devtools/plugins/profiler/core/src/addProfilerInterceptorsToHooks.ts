@@ -10,7 +10,7 @@ import {
   SyncLoopHook,
   SyncWaterfallHook,
 } from "tapable-ts";
-import { Profiler } from "./types";
+import { Profiler } from "./helpers";
 
 /* Paths to hooks to ignore.
  * Currently ignoring "view" hook on player since it acts as a shortcut to the viewController's view hook. Including it would duplicate a lot of profiling work.
@@ -30,6 +30,7 @@ type AnyHook =
   | SyncLoopHook<unknown[]>
   | SyncWaterfallHook<unknown[]>;
 
+// Note: cannot use instanceof to check against the hook classes due to how JS is loaded in swift and kotlin
 const isAnyHook = (obj: unknown): obj is AnyHook => {
   return (
     isRecordType(obj) &&
@@ -43,13 +44,11 @@ export const addProfilerInterceptorsToHooks = (
   obj: unknown,
   profiler: Profiler,
   currentPath: string[] = [],
-  intercepted: WeakSet<object> = new WeakSet(),
+  intercepted: WeakSet<object> = new WeakSet()
 ): void => {
   if (!hasHooks(obj)) {
     return;
   }
-
-  const { startTimer, endTimer } = profiler;
 
   Object.entries(obj.hooks).forEach(([key, value]) => {
     const nextPath = [...currentPath, key];
@@ -70,20 +69,20 @@ export const addProfilerInterceptorsToHooks = (
             args[0],
             profiler,
             nextPath,
-            intercepted,
+            intercepted
           );
         }
 
-        startTimer(key);
+        profiler.startTimer(key);
       },
       done: () => {
-        endTimer({ hookName: key });
+        profiler.endTimer({ hookName: key });
       },
       result: () => {
-        endTimer({ hookName: key });
+        profiler.endTimer({ hookName: key });
       },
       error: () => {
-        endTimer({ hookName: key });
+        profiler.endTimer({ hookName: key });
       },
     });
   });

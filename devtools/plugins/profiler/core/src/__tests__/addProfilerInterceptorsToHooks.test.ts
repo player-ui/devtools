@@ -1,7 +1,7 @@
 import { SyncHook } from "tapable-ts";
 import { describe, expect, test } from "vitest";
 import { addProfilerInterceptorsToHooks } from "../addProfilerInterceptorsToHooks";
-import { profiler } from "../helpers";
+import { Profiler } from "../helpers";
 
 describe("addProfilerInterceptorsToHooks", () => {
   /**
@@ -13,7 +13,7 @@ describe("addProfilerInterceptorsToHooks", () => {
    * hook has fired.
    */
   test("re-intercepting the same child object on repeated parent calls does not duplicate timers", () => {
-    const profilerInstance = profiler();
+    const profilerInstance = new Profiler();
     profilerInstance.start();
 
     // Child object whose hooks get discovered lazily via the parent's call arg

@@ -11,10 +11,36 @@ import type { Flow, Player } from "@player-ui/player";
 import { dset } from "dset/merge";
 import { produce } from "immer";
 import { BASE_PLUGIN_DATA, INTERACTIONS } from "./constants";
-import { profiler } from "./helpers";
-import type { Profiler, ProfilerNode } from "./types";
+import { Profiler, transformProfilerData } from "./helpers";
+import type { ProfilerNode } from "./types";
 import { addProfilerInterceptorsToHooks } from "./addProfilerInterceptorsToHooks";
 import flow from "./plugin-flow.json";
+
+const wrapInRoot = (nodes: ProfilerNode[]): ProfilerNode => {
+  const startTime =
+    nodes.reduce<number | undefined>(
+      (min, n) =>
+        n.startTime !== undefined && (min === undefined || n.startTime < min)
+          ? n.startTime
+          : min,
+      undefined
+    ) ?? 0;
+  const endTime =
+    nodes.reduce<number | undefined>(
+      (max, n) =>
+        n.endTime !== undefined && (max === undefined || n.endTime > max)
+          ? n.endTime
+          : max,
+      undefined
+    ) ?? startTime;
+  return {
+    name: "root",
+    startTime,
+    endTime,
+    value: Math.ceil((endTime - startTime) * 1000),
+    children: nodes,
+  };
+};
 
 const pluginData: PluginData = {
   ...BASE_PLUGIN_DATA,
@@ -24,43 +50,73 @@ const pluginData: PluginData = {
 const pluginID = pluginData.id;
 
 export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
+  name = "ProfilerDevtoolsPlugin";
+
+  private readonly profilerObj: Profiler;
+
   constructor(options: Omit<DevtoolsPluginOptions, "pluginData">) {
     super({
       ...options,
       pluginData,
     });
+
+    this.profilerObj = new Profiler(() => {
+      const { durations, rootNodes } = this.profilerObj.getSnapshot();
+      const newState = this.produceState(
+        [["plugins", pluginID, "flow", "data", "durations"], durations],
+        [
+          ["plugins", pluginID, "flow", "data", "rootNode"],
+          transformProfilerData(wrapInRoot(rootNodes)),
+        ]
+      );
+      this.store.dispatch(
+        genDataChangeTransaction({
+          playerID: this.playerID,
+          data: newState.plugins[pluginID]?.flow.data,
+          pluginID,
+        })
+      );
+    });
   }
 
-  name = "ProfilerDevtoolsPlugin";
+  private startProfiler(): void {
+    this.profilerObj.start();
+    const newState = produce(this.store.getState(), (draft) => {
+      dset(draft, ["plugins", pluginID, "flow", "data", "profiling"], true);
+      dset(
+        draft,
+        ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
+        false
+      );
+    });
+    this.store.dispatch(
+      genDataChangeTransaction({
+        playerID: this.playerID,
+        data: newState.plugins[pluginID]?.flow.data,
+        pluginID,
+      })
+    );
+  }
 
-  private profilerObj?: Profiler;
-
-  startProfiler?: () => void;
-  stopProfiler?: Profiler["stopProfiler"];
-
-  private transformProfilerData(nodes: ProfilerNode[]): ProfilerNode[] {
-    let previous: ProfilerNode | undefined;
-    const result: ProfilerNode[] = [];
-
-    for (const node of nodes) {
-      if (node.value === undefined || node.value <= 0) {
-        continue;
-      }
-
-      if (node.name === "(work)" && previous?.name === "(work)") {
-        previous.value = (previous.value ?? 0) + node.value;
-        previous.endTime = node.endTime;
-        continue;
-      }
-
-      previous = {
-        ...node,
-        children: this.transformProfilerData(node.children),
-      };
-
-      result.push(previous);
-    }
-
+  private stopProfiler(): ReturnType<Profiler["stopProfiler"]> {
+    const result = this.profilerObj.stopProfiler();
+    const { rootNodes, durations } = result;
+    const newState = this.produceState(
+      [
+        ["plugins", pluginID, "flow", "data", "rootNode"],
+        transformProfilerData(wrapInRoot(rootNodes)),
+      ],
+      [["plugins", pluginID, "flow", "data", "durations"], durations],
+      [["plugins", pluginID, "flow", "data", "profiling"], false],
+      [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true]
+    );
+    this.store.dispatch(
+      genDataChangeTransaction({
+        playerID: this.playerID,
+        data: newState.plugins[pluginID]?.flow.data,
+        pluginID,
+      })
+    );
     return result;
   }
 
@@ -71,39 +127,17 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
 
     super.apply(player);
 
-    // Wire live updates: dispatch to store on every endTimer call
-    this.profilerObj = profiler(() => {
-      if (!this.profilerObj) return;
-      const { durations, rootNodes } = this.profilerObj.getSnapshot();
-      const newState = this.produceState(
-        [["plugins", pluginID, "flow", "data", "durations"], durations],
-        [
-          ["plugins", pluginID, "flow", "data", "rootNodes"],
-          this.transformProfilerData(rootNodes),
-        ],
-      );
-      this.store.dispatch(
-        genDataChangeTransaction({
-          playerID: this.playerID,
-          data: newState.plugins[pluginID]?.flow.data,
-          pluginID,
-        }),
-      );
-    });
-
-    this.startProfiler = this.createProfileStartFunction(player);
-    this.stopProfiler = this.createProfilerStopFunction(player);
-
     // Hook once for the lifetime of this Player instance
     addProfilerInterceptorsToHooks(player, this.profilerObj);
 
-    // Dispatch initial profiling-active state
+    // Start profiling and dispatch initial state
+    this.profilerObj.start();
     const initialState = produce(this.store.getState(), (draft) => {
       dset(draft, ["plugins", pluginID, "flow", "data", "profiling"], true);
       dset(
         draft,
         ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
-        false,
+        false
       );
     });
 
@@ -112,68 +146,9 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         playerID: this.playerID,
         data: initialState.plugins[pluginID]?.flow.data,
         pluginID,
-      }),
+      })
     );
   }
-
-  private createProfileStartFunction = (player: Player): (() => void) => {
-    return () => {
-      if (!this.profilerObj) return;
-      player.logger.debug("[ProfilerPlugin]: Starting...");
-
-      // Reset internal profiler state; interceptors remain on the hooks
-      this.profilerObj.start();
-
-      const newState = produce(this.store.getState(), (draft) => {
-        dset(draft, ["plugins", pluginID, "flow", "data", "profiling"], true);
-        dset(
-          draft,
-          ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
-          false,
-        );
-      });
-
-      this.store.dispatch(
-        genDataChangeTransaction({
-          playerID: this.playerID,
-          data: newState.plugins[pluginID]?.flow.data,
-          pluginID,
-        }),
-      );
-    };
-  };
-
-  private createProfilerStopFunction = (
-    player: Player,
-  ): Profiler["stopProfiler"] => {
-    return () => {
-      if (!this.profilerObj) return { rootNodes: [], durations: [] };
-      player.logger.debug("[ProfilerPlugin]: Stopping...");
-      const { stopProfiler } = this.profilerObj;
-      const stopProfilerResult = stopProfiler();
-      const { rootNodes, durations } = stopProfilerResult;
-
-      const newState = this.produceState(
-        [
-          ["plugins", pluginID, "flow", "data", "rootNodes"],
-          this.transformProfilerData(rootNodes),
-        ],
-        [["plugins", pluginID, "flow", "data", "durations"], durations],
-        [["plugins", pluginID, "flow", "data", "profiling"], false],
-        [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true],
-      );
-
-      this.store.dispatch(
-        genDataChangeTransaction({
-          playerID: this.playerID,
-          data: newState.plugins[pluginID]?.flow.data,
-          pluginID,
-        }),
-      );
-
-      return stopProfilerResult;
-    };
-  };
 
   processInteraction(interaction: DevtoolsPluginInteractionEvent): void {
     super.processInteraction(interaction);
@@ -182,11 +157,11 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       payload: { type },
     } = interaction;
 
-    if (type === INTERACTIONS.START_PROFILING && this.startProfiler) {
+    if (type === INTERACTIONS.START_PROFILING) {
       this.startProfiler();
     }
 
-    if (type === INTERACTIONS.STOP_PROFILING && this.stopProfiler) {
+    if (type === INTERACTIONS.STOP_PROFILING) {
       this.stopProfiler();
     }
   }

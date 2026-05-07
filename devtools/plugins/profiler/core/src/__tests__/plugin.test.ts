@@ -70,7 +70,7 @@ describe("Plugin", () => {
       expect(playerState.status).toBe("in-progress");
       expect(
         (playerState as InProgressState).controllers.view.currentView
-          ?.lastUpdate,
+          ?.lastUpdate
       ).toBeDefined();
     });
 
@@ -95,7 +95,7 @@ describe("Plugin", () => {
 
     const storeState = profilerPlugin.store.getState();
     expect(
-      storeState.plugins["player-ui-profiler-plugin"]?.flow.data,
+      storeState.plugins["player-ui-profiler-plugin"]?.flow.data
     ).toMatchSnapshot();
   });
 
@@ -135,7 +135,7 @@ describe("Plugin", () => {
       expect(playerState.status).toBe("in-progress");
       expect(
         (playerState as InProgressState).controllers.view.currentView
-          ?.lastUpdate,
+          ?.lastUpdate
       ).toBeDefined();
     });
 

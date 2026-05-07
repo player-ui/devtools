@@ -1,18 +1,3 @@
-export interface Profiler {
-  start(): void;
-  startTimer(hookName: string): void;
-  endTimer(args: { hookName: string }): void;
-  stopProfiler(): {
-    rootNodes: ProfilerNode[];
-    durations: { name: string; duration: string }[];
-  };
-  getSnapshot(): {
-    rootNodes: ProfilerNode[];
-    durations: { name: string; duration: string }[];
-  };
-  insertSpacers(node: ProfilerNode): ProfilerNode;
-}
-
 export type ProfilerNode = {
   /** hook name */
   name: string;

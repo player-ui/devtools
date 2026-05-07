@@ -1,22 +1,21 @@
-import type { Profiler, ProfilerNode } from "../types";
+import type { ProfilerNode } from "../types";
 import { getNowTime } from "@player-devtools/plugin";
 
-export const profiler = (onUpdate?: () => void): Profiler => {
-  let rootNodes: ProfilerNode[] = [];
-  let stack: ProfilerNode[] = [];
-  let durations: { hookName: string; duration: number }[] = [];
+export class Profiler {
+  private rootNodes: ProfilerNode[] = [];
+  private stack: ProfilerNode[] = [];
+  private durations: { hookName: string; duration: number }[] = [];
 
-  const start = () => {
-    rootNodes = [];
-    stack = [];
-    durations = [];
-  };
+  constructor(private readonly onUpdate?: () => void) {}
 
-  const cloneNode = (
-    node: ProfilerNode,
-    snapshotTime?: number,
-  ): ProfilerNode => {
-    const children = node.children.map((c) => cloneNode(c, snapshotTime));
+  start(): void {
+    this.rootNodes = [];
+    this.stack = [];
+    this.durations = [];
+  }
+
+  private cloneNode(node: ProfilerNode, snapshotTime?: number): ProfilerNode {
+    const children = node.children.map((c) => this.cloneNode(c, snapshotTime));
     const endTime =
       node.endTime ?? (snapshotTime !== undefined ? snapshotTime : undefined);
     const value =
@@ -31,56 +30,13 @@ export const profiler = (onUpdate?: () => void): Profiler => {
       value,
       children,
     };
-  };
+  }
 
-  /**
-   * Inserts synthetic spacer nodes to represent idle time between a parent's
-   * startTime and its first child, and between consecutive siblings. This makes
-   * the flame graph accurate to the real timeline rather than showing hooks
-   * back-to-back regardless of when they fired.
-   */
-  const insertSpacers = (node: ProfilerNode): ProfilerNode => {
-    if (
-      node.children.length === 0 ||
-      node.startTime === undefined ||
-      node.endTime === undefined
-    ) {
-      return { ...node };
-    }
-
-    const spacedChildren: ProfilerNode[] = [];
-    let cursor = node.startTime;
-
-    for (const child of node.children) {
-      if (child.startTime === undefined || child.endTime === undefined) {
-        spacedChildren.push(insertSpacers(child));
-        continue;
-      }
-
-      const gap = child.startTime - cursor;
-      if (gap > 0) {
-        spacedChildren.push({
-          name: "(work)",
-          value: Math.ceil(gap * 1000),
-          children: [],
-          backgroundColor: "#000000",
-          color: "#000000",
-          tooltip: "Placeholder time between hooks",
-        });
-      }
-
-      spacedChildren.push(insertSpacers(child));
-      cursor = child.endTime;
-    }
-
-    return { ...node, children: spacedChildren };
-  };
-
-  const getSnapshot = (): {
+  getSnapshot(): {
     rootNodes: ProfilerNode[];
     durations: { name: string; duration: string }[];
-  } => {
-    const sorted = [...durations]
+  } {
+    const sorted = [...this.durations]
       .sort((a, b) => b.duration - a.duration)
       .map(({ hookName, duration }) => ({
         name: hookName,
@@ -88,38 +44,38 @@ export const profiler = (onUpdate?: () => void): Profiler => {
       }));
     const now = getNowTime();
     return {
-      rootNodes: rootNodes.map((n) => cloneNode(n, now)).map(insertSpacers),
+      rootNodes: this.rootNodes.map((n) => this.cloneNode(n, now)),
       durations: sorted,
     };
-  };
+  }
 
-  const startTimer = (hookName: string) => {
+  startTimer(hookName: string): void {
     const node: ProfilerNode = {
       name: hookName,
       startTime: getNowTime(),
       children: [],
     };
 
-    if (stack.length > 0) {
-      stack[stack.length - 1]!.children.push(node);
+    if (this.stack.length > 0) {
+      this.stack[this.stack.length - 1]!.children.push(node);
     } else {
-      rootNodes.push(node);
+      this.rootNodes.push(node);
     }
 
-    stack.push(node);
-  };
+    this.stack.push(node);
+  }
 
-  const finalizeNode = (node: ProfilerNode, endTime: number) => {
+  private finalizeNode(node: ProfilerNode, endTime: number): void {
     const duration =
       node.startTime !== undefined ? endTime - node.startTime : 0.01;
     node.endTime = endTime;
     node.value = Math.ceil(duration * 1000);
     node.tooltip = `${node.name}, ${duration.toFixed(4)} (ms)`;
-    durations.push({ hookName: node.name, duration });
-  };
+    this.durations.push({ hookName: node.name, duration });
+  }
 
-  const endTimer = ({ hookName }: { hookName: string }) => {
-    const idx = [...stack].reverse().findIndex((n) => n.name === hookName);
+  endTimer({ hookName }: { hookName: string }): void {
+    const idx = [...this.stack].reverse().findIndex((n) => n.name === hookName);
 
     if (idx === -1) {
       console.warn(`endTimer: '${hookName}' not found in stack, ignoring`);
@@ -127,48 +83,39 @@ export const profiler = (onUpdate?: () => void): Profiler => {
     }
 
     // stack index of the target (reverse idx → forward idx)
-    const targetIdx = stack.length - 1 - idx;
+    const targetIdx = this.stack.length - 1 - idx;
     const endTime = getNowTime();
 
     // Pop and finalize everything above the target, from top down
-    for (let i = stack.length - 1; i > targetIdx; i--) {
-      const orphan = stack[i]!;
+    for (let i = this.stack.length - 1; i > targetIdx; i--) {
+      const orphan = this.stack[i]!;
       console.warn(
         `endTimer: popping '${orphan.name}' — timer was never explicitly ended`,
       );
-      finalizeNode(orphan, endTime);
+      this.finalizeNode(orphan, endTime);
     }
 
     // Finalize the target
-    finalizeNode(stack[targetIdx]!, endTime);
+    this.finalizeNode(this.stack[targetIdx]!, endTime);
 
     // Truncate stack
-    stack.length = targetIdx;
+    this.stack.length = targetIdx;
 
-    onUpdate?.();
-  };
+    this.onUpdate?.();
+  }
 
-  const stopProfiler = (): {
+  stopProfiler(): {
     rootNodes: ProfilerNode[];
     durations: { name: string; duration: string }[];
-  } => {
-    durations.sort((a, b) => b.duration - a.duration);
+  } {
+    this.durations.sort((a, b) => b.duration - a.duration);
 
     return {
-      rootNodes: rootNodes.map(insertSpacers),
-      durations: durations.map(({ hookName, duration }) => ({
+      rootNodes: [...this.rootNodes],
+      durations: this.durations.map(({ hookName, duration }) => ({
         name: hookName,
         duration: `${duration.toFixed(4)} ms`,
       })),
     };
-  };
-
-  return {
-    start,
-    startTimer,
-    endTimer,
-    stopProfiler,
-    getSnapshot,
-    insertSpacers,
-  };
-};
+  }
+}
