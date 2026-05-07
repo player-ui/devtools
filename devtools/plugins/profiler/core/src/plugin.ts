@@ -67,7 +67,8 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         [
           ["plugins", pluginID, "flow", "data", "rootNode"],
           transformProfilerData(wrapInRoot(rootNodes)),
-        ]
+        ],
+        [["plugins", pluginID, "flow", "data", "rawNodes"], rootNodes]
       );
       this.store.dispatch(
         genDataChangeTransaction({
@@ -106,6 +107,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         ["plugins", pluginID, "flow", "data", "rootNode"],
         transformProfilerData(wrapInRoot(rootNodes)),
       ],
+      [["plugins", pluginID, "flow", "data", "rawNodes"], rootNodes],
       [["plugins", pluginID, "flow", "data", "durations"], durations],
       [["plugins", pluginID, "flow", "data", "profiling"], false],
       [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true]

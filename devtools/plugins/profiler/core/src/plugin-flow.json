@@ -22,6 +22,20 @@
                   }
                 }
               }
+            },
+            {
+              "asset": {
+                "id": "Profile-header-values-1",
+                "type": "action",
+                "value": "Raw",
+                "label": {
+                  "asset": {
+                    "id": "Profile-header-values-1-label",
+                    "type": "text",
+                    "value": "Raw"
+                  }
+                }
+              }
             }
           ]
         }
@@ -58,12 +72,73 @@
       },
       "footer": {
         "asset": {
-          "id": "Editor-header-values-0",
+          "id": "Profile-footer-action",
           "type": "action",
           "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
           "label": {
             "asset": {
-              "id": "Editor-header-values-0-label",
+              "id": "Profile-footer-action-label",
+              "type": "text",
+              "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "Raw",
+      "type": "stacked-view",
+      "header": {
+        "asset": {
+          "id": "Raw-header",
+          "type": "navigation",
+          "values": [
+            {
+              "asset": {
+                "id": "Raw-header-values-0",
+                "type": "action",
+                "value": "Profile",
+                "label": {
+                  "asset": {
+                    "id": "Raw-header-values-0-label",
+                    "type": "text",
+                    "value": "Profile"
+                  }
+                }
+              }
+            },
+            {
+              "asset": {
+                "id": "Raw-header-values-1",
+                "type": "action",
+                "value": "Raw",
+                "label": {
+                  "asset": {
+                    "id": "Raw-header-values-1-label",
+                    "type": "text",
+                    "value": "Raw"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "main": {
+        "asset": {
+          "id": "Raw-main",
+          "type": "object-inspector",
+          "binding": "rawNodes"
+        }
+      },
+      "footer": {
+        "asset": {
+          "id": "Raw-footer-action",
+          "type": "action",
+          "exp": "conditional({{profiling}} === true, publish('stop-profiling'), publish('start-profiling'))",
+          "label": {
+            "asset": {
+              "id": "Raw-footer-action-label",
               "type": "text",
               "value": "@[conditional({{profiling}} === true, 'Stop', 'Start')]@"
             }
@@ -80,7 +155,16 @@
         "state_type": "VIEW",
         "ref": "Profile",
         "transitions": {
-          "Profile": "PROFILE"
+          "Profile": "PROFILE",
+          "Raw": "RAW"
+        }
+      },
+      "RAW": {
+        "state_type": "VIEW",
+        "ref": "Raw",
+        "transitions": {
+          "Profile": "PROFILE",
+          "Raw": "RAW"
         }
       }
     }
@@ -94,6 +178,10 @@
         "type": "BooleanType"
       },
       "rootNodes": {
+        "type": "RecordType",
+        "isArray": true
+      },
+      "rawNodes": {
         "type": "RecordType",
         "isArray": true
       },
@@ -135,6 +223,7 @@
     "rootNode": {
       "value": 0
     },
+    "rawNodes": [],
     "durations": []
   }
 }
