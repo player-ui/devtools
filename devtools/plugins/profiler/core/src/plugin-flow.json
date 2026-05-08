@@ -18,7 +18,7 @@
                   "asset": {
                     "id": "Profile-header-values-0-label",
                     "type": "text",
-                    "value": "Profile"
+                    "value": "Flame Graph"
                   }
                 }
               }
@@ -42,32 +42,17 @@
       },
       "main": {
         "asset": {
-          "type": "collection",
-          "id": "Profile-collection",
-          "values": [
-            {
-              "asset": {
-                "id": "Profile-title",
-                "type": "text",
-                "value": "Flame Graph:"
-              }
-            },
-            {
-              "asset": {
-                "id": "Profile-main",
-                "type": "flame-graph",
-                "binding": "rootNode",
-                "width": "@[{{rootNode.value}} / 200]@",
-                "label": {
-                  "asset": {
-                    "id": "Profile-main-label",
-                    "type": "text",
-                    "value": "Profile"
-                  }
-                }
-              }
+          "id": "Profile-main",
+          "type": "flame-graph",
+          "binding": "rootNode",
+          "width": "@[{{rootNode.value}} / 200]@",
+          "label": {
+            "asset": {
+              "id": "Profile-main-label",
+              "type": "text",
+              "value": "Profile"
             }
-          ]
+          }
         }
       },
       "footer": {
@@ -124,7 +109,7 @@
                   "asset": {
                     "id": "Raw-header-values-0-label",
                     "type": "text",
-                    "value": "Profile"
+                    "value": "Flame Graph"
                   }
                 }
               }

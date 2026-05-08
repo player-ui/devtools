@@ -7,7 +7,7 @@ import SwiftFlipper
 import PlayerUIDevtoolsPlugin
 import PlayerUIReferenceAssets
 import PlayerUIDevtoolsBasicPlugin
-import PlayerUIDevtoolsProfilerDevtoolsPlugin
+import PlayerUIDevtoolsProfilerPlugin
 
 @main
 struct BazelApp: App {
