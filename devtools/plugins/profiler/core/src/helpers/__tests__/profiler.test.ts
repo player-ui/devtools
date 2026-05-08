@@ -115,28 +115,28 @@ describe("Profiler", () => {
     expect(rootNodes).toHaveLength(0);
   });
 
-  test("calls onUpdate on endTimer() and clear(), not on startTimer() or start()", () => {
+  test("calls onUpdate on start(), endTimer(), and clear(), not on startTimer()", () => {
     const onUpdate = vi.fn();
     const p = new Profiler(onUpdate);
 
     expect(onUpdate.mock.calls.length).toBe(0);
 
     p.start();
-    expect(onUpdate.mock.calls.length).toBe(0);
+    expect(onUpdate.mock.calls.length).toBe(1);
 
     p.startTimer("hookA");
-    expect(onUpdate.mock.calls.length).toBe(0);
+    expect(onUpdate.mock.calls.length).toBe(1);
 
     p.endTimer({ hookName: "hookA" });
-    expect(onUpdate.mock.calls.length).toBe(1);
+    expect(onUpdate.mock.calls.length).toBe(2);
 
     p.startTimer("hookB");
     p.endTimer({ hookName: "hookB" });
-    expect(onUpdate.mock.calls.length).toBe(2);
+    expect(onUpdate.mock.calls.length).toBe(3);
 
     p.startTimer("hookC");
     p.clear();
-    expect(onUpdate.mock.calls.length).toBe(3);
+    expect(onUpdate.mock.calls.length).toBe(4);
   });
 
   test("getSnapshot returns a deep clone of rootNodes", () => {

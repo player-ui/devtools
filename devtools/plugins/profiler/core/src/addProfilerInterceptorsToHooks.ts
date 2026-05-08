@@ -44,7 +44,7 @@ export const addProfilerInterceptorsToHooks = (
   obj: unknown,
   profiler: Profiler,
   currentPath: string[] = [],
-  intercepted: WeakSet<object> = new WeakSet()
+  intercepted: WeakSet<object> = new WeakSet(),
 ): void => {
   if (!hasHooks(obj)) {
     return;
@@ -69,7 +69,7 @@ export const addProfilerInterceptorsToHooks = (
             args[0],
             profiler,
             nextPath,
-            intercepted
+            intercepted,
           );
         }
 

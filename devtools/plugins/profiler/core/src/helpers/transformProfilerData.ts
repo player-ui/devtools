@@ -18,7 +18,7 @@ export const transformProfilerData = (root: ProfilerNode): ProfilerNode => {
 
 const transformProfilerDataHelper = (
   nodes: ProfilerNode[],
-  parentStart: number = 0
+  parentStart: number = 0,
 ): ProfilerNode[] => {
   const merged: ProfilerNode[] = [];
   let cursor = parentStart;

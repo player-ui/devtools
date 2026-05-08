@@ -94,7 +94,7 @@ export class Profiler {
     for (let i = this.stack.length - 1; i > targetIdx; i--) {
       const orphan = this.stack[i]!;
       console.warn(
-        `endTimer: popping '${orphan.name}' — timer was never explicitly ended`
+        `endTimer: popping '${orphan.name}' — timer was never explicitly ended`,
       );
       this.finalizeNode(orphan, endTime);
     }

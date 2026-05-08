@@ -9,8 +9,9 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class ProfilerDevtoolsPluginTest : RuntimeTest(), DevtoolsHandler {
-
+class ProfilerDevtoolsPluginTest :
+    RuntimeTest(),
+    DevtoolsHandler {
     private val interactions = mutableListOf<DevtoolsPluginInteractionEvent>()
 
     override fun processInteraction(interaction: DevtoolsPluginInteractionEvent) {
@@ -19,8 +20,7 @@ class ProfilerDevtoolsPluginTest : RuntimeTest(), DevtoolsHandler {
 
     override fun checkIfDevtoolsIsActive(): Boolean = true
 
-    private fun plugin(id: String = "test") =
-        runtime.ProfilerDevtoolsPlugin(ProfilerDevtoolsPlugin.Options(id, this))
+    private fun plugin(id: String = "test") = runtime.ProfilerDevtoolsPlugin(ProfilerDevtoolsPlugin.Options(id, this))
 
     // MARK: - Initialization
 
@@ -66,11 +66,12 @@ class ProfilerDevtoolsPluginTest : RuntimeTest(), DevtoolsHandler {
     }
 }
 
-private fun interactionEvent(type: String) = DevtoolsPluginInteractionEvent(
-    payload = DevtoolsPluginInteractionEvent.Payload(type = type, payload = ""),
-    id = 0,
-    timestamp = 0,
-    sender = "test",
-    context = kotlinx.serialization.json.JsonPrimitive("player"),
-    tag = false,
-)
+private fun interactionEvent(type: String) =
+    DevtoolsPluginInteractionEvent(
+        payload = DevtoolsPluginInteractionEvent.Payload(type = type, payload = ""),
+        id = 0,
+        timestamp = 0,
+        sender = "test",
+        context = kotlinx.serialization.json.JsonPrimitive("player"),
+        tag = false,
+    )

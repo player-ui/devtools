@@ -23,7 +23,7 @@ const wrapInRoot = (nodes: ProfilerNode[]): ProfilerNode => {
         n.startTime !== undefined && (min === undefined || n.startTime < min)
           ? n.startTime
           : min,
-      undefined
+      undefined,
     ) ?? 0;
   const endTime =
     nodes.reduce<number | undefined>(
@@ -31,7 +31,7 @@ const wrapInRoot = (nodes: ProfilerNode[]): ProfilerNode => {
         n.endTime !== undefined && (max === undefined || n.endTime > max)
           ? n.endTime
           : max,
-      undefined
+      undefined,
     ) ?? startTime;
   return {
     name: "root",
@@ -73,14 +73,14 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
           ["plugins", pluginID, "flow", "data", "rootNode"],
           transformProfilerData(wrapInRoot(rootNodes)),
         ],
-        [["plugins", pluginID, "flow", "data", "rawNodes"], rootNodes]
+        [["plugins", pluginID, "flow", "data", "rawNodes"], rootNodes],
       );
       this.store.dispatch(
         genDataChangeTransaction({
           playerID: this.playerID,
           data: newState.plugins[pluginID]?.flow.data,
           pluginID,
-        })
+        }),
       );
     });
   }
@@ -92,7 +92,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       dset(
         draft,
         ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
-        false
+        false,
       );
     });
     this.store.dispatch(
@@ -100,7 +100,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         playerID: this.playerID,
         data: newState.plugins[pluginID]?.flow.data,
         pluginID,
-      })
+      }),
     );
   }
 
@@ -118,14 +118,14 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       ],
       [["plugins", pluginID, "flow", "data", "rawNodes"], rootNodes],
       [["plugins", pluginID, "flow", "data", "profiling"], false],
-      [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true]
+      [["plugins", pluginID, "flow", "data", "displayFlameGraph"], true],
     );
     this.store.dispatch(
       genDataChangeTransaction({
         playerID: this.playerID,
         data: newState.plugins[pluginID]?.flow.data,
         pluginID,
-      })
+      }),
     );
     return result;
   }
@@ -147,7 +147,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
       dset(
         draft,
         ["plugins", pluginID, "flow", "data", "displayFlameGraph"],
-        false
+        false,
       );
     });
 
@@ -156,7 +156,7 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
         playerID: this.playerID,
         data: initialState.plugins[pluginID]?.flow.data,
         pluginID,
-      })
+      }),
     );
   }
 

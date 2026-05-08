@@ -6,7 +6,7 @@ const node = (
   name: string,
   startTime: number,
   endTime: number,
-  children: ProfilerNode[] = []
+  children: ProfilerNode[] = [],
 ): ProfilerNode => ({
   name,
   startTime,
@@ -101,7 +101,13 @@ describe("transformProfilerData", () => {
       endTime: 2,
       value: 2000,
       children: [
-        { name: "zero-value", startTime: 0, endTime: 0, value: 0, children: [] },
+        {
+          name: "zero-value",
+          startTime: 0,
+          endTime: 0,
+          value: 0,
+          children: [],
+        },
         node("valid", 0, 1),
       ],
     };
@@ -131,10 +137,7 @@ describe("transformProfilerData", () => {
   });
 
   test("multiple gaps each produce their own spacer", () => {
-    const root = node("root", 0, 6, [
-      node("a", 1, 2),
-      node("b", 4, 5),
-    ]);
+    const root = node("root", 0, 6, [node("a", 1, 2), node("b", 4, 5)]);
 
     const { children } = transformProfilerData(root);
 
