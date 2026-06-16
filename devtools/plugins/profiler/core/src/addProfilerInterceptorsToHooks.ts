@@ -10,7 +10,7 @@ import {
   SyncLoopHook,
   SyncWaterfallHook,
 } from "tapable-ts";
-import { Profiler } from "./helpers";
+import { Profiler, hasHooks, isMatchingPaths, isRecordType } from "./helpers";
 
 /* Paths to hooks to ignore.
  * Currently ignoring "view" hook on player since it acts as a shortcut to the viewController's view hook. Including it would duplicate a lot of profiling work.
@@ -86,22 +86,4 @@ export const addProfilerInterceptorsToHooks = (
       },
     });
   });
-};
-
-// TODO: Move all these where they should be
-export const isMatchingPaths = (path1: string[], path2: string[]): boolean => {
-  if (path1.length !== path2.length) return false;
-
-  return path1.every((val, idx) => val === path2[idx]);
-};
-
-export type ObjectWithHooks = {
-  hooks: Record<PropertyKey, unknown>;
-};
-
-export const isRecordType = <T>(obj: unknown): obj is Record<PropertyKey, T> =>
-  typeof obj === "object" && obj !== null && !Array.isArray(obj);
-
-export const hasHooks = (obj: unknown): obj is ObjectWithHooks => {
-  return isRecordType(obj) && "hooks" in obj && isRecordType(obj.hooks);
 };
