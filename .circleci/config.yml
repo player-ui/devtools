@@ -10,8 +10,7 @@ parameters:
 
 orbs:
   macos: circleci/macos@2.5.4
-  # android: circleci/android@3.1.0
-  codecov: codecov/codecov@5.4.3
+  codecov: codecov/codecov@6.0.0
 
 executors:
   base:
