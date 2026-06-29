@@ -1,7 +1,7 @@
 {
   "name": "@player-devtools/profiler-plugin-react",
   "version": "0.0.0-PLACEHOLDER",
-  "main": "src/index.tsx",
+  "main": "src/index.ts",
   "dependencies": {
     "@player-devtools/profiler-plugin": "workspace:*",
     "@player-devtools/plugin-react": "workspace:*",
