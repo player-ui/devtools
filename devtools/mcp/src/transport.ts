@@ -3,9 +3,11 @@ import {
   FlipperServerState,
   type FlipperServer,
 } from "flipper-server-client";
-import { WebSocketServer, type WebSocket } from "ws";
-import { spawn, type ChildProcess } from "child_process";
+import { spawn } from "child_process";
 import * as net from "net";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import type {
   CommunicationLayerMethods,
   ExtensionSupportedEvents,
@@ -70,9 +72,132 @@ function waitForPort(
   });
 }
 
+/**
+ * Cross-process refcount for the shared `flipper-server` daemon.
+ *
+ * Many MCP server processes (one per project/user registration) attach to a
+ * single `flipper-server` on a fixed port. No in-process variable can
+ * coordinate their lifecycles, so we track liveness in a small file guarded by
+ * an atomic lock directory:
+ *
+ *   - The first attach starts the daemon and records its PID with `refs: 1`.
+ *   - Each subsequent attach increments `refs`.
+ *   - Each detach decrements `refs`; the last one out shuts the daemon down.
+ *
+ * The lock directory (`mkdir` is atomic across processes) serializes the
+ * read-modify-write so concurrently-starting instances don't race.
+ */
+type RefcountFile = { pid: number; refs: number };
+
+class FlipperRefcount {
+  private readonly dir = path.join(os.tmpdir(), "player-devtools-mcp");
+  private readonly file = path.join(this.dir, "flipper-server.refcount");
+  private readonly lock = path.join(this.dir, "flipper-server.lock");
+
+  /** Acquire the cross-process lock, run `fn`, then release — even on throw. */
+  private withLock<T>(fn: () => T): T {
+    fs.mkdirSync(this.dir, { recursive: true });
+    const deadline = Date.now() + 5_000;
+    // Spin on an atomic mkdir until we own the lock or time out.
+    for (;;) {
+      try {
+        fs.mkdirSync(this.lock);
+        break;
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
+        if (Date.now() >= deadline) {
+          // Stale lock from a crashed process — reclaim it.
+          try {
+            fs.rmdirSync(this.lock);
+          } catch {
+            /* another instance won the reclaim; retry */
+          }
+        }
+      }
+    }
+    try {
+      return fn();
+    } finally {
+      try {
+        fs.rmdirSync(this.lock);
+      } catch {
+        /* already gone */
+      }
+    }
+  }
+
+  private read(): RefcountFile | null {
+    try {
+      return JSON.parse(fs.readFileSync(this.file, "utf8")) as RefcountFile;
+    } catch {
+      return null;
+    }
+  }
+
+  private write(state: RefcountFile): void {
+    fs.writeFileSync(this.file, JSON.stringify(state));
+  }
+
+  private clear(): void {
+    try {
+      fs.unlinkSync(this.file);
+    } catch {
+      /* already gone */
+    }
+  }
+
+  /** Is the recorded daemon PID still alive? */
+  private isAlive(pid: number): boolean {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Register interest in the daemon. Returns whether this caller is the one
+   * responsible for starting it (because no live daemon was recorded).
+   * `recordPid` is called with the started PID once the daemon is up.
+   */
+  acquire(): { shouldStart: boolean; commit: (pid: number) => void } {
+    return this.withLock(() => {
+      const state = this.read();
+      if (state && this.isAlive(state.pid)) {
+        this.write({ pid: state.pid, refs: state.refs + 1 });
+        return { shouldStart: false, commit: () => {} };
+      }
+      // No live daemon — this caller will start one and record its PID.
+      return {
+        shouldStart: true,
+        commit: (pid: number) =>
+          this.withLock(() => this.write({ pid, refs: 1 })),
+      };
+    });
+  }
+
+  /**
+   * Drop this caller's interest. Returns the PID to kill if this was the last
+   * reference, otherwise null.
+   */
+  release(): number | null {
+    return this.withLock(() => {
+      const state = this.read();
+      if (!state) return null;
+      if (state.refs <= 1) {
+        this.clear();
+        return state.pid;
+      }
+      this.write({ pid: state.pid, refs: state.refs - 1 });
+      return null;
+    });
+  }
+}
+
 export class FlipperServerTransport implements Transport {
   private server: FlipperServer | null = null;
-  private flipperProcess: ChildProcess | null = null;
+  private refcount = new FlipperRefcount();
   private listeners = new Set<MessageCallback>();
 
   /**
@@ -94,42 +219,36 @@ export class FlipperServerTransport implements Transport {
     const host = this.options.host ?? "localhost";
     const port = this.options.port ?? 52342;
 
-    // Check if flipper-server is already listening; if not, start it
-    const alreadyRunning = await new Promise<boolean>((resolve) => {
-      const socket = net.connect(port, host);
-      socket.once("connect", () => {
-        socket.destroy();
-        resolve(true);
-      });
-      socket.once("error", () => {
-        socket.destroy();
-        resolve(false);
-      });
-    });
+    // Register interest in the shared daemon. The first instance to do so is
+    // told to start it; the rest just attach. The daemon outlives any single
+    // MCP process and is only torn down when the last instance detaches.
+    const { shouldStart, commit } = this.refcount.acquire();
 
-    if (!alreadyRunning) {
+    if (shouldStart) {
       console.log("[FlipperServerTransport] Starting flipper-server...");
       const serverScript = require.resolve("flipper-server/server.js");
-      this.flipperProcess = spawn(
-        process.execPath,
-        [serverScript, "--open=true"],
-        {
-          stdio: "inherit",
-          detached: false,
-        },
-      );
-      this.flipperProcess.on("error", (err) => {
+      // Detached + unref'd: the daemon must survive this process exiting so
+      // other instances keep their connections. We never kill it directly —
+      // shutdown is driven by the refcount in close().
+      const child = spawn(process.execPath, [serverScript, "--open=true"], {
+        stdio: "inherit",
+        detached: true,
+      });
+      child.on("error", (err: Error) => {
         console.error(
           "[FlipperServerTransport] flipper-server process error:",
           err,
         );
       });
-      // Kill the child synchronously on any form of exit so it doesn't orphan
-      process.on("exit", () => this.flipperProcess?.kill());
+      child.unref();
       await waitForPort(host, port);
+      commit(child.pid!);
       console.log("[FlipperServerTransport] flipper-server ready.");
     } else {
-      console.log("[FlipperServerTransport] flipper-server already running.");
+      // Daemon already running (started by another instance) — wait for it to
+      // accept connections in case it's still coming up, then attach.
+      await waitForPort(host, port);
+      console.log("[FlipperServerTransport] Attached to flipper-server.");
     }
 
     // Read the auth token the flipper-server wrote during startup
@@ -245,103 +364,18 @@ export class FlipperServerTransport implements Transport {
     this.activeClientIds.clear();
     this.server?.close();
     this.server = null;
-    if (this.flipperProcess) {
-      this.flipperProcess.kill();
-      this.flipperProcess = null;
-    }
-  }
-}
 
-/** Default port the MCP server listens on for WebSocket connections */
-export const DEFAULT_WS_PORT = 7382;
-
-/**
- * WebSocket server transport
- *
- * The MCP server opens a WebSocket server; the player connects as a client
- * (via `useWSCommunicationLayer`). Works for:
- *   - Browser-based players
- *   - iOS/Android simulators over localhost
- *   - Physical devices over WiFi (same LAN)
- */
-export class WebSocketServerTransport implements Transport {
-  private wss: WebSocketServer | null = null;
-  private clients = new Set<WebSocket>();
-  private listeners = new Set<MessageCallback>();
-
-  constructor(
-    private options: {
-      /** Port to listen on; defaults to 7382 */
-      port?: number;
-      /** Host to bind to; defaults to "localhost" */
-      host?: string;
-    } = {},
-  ) {}
-
-  async connect(): Promise<void> {
-    const port = this.options.port ?? DEFAULT_WS_PORT;
-    const host = this.options.host ?? "localhost";
-
-    await new Promise<void>((resolve, reject) => {
-      this.wss = new WebSocketServer({ port, host });
-
-      this.wss.on("listening", resolve);
-      this.wss.on("error", reject);
-
-      this.wss.on("connection", (socket) => {
-        this.clients.add(socket);
-
-        socket.on("message", (data) => {
-          let parsed: TransactionMetadata &
-            MessengerEvent<ExtensionSupportedEvents>;
-          try {
-            parsed = JSON.parse(data.toString());
-          } catch {
-            return;
-          }
-          for (const listener of this.listeners) {
-            listener(parsed);
-          }
-        });
-
-        socket.on("close", () => {
-          this.clients.delete(socket);
-        });
-
-        socket.on("error", (err) => {
-          console.warn("[WebSocketServerTransport] Client error:", err);
-          this.clients.delete(socket);
-        });
-      });
-    });
-
-    console.log(`[WebSocketServerTransport] Listening on ws://${host}:${port}`);
-  }
-
-  sendMessage: CommunicationLayerMethods["sendMessage"] = async (message) => {
-    const data = JSON.stringify(message);
-    for (const client of this.clients) {
-      if (client.readyState === 1 /* OPEN */) {
-        client.send(data);
+    // Drop our reference to the shared daemon. If we were the last user, the
+    // refcount hands back its PID and we shut it down; otherwise it keeps
+    // running for the remaining instances.
+    const pidToKill = this.refcount.release();
+    if (pidToKill !== null) {
+      try {
+        process.kill(pidToKill);
+        console.log("[FlipperServerTransport] Shut down flipper-server.");
+      } catch {
+        /* already gone */
       }
     }
-  };
-
-  addListener: CommunicationLayerMethods["addListener"] = (callback) => {
-    this.listeners.add(callback);
-  };
-
-  removeListener: CommunicationLayerMethods["removeListener"] = (callback) => {
-    this.listeners.delete(callback);
-  };
-
-  async close(): Promise<void> {
-    for (const client of this.clients) {
-      client.close();
-    }
-    this.clients.clear();
-    this.listeners.clear();
-    await new Promise<void>((resolve) => this.wss?.close(() => resolve()));
-    this.wss = null;
   }
 }

@@ -65,9 +65,16 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
 
   constructor(protected options: DevtoolsPluginOptions) {
     this.store.subscribe(({ interactions }) => {
-      if (this.lastProcessedInteraction < (interactions.length ?? 0)) {
+      const start = this.lastProcessedInteraction;
+      const end = interactions.length ?? 0;
+      if (start < end) {
+        // Advance the cursor BEFORE processing: `processInteraction` may
+        // dispatch synchronously (e.g. SELECTED_PLAYER_CHANGE), which re-enters
+        // this subscriber. Advancing first makes that re-entrant pass a no-op
+        // instead of reprocessing the same interactions.
+        this.lastProcessedInteraction = end;
         interactions
-          .slice(this.lastProcessedInteraction)
+          .slice(start, end)
           .forEach(this.processInteraction.bind(this));
       }
     });
@@ -168,8 +175,6 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
         _messenger_: true,
       });
     }
-
-    this.lastProcessedInteraction += 1;
   }
 
   apply(player: Player): void {

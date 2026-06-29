@@ -16,7 +16,11 @@ export type ExtensionClient = {
   subscribe: (fn: (state: ExtensionState) => void) => () => void;
   selectPlayer: (playerID: string) => void;
   selectPlugin: (pluginID: string) => void;
-  handleInteraction: (interaction: { type: string; payload?: string }) => void;
+  handleInteraction: (interaction: {
+    type: string;
+    payload?: string;
+    target?: string;
+  }) => void;
   destroy: () => void;
 };
 
@@ -67,15 +71,18 @@ export const createExtensionClient = (
   const handleInteraction = ({
     type,
     payload,
+    target,
   }: {
     type: string;
     payload?: string;
+    /** Player to address; defaults to the currently selected player. */
+    target?: string;
   }): void => {
-    const { current } = store.getState();
+    const resolvedTarget = target ?? store.getState().current.player;
     messenger.sendMessage({
       type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
       payload: { type, payload },
-      ...(current.player ? { target: current.player } : {}),
+      ...(resolvedTarget ? { target: resolvedTarget } : {}),
     });
   };
 

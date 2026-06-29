@@ -15,16 +15,17 @@ deps = [
     ":node_modules/@player-devtools/messenger",
     ":node_modules/@player-devtools/types",
     "//:node_modules/@modelcontextprotocol/sdk",
-    "//:node_modules/@types/ws",
     "//:node_modules/flipper-server",
     "//:node_modules/flipper-server-client",
-    "//:node_modules/ws",
     "//:node_modules/zod",
 ]
 
 js_pipeline(
     package_name = "@player-devtools/mcp",
     deps = deps,
+    test_deps = [
+        ":node_modules/@player-devtools/plugin",
+    ],
     srcs = glob(["src/**/*", "bin/**/*"])
 )
 

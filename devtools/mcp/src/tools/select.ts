@@ -1,47 +1,26 @@
 import type { ExtensionClient } from "@player-devtools/client";
-import type { Tool, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-export const selectPlayerTool: Tool = {
-  name: "select_player",
-  description:
-    "Select a Player instance as the active target for subsequent tool calls.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: { type: "string", description: "The Player ID to select." },
-    },
-    required: ["playerId"],
-  },
+import type { ToolDef } from "./index";
+
+const selectPlayerShape = {
+  playerId: z.string().describe("The Player ID to select."),
 };
 
-export const invokeActionTool: Tool = {
-  name: "invoke_action",
-  description:
-    "Invoke a named action on a plugin. Use describe_plugin first to discover available actions.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: {
-        type: "string",
-        description: "Player ID. Defaults to the currently selected player.",
-      },
-      pluginId: { type: "string", description: "Plugin ID." },
-      action: { type: "string", description: "Action name." },
-      payload: { type: "string", description: "Optional stringified payload." },
-    },
-    required: ["pluginId", "action"],
-  },
+const invokeActionShape = {
+  playerId: z
+    .string()
+    .optional()
+    .describe("Player ID. Defaults to the currently selected player."),
+  pluginId: z.string().describe("Plugin ID."),
+  action: z.string().describe("Action name."),
+  payload: z.string().optional().describe("Optional stringified payload."),
 };
 
-const SelectPlayerInput = z.object({ playerId: z.string() });
+const SelectPlayerInput = z.object(selectPlayerShape);
 
-const InvokeActionInput = z.object({
-  playerId: z.string().optional(),
-  pluginId: z.string(),
-  action: z.string(),
-  payload: z.string().optional(),
-});
+const InvokeActionInput = z.object(invokeActionShape);
 
 function err(message: string): CallToolResult {
   return {
@@ -83,6 +62,22 @@ export function handleInvokeAction(
   ) {
     return err(`action "${action}" not declared in plugin capabilities`);
   }
-  client.handleInteraction({ type: action, payload });
+  client.handleInteraction({ type: action, payload, target: id });
   return ok({ invoked: action });
 }
+
+export const selectPlayerDef: ToolDef = {
+  name: "select_player",
+  description:
+    "Select a Player instance as the active target for subsequent tool calls.",
+  inputSchema: selectPlayerShape,
+  handle: handleSelectPlayer,
+};
+
+export const invokeActionDef: ToolDef = {
+  name: "invoke_action",
+  description:
+    "Invoke a named action on a plugin. Use describe_plugin first to discover available actions.",
+  inputSchema: invokeActionShape,
+  handle: handleInvokeAction,
+};

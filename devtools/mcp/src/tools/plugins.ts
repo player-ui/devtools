@@ -1,28 +1,18 @@
 import type { ExtensionClient } from "@player-devtools/client";
-import type { Tool, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-export const describePluginTool: Tool = {
-  name: "describe_plugin",
-  description:
-    "Get the capability descriptor declared by a plugin at registration time. Use this to discover what data keys and actions the plugin exposes.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: {
-        type: "string",
-        description: "Player ID. Defaults to the currently selected player.",
-      },
-      pluginId: { type: "string", description: "Plugin ID." },
-    },
-    required: ["pluginId"],
-  },
+import type { ToolDef } from "./index";
+
+const describePluginShape = {
+  playerId: z
+    .string()
+    .optional()
+    .describe("Player ID. Defaults to the currently selected player."),
+  pluginId: z.string().describe("Plugin ID."),
 };
 
-const DescribePluginInput = z.object({
-  playerId: z.string().optional(),
-  pluginId: z.string(),
-});
+const DescribePluginInput = z.object(describePluginShape);
 
 function err(message: string): CallToolResult {
   return {
@@ -50,3 +40,11 @@ export function handleDescribePlugin(
     return err(`plugin "${pluginId}" has no capabilities declared`);
   return ok(plugin.capabilities);
 }
+
+export const describePluginDef: ToolDef = {
+  name: "describe_plugin",
+  description:
+    "Get the capability descriptor declared by a plugin at registration time. Use this to discover what data keys and actions the plugin exposes.",
+  inputSchema: describePluginShape,
+  handle: handleDescribePlugin,
+};

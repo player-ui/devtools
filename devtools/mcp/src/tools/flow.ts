@@ -1,7 +1,9 @@
 import type { ExtensionClient } from "@player-devtools/client";
 import type { PluginData } from "@player-devtools/types";
-import type { Tool, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+
+import type { ToolDef } from "./index";
 
 type Failure = { error: string };
 type PlayerOk = {
@@ -14,75 +16,15 @@ type PlayerOk = {
 };
 type BasicPluginOk = PlayerOk & { basicPlugin: PluginData };
 
-const PlayerInput = z.object({ playerId: z.string().optional() });
-
-export const getFlowTool: Tool = {
-  name: "get_flow",
-  description:
-    "Get the current flow from the basic devtools plugin for a Player instance.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: {
-        type: "string",
-        description: "Player ID. Defaults to the currently selected player.",
-      },
-    },
-    required: [],
-  },
+/** Optional player id, shared by the player-scoped read tools. */
+const playerIdShape = {
+  playerId: z
+    .string()
+    .optional()
+    .describe("Player ID. Defaults to the currently selected player."),
 };
 
-export const getDataTool: Tool = {
-  name: "get_data",
-  description:
-    "Get the current flow data model from the basic devtools plugin for a Player instance.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: {
-        type: "string",
-        description: "Player ID. Defaults to the currently selected player.",
-      },
-    },
-    required: [],
-  },
-};
-
-export const getLogsTool: Tool = {
-  name: "get_logs",
-  description:
-    "Get the logs from the basic devtools plugin for a Player instance.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: {
-        type: "string",
-        description: "Player ID. Defaults to the currently selected player.",
-      },
-    },
-    required: [],
-  },
-};
-
-export const getPluginDataTool: Tool = {
-  name: "get_plugin_data",
-  description: "Get a specific data key from any plugin for a Player instance.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      playerId: {
-        type: "string",
-        description: "Player ID. Defaults to the currently selected player.",
-      },
-      pluginId: { type: "string", description: "Plugin ID." },
-      dataKey: {
-        type: "string",
-        description: "Key to retrieve from the plugin's data.",
-      },
-    },
-    required: ["pluginId", "dataKey"],
-  },
-};
+const PlayerInput = z.object(playerIdShape);
 
 function resolvePlayer(
   client: ExtensionClient,
@@ -152,11 +94,13 @@ export function handleGetLogs(
   );
 }
 
-const GetPluginDataInput = z.object({
-  playerId: z.string().optional(),
-  pluginId: z.string(),
-  dataKey: z.string(),
-});
+const getPluginDataShape = {
+  ...playerIdShape,
+  pluginId: z.string().describe("Plugin ID."),
+  dataKey: z.string().describe("Key to retrieve from the plugin's data."),
+};
+
+const GetPluginDataInput = z.object(getPluginDataShape);
 
 export function handleGetPluginData(
   client: ExtensionClient,
@@ -172,3 +116,34 @@ export function handleGetPluginData(
   ];
   return ok(value ?? null);
 }
+
+export const getFlowDef: ToolDef = {
+  name: "get_flow",
+  description:
+    "Get the current flow from the basic devtools plugin for a Player instance.",
+  inputSchema: playerIdShape,
+  handle: handleGetFlow,
+};
+
+export const getDataDef: ToolDef = {
+  name: "get_data",
+  description:
+    "Get the current flow data model from the basic devtools plugin for a Player instance.",
+  inputSchema: playerIdShape,
+  handle: handleGetData,
+};
+
+export const getLogsDef: ToolDef = {
+  name: "get_logs",
+  description:
+    "Get the logs from the basic devtools plugin for a Player instance.",
+  inputSchema: playerIdShape,
+  handle: handleGetLogs,
+};
+
+export const getPluginDataDef: ToolDef = {
+  name: "get_plugin_data",
+  description: "Get a specific data key from any plugin for a Player instance.",
+  inputSchema: getPluginDataShape,
+  handle: handleGetPluginData,
+};
