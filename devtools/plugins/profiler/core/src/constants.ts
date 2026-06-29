@@ -1,26 +1,7 @@
-import type { PluginData } from "@player-devtools/types";
-
-export const PLUGIN_ID = "player-ui-profiler-plugin";
-
-export const PLUGIN_NAME = "Player UI Profiler";
-
-export const PLUGIN_DESCRIPTION = "Standard Player UI Profiler";
-
-export const PLUGIN_VERSION = "__VERSION__";
-
-export const VIEWS_IDS = {
-  PROFILER: "Profiler",
-};
-
-export const INTERACTIONS = {
-  START_PROFILING: "start-profiling",
-  STOP_PROFILING: "stop-profiling",
-  RESET_PROFILING: "reset-profiling",
-};
-
-export const BASE_PLUGIN_DATA: Omit<PluginData, "flow"> = {
-  id: PLUGIN_ID,
-  name: PLUGIN_NAME,
-  description: PLUGIN_DESCRIPTION,
-  version: PLUGIN_VERSION,
-};
+// Source of truth for these lives in the content package so the DSL-authored
+// flow and the runtime plugin can't drift.
+export {
+  PLUGIN_ID,
+  VIEWS_IDS,
+  INTERACTIONS,
+} from "@player-devtools/profiler-plugin-content";

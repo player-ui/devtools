@@ -5,6 +5,7 @@
   "dependencies": {
     "@player-devtools/messenger": "workspace:*",
     "@player-devtools/plugin": "workspace:*",
+    "@player-devtools/profiler-plugin-content": "workspace:*",
     "@player-devtools/types": "workspace:*"
   }
 }

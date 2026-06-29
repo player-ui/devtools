@@ -15,6 +15,7 @@ js_pipeline(
     deps = [
         ":node_modules/@player-devtools/messenger",
         ":node_modules/@player-devtools/plugin",
+        ":node_modules/@player-devtools/profiler-plugin-content",
         ":node_modules/@player-devtools/types",
         "//:node_modules/@devtools-ui/plugin",
         "//:node_modules/@player-ui/player",

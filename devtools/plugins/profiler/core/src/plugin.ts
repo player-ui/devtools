@@ -5,16 +5,18 @@ import {
 } from "@player-devtools/plugin";
 import type {
   DevtoolsPluginInteractionEvent,
-  PluginData,
+  DevtoolsPluginsStore,
 } from "@player-devtools/types";
-import type { Flow, Player } from "@player-ui/player";
+import type { Player } from "@player-ui/player";
+import {
+  INTERACTIONS,
+  ProfilerPluginData,
+} from "@player-devtools/profiler-plugin-content";
 import { dset } from "dset/merge";
 import { produce } from "immer";
-import { BASE_PLUGIN_DATA, INTERACTIONS } from "./constants";
 import { Profiler, transformProfilerData } from "./helpers";
 import type { ProfilerNode } from "./types";
 import { addProfilerInterceptorsToHooks } from "./addProfilerInterceptorsToHooks";
-import flow from "./plugin-flow.json";
 
 const wrapInRoot = (nodes: ProfilerNode[]): ProfilerNode => {
   const startTime =
@@ -42,10 +44,7 @@ const wrapInRoot = (nodes: ProfilerNode[]): ProfilerNode => {
   };
 };
 
-const pluginData: PluginData = {
-  ...BASE_PLUGIN_DATA,
-  flow: flow as Flow,
-};
+const pluginData = ProfilerPluginData;
 
 const pluginID = pluginData.id;
 
@@ -82,6 +81,20 @@ export class ProfilerDevtoolsPlugin extends DevtoolsPlugin {
           pluginID,
         }),
       );
+    });
+  }
+
+  /**
+   * Produces a new store state with each `[path, value]` pair written into the
+   * draft via `dset`, leaving the live store untouched.
+   */
+  private produceState(
+    ...updates: Array<[path: Array<string>, value: unknown]>
+  ): DevtoolsPluginsStore {
+    return produce(this.store.getState(), (draft) => {
+      updates.forEach(([path, value]) => {
+        dset(draft, path, value);
+      });
     });
   }
 
