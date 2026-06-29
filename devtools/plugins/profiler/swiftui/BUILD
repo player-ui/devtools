@@ -4,7 +4,7 @@ swiftui_plugin(
     name = "ProfilerPlugin",
     deps = [
       "@swiftpkg_swiftflipper//:SwiftFlipper",
-      "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPlugins",
+      "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPlugin",
       "//devtools/plugins/profiler/ios:PlayerUIDevtoolsBaseProfilerDevtoolsPlugin"
       ],
     test_deps = []
