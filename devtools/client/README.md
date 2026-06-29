@@ -1,18 +1,8 @@
 # @player-devtools/client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-
 The `@player-devtools/client` exposes the Panel with the ReactPlayer, which is responsible for running content sent by Player devtool plugins on the inspected Player UI instance.
 
-You can check how to use it in the [browser-extension](https://github.com/player-ui/browser-devtools) and [Flipper plugin](../flipper-plugin).
-
-## Overview
-
-The Devtools client is a part of the Player UI Devtools architecture. It allows you to create custom devtools panels that can be used to debug and inspect your Player UI experiences, using the same plugin system used by other Player UI plugins.
-
-The Devtools client conveniently receives its content from the devtools plugins running into the Player UI in use by the inspected page. This feature allows you to extend the dev tools with custom panels, without the need to create a new extension. You can create your own devtools plugins and use them in the Player UI Devtools Browser Extension.
-
-For a more comprehensive understanding of the architecture of the Devtools client, you can always refer to the detailed information provided in the Devtools Browser Extension README.
+The `Panel` is the shared devtools UI surface, hosted by each client: the [browser extension](https://github.com/player-ui/browser-devtools) for web and the [Flipper plugin](../flipper-plugin) for mobile. The agent-facing [MCP server](../mcp) consumes the same Player devtools instrumentation without rendering the `Panel`.
 
 ## Installation
 
@@ -25,6 +15,14 @@ npm install @player-devtools/client
 ```bash
 yarn add @player-devtools/client
 ```
+
+## Overview
+
+The Devtools client is a part of the Player UI Devtools architecture. It allows you to create custom devtools panels that can be used to debug and inspect your Player UI experiences, using the same plugin system used by other Player UI plugins.
+
+The Devtools client conveniently receives its content from the devtools plugins running into the Player UI in use by the inspected page. This feature allows you to extend the dev tools with custom panels, without the need to create a new extension. You can create your own devtools plugins and use them in the Player UI Devtools Browser Extension.
+
+For a more comprehensive understanding of the architecture of the Devtools client, see the [Devtools root README](../../README.md) for the overall picture and the [plugin authoring guide](../plugin) for how plugins instrument a Player and feed content to this client.
 
 ## Usage
 
@@ -57,6 +55,12 @@ const communicationLayer: Pick<
 root.render(<Panel communicationLayer={communicationLayer} />);
 ```
 
+## Related
+
+- Sibling clients that host this `Panel`: the [Flipper plugin](../flipper-plugin) (mobile) and the browser extension (web).
+- [`../mcp`](../mcp) — the agent-facing devtools surface.
+- [`../README.md`](../../README.md) — the overall Player UI Devtools architecture.
+
 ## Contributing
 
-We welcome contributions to the Player UI Devtools Browser Extension.
+We welcome contributions to the Player UI Devtools.
