@@ -1,7 +1,7 @@
 import PlayerUI
 import PlayerUILogger
 import Foundation
-import PlayerUIDevtoolsPlugins
+import PlayerUIDevtoolsPlugin
 import PlayerUIDevtoolsMessenger
 import PlayerUIDevtoolsTypes
 import JavaScriptCore

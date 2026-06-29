@@ -106,15 +106,28 @@ let basicPlugin: Target = .target(
     exclude: excluded
 )
 
-let profilerPlugin: Target = .target(
-    name: "PlayerUIDevToolsProfilerDevtoolsPlugin",
+let baseProfilerDevtoolsPlugin: Target = .target(
+    name: "PlayerUIDevtoolsBaseProfilerDevtoolsPlugin",
     dependencies: [
         playerUIDependency,
-        playerUISwiftUIDependency
+        playerUILoggerDependency,
+        "PlayerUIDevtoolsPlugin",
+        "PlayerUIDevtoolsUtilsSwiftUI"
     ],
     path: "devtools/plugins/profiler/ios",
     exclude: excluded,
     resources: [.process("Resources")]
+)
+
+let profilerPlugin: Target = .target(
+    name: "PlayerUIDevtoolsProfilerPlugin",
+    dependencies: [
+        swiftFlipperDependency,
+        "PlayerUIDevtoolsSwiftUIPlugin",
+        "PlayerUIDevtoolsBaseProfilerDevtoolsPlugin"
+    ],
+    path: "devtools/plugins/profiler/swiftui",
+    exclude: excluded
 )
 
 // --- END DECLARATIONS ---
@@ -128,6 +141,7 @@ let allTargets: [Target] = [
     swiftUIPlugin,
     baseBasicDevtoolsPlugin,
     basicPlugin,
+    baseProfilerDevtoolsPlugin,
     profilerPlugin
 ]
 

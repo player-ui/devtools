@@ -1,7 +1,7 @@
 import Foundation
 import PlayerUIDevtoolsMessenger
-import PlayerUIDevtoolsPlugins
-import PlayerUIDevtoolsSwiftUIPlugins
+import PlayerUIDevtoolsPlugin
+import PlayerUIDevtoolsSwiftUIPlugin
 import PlayerUIDevtoolsBaseProfilerDevtoolsPlugin
 
 /// A Player Plugin that provides DevTools capabilities via Flipper.
