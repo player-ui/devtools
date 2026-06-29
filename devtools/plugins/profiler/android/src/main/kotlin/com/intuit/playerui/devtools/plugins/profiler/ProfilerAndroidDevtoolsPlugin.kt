@@ -1,10 +1,11 @@
-package com.intuit.playerui.plugins.devtools.profiler
+package com.intuit.playerui.devtools.plugins.profiler
 
 import androidx.annotation.StyleRes
 import com.intuit.playerui.android.AndroidPlayer
 import com.intuit.playerui.core.bridge.runtime.Runtime
 import com.intuit.playerui.devtools.AndroidDevtoolsPlugin
-import com.intuit.playerui.plugins.devtools.profiler.ProfilerDevtoolsPlugin.Module.ProfilerDevtoolsPlugin
+import com.intuit.playerui.devtools.plugins.profiler.ProfilerDevtoolsPlugin.Module.ProfilerDevtoolsPlugin
+import com.intuit.playerui.devtools.plugins.profiler.R
 
 public class ProfilerAndroidDevtoolsPlugin(
     private val id: String,

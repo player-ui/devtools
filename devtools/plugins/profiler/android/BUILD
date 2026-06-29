@@ -1,4 +1,5 @@
 # Android lib that consumes jvm similar to how react consumes core
+load("@build_constants//:constants.bzl", "GROUP")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 load("//helpers:android.bzl", "kt_android")
 
@@ -20,12 +21,12 @@ test_deps = [
 
 kt_android(
     name = "profiler-android",
-    group = "com.intuit.playerui.plugins.devtools.profiler",
+    group = "%s.plugins" % GROUP,
     main_deps = main_deps,
     main_exports = main_exports,
     main_resources = main_resources,
     unit_test_deps = test_deps,
-    unit_test_package = "com.intuit.playerui.plugins.devtools.profiler",
+    unit_test_package = "com.intuit.playerui.devtools.plugins.profiler",
 )
 
 alias(

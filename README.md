@@ -41,6 +41,7 @@ itself, using the [devtools-assets](https://github.com/player-ui/devtools-assets
 | ---------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | [`plugin`](./devtools/plugin)               | TS · React · Android · JVM · iOS · SwiftUI | Base classes for building Devtools plugins.                                                                                              |
 | [`plugins/basic`](./devtools/plugins/basic) | all of the above                           | The standard plugin — exposes flow, data, logs, config; supports expression evaluation and flow overrides. The reference implementation. |
+| [`plugins/profiler`](./devtools/plugins/profiler) | all of the above                     | Profiles Player hook execution timing and exposes it as a flame graph. |
 
 ### Clients (tooling side)
 
