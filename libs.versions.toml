@@ -18,7 +18,7 @@ playerui-utils = { module = "com.intuit.playerui:utils", version.ref = "playerui
 playerui-plugins-set-time-out = { module = "com.intuit.playerui.plugins:set-time-out", version.ref = "playerui" }
 
 # Flipper
-flipper = { module = "com.facebook.flipper:flipper", version = "0.212.0" }
+flipper = { module = "com.facebook.flipper:flipper", version = "0.273.0" }
 openssl = { module = "com.android.ndk.thirdparty:openssl:aar", version = "1.1.1l-beta-1" }
 
 # Compose

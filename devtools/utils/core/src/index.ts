@@ -25,8 +25,10 @@ function deepAssign<T, V>(target: T, source: V, merge: boolean = false) {
   } else if (
     target &&
     typeof target === "object" &&
+    !Array.isArray(target) &&
     source &&
-    typeof source === "object"
+    typeof source === "object" &&
+    !Array.isArray(source)
   ) {
     const record = target as Record<string, unknown>;
 
@@ -73,7 +75,8 @@ export function dsetAssign<V>(
   merge: boolean = false,
 ): void {
   const key = keys[keys.length - 1];
-  if (!key) throw Error("Unable to assign at path containing undefined keys");
+  if (key === undefined)
+    throw Error("Unable to assign at path containing undefined keys");
 
   // Walk the path, auto-vivifying intermediate objects when necessary
   const target = keys

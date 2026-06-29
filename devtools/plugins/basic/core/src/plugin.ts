@@ -58,11 +58,6 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
     if (!this.checkIfDevtoolsIsActive()) return;
 
-    this.options.pluginData.flow.data!.playerConfig = {
-      version: player.getVersion(),
-      plugins: player.getPlugins().map((plugin) => plugin.name),
-    };
-
     super.apply(player);
 
     // Config
