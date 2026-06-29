@@ -12,6 +12,7 @@ let excluded = ["ViewInspector", "UITests", "Tests", "BUILD"]
 
 let playerUIDependency: Target.Dependency = .product(name: "PlayerUI", package: "playerui-swift-package")
 let playerUILoggerDependency: Target.Dependency = .product(name: "PlayerUILogger", package: "playerui-swift-package")
+let playerUISwiftUIDependency: Target.Dependency = .product(name: "PlayerUISwiftUI", package: "playerui-swift-package")
 let swiftFlipperDependency: Target.Dependency = .product(name: "SwiftFlipper", package: "SwiftFlipper")
 
 let utils: Target = .target(
@@ -105,6 +106,30 @@ let basicPlugin: Target = .target(
     exclude: excluded
 )
 
+let baseProfilerDevtoolsPlugin: Target = .target(
+    name: "PlayerUIDevtoolsBaseProfilerDevtoolsPlugin",
+    dependencies: [
+        playerUIDependency,
+        playerUILoggerDependency,
+        "PlayerUIDevtoolsPlugin",
+        "PlayerUIDevtoolsUtilsSwiftUI"
+    ],
+    path: "devtools/plugins/profiler/ios",
+    exclude: excluded,
+    resources: [.process("Resources")]
+)
+
+let profilerPlugin: Target = .target(
+    name: "PlayerUIDevtoolsProfilerPlugin",
+    dependencies: [
+        swiftFlipperDependency,
+        "PlayerUIDevtoolsSwiftUIPlugin",
+        "PlayerUIDevtoolsBaseProfilerDevtoolsPlugin"
+    ],
+    path: "devtools/plugins/profiler/swiftui",
+    exclude: excluded
+)
+
 // --- END DECLARATIONS ---
 
 let allTargets: [Target] = [
@@ -115,7 +140,9 @@ let allTargets: [Target] = [
     plugin,
     swiftUIPlugin,
     baseBasicDevtoolsPlugin,
-    basicPlugin
+    basicPlugin,
+    baseProfilerDevtoolsPlugin,
+    profilerPlugin
 ]
 
 // This is the Package.swift for our SPM release.

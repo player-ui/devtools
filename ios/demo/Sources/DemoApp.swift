@@ -7,6 +7,7 @@ import SwiftFlipper
 import PlayerUIDevtoolsPlugin
 import PlayerUIReferenceAssets
 import PlayerUIDevtoolsBasicPlugin
+import PlayerUIDevtoolsProfilerPlugin
 
 @main
 struct BazelApp: App {
@@ -95,7 +96,8 @@ class DemoViewModel: ObservableObject {
         defaultPlugins = [
             ReferenceAssetsPlugin(),
             PrintLoggerPlugin(level: .debug),
-            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
+            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin),
+            ProfilerDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
         ]
 
         flipperClient.addPlugin(flipperPlugin)
@@ -114,7 +116,8 @@ class DemoViewModel: ObservableObject {
         defaultPlugins = [
             ReferenceAssetsPlugin(),
             PrintLoggerPlugin(level: .debug),
-            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
+            BasicDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin),
+            ProfilerDevtoolsPlugin(id: devtoolsPluginID, flipperPlugin: flipperPlugin)
         ]
     }
 }
