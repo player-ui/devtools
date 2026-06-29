@@ -1,8 +1,8 @@
-package com.intuit.playerui.plugins.devtools.profiler
+package com.intuit.playerui.devtools.plugins.profiler
 
 import com.intuit.playerui.devtools.DevtoolsHandler
 import com.intuit.playerui.devtools.DevtoolsPluginInteractionEvent
-import com.intuit.playerui.plugins.devtools.profiler.ProfilerDevtoolsPlugin.Module.ProfilerDevtoolsPlugin
+import com.intuit.playerui.devtools.plugins.profiler.ProfilerDevtoolsPlugin.Module.ProfilerDevtoolsPlugin
 import com.intuit.playerui.utils.test.RuntimeTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

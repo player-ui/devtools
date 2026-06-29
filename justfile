@@ -74,6 +74,15 @@ install-flipper-client:
     rsync -a --delete bazel-bin/$PREFIX/$PLUGIN_NAME/. $INSTALL_LOCATION/
     chown -R $(whoami) $INSTALL_LOCATION
 
+
+[doc('Run the MCP server (requires a running Flipper server on localhost:52342)')]
+mcp:
+  bazel run //devtools/mcp:mcp_server
+
+[doc('Open MCP inspector against the MCP server')]
+mcp-inspect:
+  bazel run //devtools/mcp:inspect
+
 clean: # Force delete all the cached bazel stuff. Be careful!
     # Delete all the bazel build artifacts
     rm -rf .build

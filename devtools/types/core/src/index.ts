@@ -97,6 +97,19 @@ export interface MessengerOptions<T extends BaseEvent<string, unknown>> {
   };
 }
 
+/** Describes data keys and actions a plugin exposes to agents */
+export type PluginCapabilities = {
+  /** Human-readable description of what this plugin does */
+  description: string;
+  /** Data keys the plugin publishes, keyed by name */
+  data: Record<string, { description: string }>;
+  /** Actions the plugin accepts, keyed by name */
+  actions?: Record<
+    string,
+    { description: string; params?: Record<string, unknown> }
+  >;
+};
+
 /** Plugin data */
 export interface PluginData {
   /** Plugin id */
@@ -109,6 +122,8 @@ export interface PluginData {
   description: string;
   /** Plugin UI */
   flow: Flow;
+  /** Agent-visible capabilities declared at registration time */
+  capabilities?: PluginCapabilities;
 }
 
 export interface ExtensionState {

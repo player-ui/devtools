@@ -1,4 +1,4 @@
-package com.intuit.playerui.plugins.devtools.profiler
+package com.intuit.playerui.devtools.plugins.profiler
 
 import com.intuit.playerui.core.bridge.Node
 import com.intuit.playerui.core.bridge.runtime.Runtime

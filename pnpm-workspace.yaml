@@ -3,6 +3,7 @@ packages:
   - docs/*
   - devtools/client
   - devtools/flipper-plugin
+  - devtools/mcp
   - devtools/plugin/core
   - devtools/plugin/react
   - devtools/plugins/basic/content

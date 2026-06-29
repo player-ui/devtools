@@ -1,3 +1,4 @@
+load("@build_constants//:constants.bzl", "GROUP")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 load("//helpers:jvm.bzl", "kt_jvm")
 
@@ -18,7 +19,7 @@ test_deps = [
 
 kt_jvm(
     name = "profiler-plugin",
-    group = "com.intuit.playerui.plugins.devtools.profiler",
+    group = "%s.plugins" % GROUP,
     main_deps = main_deps,
     main_exports = main_exports,
     main_resources = main_resources,

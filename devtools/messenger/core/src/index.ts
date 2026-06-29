@@ -268,7 +268,11 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
         connection.messagesReceived += (
           parsed.payload as EventsBatchEvent<T>["payload"]
         ).events.length;
-      } else {
+      } else if (transactionID > -1) {
+        // Only sequenced messages advance the counter. Broadcasts (id === -1,
+        // no target) are delivered to everyone but were never sequenced, so
+        // counting them would make the next targeted message look like a
+        // duplicate (its id <= the inflated messagesReceived) and be dropped.
         connection.messagesReceived += 1;
       }
     }
@@ -367,12 +371,11 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     this.addEvent(parsed);
 
     const target = parsed.target || null;
+    // `addTransactionMetadata` → `getTransactionID` already increments the
+    // target connection's `messagesSent` and stamps that value as the id.
+    // Do NOT increment again here, or the sender's counter desyncs from the
+    // stamped ids (corrupting duplicate detection and lost-event replay).
     const msg = this.addTransactionMetadata(parsed);
-    const connection = target ? this.getConnection(target) : null;
-
-    if (connection) {
-      connection.messagesSent += 1;
-    }
 
     return this.options.sendMessage(msg).catch(() => {
       this.options.handleFailedMessage?.(msg);

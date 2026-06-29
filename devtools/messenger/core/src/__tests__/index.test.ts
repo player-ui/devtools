@@ -1,7 +1,11 @@
-import { describe, beforeEach, expect, test, vi } from "vitest";
+import { describe, beforeEach, expect, test, vi, type Mock } from "vitest";
 import { Messenger } from "../index";
 import { createMockContext } from "./helpers";
-import { BaseEvent } from "@player-devtools/types";
+import {
+  BaseEvent,
+  type Transaction,
+  type ExtensionSupportedEvents,
+} from "@player-devtools/types";
 
 vi.useFakeTimers();
 
@@ -367,5 +371,204 @@ describe("Messenger", () => {
       15,
       expect.objectContaining({ type: "MESSENGER_BEACON" }),
     );
+  });
+
+  // The MCP server addresses outbound actions to a specific player via the
+  // `target` field; on the device, each Player runs a Messenger whose `id` is
+  // its playerID. This proves the receiving side actually drops messages whose
+  // `target` isn't its own id — i.e. a Player only handles actions meant for
+  // it, even though every Player sees every message on the shared bus.
+  describe("target-based routing", () => {
+    /**
+     * Wire N player messengers onto one shared bus. Each gets a
+     * messageCallback spy; a message is "handled" by a player iff its callback
+     * fires.
+     */
+    function bus(...ids: string[]) {
+      type Frame = Transaction<ExtensionSupportedEvents>;
+      const listeners = new Set<(event: Frame) => void>();
+      const handled: Record<string, Mock> = {};
+      const messengers: Array<Messenger<ExtensionSupportedEvents>> = [];
+
+      const api = {
+        sendMessage: async (event: Frame) =>
+          listeners.forEach((listener) => listener(event)),
+        addListener: (cb: (event: Frame) => void) => {
+          listeners.add(cb);
+        },
+        removeListener: (cb: (event: Frame) => void) => {
+          listeners.delete(cb);
+        },
+      };
+
+      for (const id of ids) {
+        const messageCallback = vi.fn();
+        handled[id] = messageCallback;
+        const messenger = new Messenger<ExtensionSupportedEvents>({
+          ...api,
+          messageCallback,
+          context: "player",
+          id,
+          logger: console,
+        });
+        messengers.push(messenger);
+      }
+
+      /** Inject a frame as if it arrived from the devtools/MCP side. */
+      const inject = (target: string | undefined) =>
+        api.sendMessage({
+          type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
+          payload: { type: "next" },
+          context: "devtools",
+          sender: "devtools-mcp",
+          _messenger_: true,
+          ...(target ? { target } : {}),
+        } as unknown as Frame);
+
+      return { handled, inject, messengers };
+    }
+
+    test("only the targeted player handles the interaction", () => {
+      const { handled, inject } = bus("player-a", "player-b");
+
+      inject("player-b");
+
+      expect(handled["player-b"]).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
+          target: "player-b",
+        }),
+      );
+      expect(handled["player-a"]).not.toHaveBeenCalled();
+    });
+
+    test("an untargeted message is handled by every player", () => {
+      const { handled, inject } = bus("player-a", "player-b");
+
+      inject(undefined);
+
+      expect(handled["player-a"]).toHaveBeenCalled();
+      expect(handled["player-b"]).toHaveBeenCalled();
+    });
+
+    // Regression: a broadcast (no target, id === -1) followed by a targeted
+    // message to the SAME player must still deliver the targeted message. The
+    // broadcast previously advanced the receiver's `messagesReceived`, so the
+    // targeted message's id looked like an already-seen duplicate and was
+    // dropped. Drives the real sender `sendMessage` so transaction ids are
+    // assigned exactly as in production.
+    test("a targeted message after a broadcast is still delivered (not seen as duplicate)", () => {
+      type Frame = Transaction<ExtensionSupportedEvents>;
+      const listeners = new Set<(event: Frame) => void>();
+      const layer = {
+        sendMessage: async (event: Frame) => listeners.forEach((l) => l(event)),
+        addListener: (cb: (event: Frame) => void) => {
+          listeners.add(cb);
+        },
+        removeListener: (cb: (event: Frame) => void) => {
+          listeners.delete(cb);
+        },
+      };
+
+      const received = vi.fn();
+      const player = new Messenger<ExtensionSupportedEvents>({
+        ...layer,
+        messageCallback: received,
+        context: "player",
+        id: "player-a",
+        logger: console,
+      });
+      const devtools = new Messenger<ExtensionSupportedEvents>({
+        ...layer,
+        messageCallback: () => {},
+        context: "devtools",
+        id: "devtools",
+        logger: console,
+      });
+      // establish the connection both ways
+      vi.advanceTimersByTime(2000);
+      received.mockClear();
+
+      // broadcast (no target) — reaches player-a but must not advance its
+      // sequence counter for the devtools connection
+      devtools.sendMessage({
+        type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
+        payload: { type: "player-selected", payload: "player-a" },
+      } as unknown as ExtensionSupportedEvents);
+
+      // targeted follow-up to the same player
+      devtools.sendMessage({
+        type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
+        payload: { type: "next" },
+        target: "player-a",
+      } as unknown as ExtensionSupportedEvents);
+
+      const delivered = received.mock.calls
+        .map((c) => (c[0] as Frame).payload as { type?: string })
+        .map((p) => p?.type);
+      expect(delivered).toContain("player-selected");
+      expect(delivered).toContain("next");
+
+      // keep a reference so the messengers aren't flagged unused
+      expect(player).toBeDefined();
+    });
+
+    // Regression: two consecutive TARGETED messages to the same player must
+    // both arrive in sequence. `sendMessage` used to increment `messagesSent`
+    // a second time (on top of `getTransactionID`), so the second message was
+    // stamped id=3 instead of 2 — a gap past the receiver's messagesReceived
+    // that triggered lost-event recovery instead of delivery.
+    test("consecutive targeted messages keep contiguous ids and both deliver", () => {
+      type Frame = Transaction<ExtensionSupportedEvents>;
+      const listeners = new Set<(event: Frame) => void>();
+      const layer = {
+        sendMessage: async (event: Frame) => listeners.forEach((l) => l(event)),
+        addListener: (cb: (event: Frame) => void) => {
+          listeners.add(cb);
+        },
+        removeListener: (cb: (event: Frame) => void) => {
+          listeners.delete(cb);
+        },
+      };
+
+      const received = vi.fn();
+      const player = new Messenger<ExtensionSupportedEvents>({
+        ...layer,
+        messageCallback: received,
+        context: "player",
+        id: "player-a",
+        logger: console,
+      });
+      const devtools = new Messenger<ExtensionSupportedEvents>({
+        ...layer,
+        messageCallback: () => {},
+        context: "devtools",
+        id: "devtools",
+        logger: console,
+      });
+      vi.advanceTimersByTime(2000);
+      received.mockClear();
+
+      devtools.sendMessage({
+        type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
+        payload: { type: "first" },
+        target: "player-a",
+      } as unknown as ExtensionSupportedEvents);
+      devtools.sendMessage({
+        type: "PLAYER_DEVTOOLS_PLUGIN_INTERACTION",
+        payload: { type: "second" },
+        target: "player-a",
+      } as unknown as ExtensionSupportedEvents);
+
+      const ids = received.mock.calls.map((c) => (c[0] as Frame).id);
+      const delivered = received.mock.calls.map(
+        (c) => ((c[0] as Frame).payload as { type?: string })?.type,
+      );
+      expect(delivered).toContain("first");
+      expect(delivered).toContain("second");
+      // contiguous ids 1, 2 — no gap that would trip lost-event recovery
+      expect(ids).toEqual([1, 2]);
+      expect(player).toBeDefined();
+    });
   });
 });
