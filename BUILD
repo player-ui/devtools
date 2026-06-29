@@ -152,6 +152,13 @@ assemble_ios_release(
 
         # BasicPlugin
         "//devtools/plugins/basic/swiftui:PlayerUIDevtoolsBasicPlugin_Sources": "devtools/plugins/basic/swiftui/",
+
+        # BaseProfilerDevtoolsPlugin
+        "//devtools/plugins/profiler/ios:PlayerUIDevtoolsBaseProfilerDevtoolsPlugin_Sources": "devtools/plugins/profiler/ios/",
+        "//devtools/plugins/profiler/core:core_native_bundle": "devtools/plugins/profiler/ios/Resources/",
+
+        # ProfilerPlugin
+        "//devtools/plugins/profiler/swiftui:PlayerUIDevtoolsProfilerPlugin_Sources": "devtools/plugins/profiler/swiftui/",
     },
 )
 
