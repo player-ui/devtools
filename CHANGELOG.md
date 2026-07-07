@@ -1,3 +1,15 @@
+# 0.14.0-next.1 (Tue Jul 07 2026)
+
+#### 🐛 Bug Fix
+
+- Fix profiler-plugin-react entry point [#16](https://github.com/player-ui/devtools/pull/16) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### Authors: 1
+
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.14.0-next.0 (Mon Jun 29 2026)
 
 ### Release Notes
