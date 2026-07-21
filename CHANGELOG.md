@@ -1,3 +1,53 @@
+# 0.14.0 (Tue Jul 21 2026)
+
+### Release Notes
+
+#### Modularize the devtools client packages ([#17](https://github.com/player-ui/devtools/pull/17))
+
+The devtools client is now split into focused packages so you only install what you use:
+
+- **`@player-devtools/client`** — headless client (`createExtensionClient`, state reducer). No React dependency.
+- **`@player-devtools/client-react`** — the React `Panel` and hooks. If you were importing `Panel` from `@player-devtools/client`, import it from `@player-devtools/client-react` instead:
+  ```typescript
+  import { Panel } from "@player-devtools/client-react";
+  ```
+- **`@player-devtools/client-flipper`** — the headless `FlipperServerTransport`, for connecting to a Player over a running `flipper-server` from any Node client.
+- Node < 22 support for the MCP server
+
+#### Player Devtools MCP ([#12](https://github.com/player-ui/devtools/pull/12))
+
+Added `@player-devtools/mcp`, an MCP server that exposes the Player UI Devtools to AI agents. Point an MCP client at it over stdio:
+
+```bash
+claude mcp add player-devtools -- npx -y @player-devtools/mcp@latest
+```
+
+It connects to live Players through a shared `flipper-server` and exposes tools to list players, read flow/data/logs/plugin state, and invoke plugin actions. Also includes messenger routing fixes for reliable targeted message delivery and README documentation across the devtools workspace.
+
+---
+
+#### 🚀 Enhancement
+
+- Player Devtools MCP [#12](https://github.com/player-ui/devtools/pull/12) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### 🐛 Bug Fix
+
+- Release main [#18](https://github.com/player-ui/devtools/pull/18) ([@intuit-svc](https://github.com/intuit-svc))
+- Modularize the devtools client packages [#17](https://github.com/player-ui/devtools/pull/17) ([@sugarmanz](https://github.com/sugarmanz))
+- Fix profiler-plugin-react entry point [#16](https://github.com/player-ui/devtools/pull/16) ([@sugarmanz](https://github.com/sugarmanz))
+- Add profiler plugin for each platform [#15](https://github.com/player-ui/devtools/pull/15) ([@tmarmer](https://github.com/tmarmer) [@sugarmanz](https://github.com/sugarmanz))
+- Exclude fbjni transitive deps [#13](https://github.com/player-ui/devtools/pull/13) ([@sugarmanz](https://github.com/sugarmanz))
+- Add ios-review skill stub referencing the main player-ui/player skill [#14](https://github.com/player-ui/devtools/pull/14) ([@KVSRoyal](https://github.com/KVSRoyal))
+
+#### Authors: 4
+
+- [@intuit-svc](https://github.com/intuit-svc)
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+- Koriann South ([@KVSRoyal](https://github.com/KVSRoyal))
+- Thomas Marmer ([@tmarmer](https://github.com/tmarmer))
+
+---
+
 # 0.14.0-next.1 (Tue Jul 07 2026)
 
 #### 🐛 Bug Fix
