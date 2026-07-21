@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-const { FlipperServerTransport, MCPServer } = require("@player-devtools/mcp");
+const { MCPServer } = require("@player-devtools/mcp");
+const {
+  FlipperServerTransport,
+} = require("@player-devtools/client-flipper");
 
 const transport = new FlipperServerTransport();
 const server = new MCPServer(transport);

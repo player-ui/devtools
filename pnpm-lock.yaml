@@ -404,6 +404,12 @@ importers:
         specifier: workspace:*
         version: link:../../utils/core
 
+  devtools/client/flipper:
+    dependencies:
+      '@player-devtools/types':
+        specifier: workspace:*
+        version: link:../../types/core
+
   devtools/client/react:
     dependencies:
       '@player-devtools/client':
@@ -433,6 +439,9 @@ importers:
       '@player-devtools/client':
         specifier: workspace:*
         version: link:../client/core
+      '@player-devtools/client-flipper':
+        specifier: workspace:*
+        version: link:../client/flipper
       '@player-devtools/messenger':
         specifier: workspace:*
         version: link:../messenger/core

@@ -249,6 +249,18 @@ export type CommunicationLayerMethods = Pick<
   "sendMessage" | "addListener" | "removeListener"
 >;
 
+/**
+ * A communication layer with a managed lifecycle — implemented by each
+ * connection adapter (e.g. the Flipper transport) and consumed by clients
+ * that need to connect/tear down the underlying transport.
+ */
+export interface Transport extends CommunicationLayerMethods {
+  /** Connect to the underlying transport */
+  connect(): Promise<void>;
+  /** Tear down the underlying transport */
+  close(): Promise<void>;
+}
+
 /** Interface representing the Devtools Plugins Store. */
 export interface DevtoolsPluginsStore {
   /** Plugins data. */

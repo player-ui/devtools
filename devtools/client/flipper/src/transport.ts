@@ -14,6 +14,7 @@ import type {
   ExtensionSupportedEvents,
   MessengerEvent,
   TransactionMetadata,
+  Transport,
 } from "@player-devtools/types";
 
 // polyfill WebSocket for Node < 22
@@ -37,14 +38,6 @@ type FlipperExecuteMessage = {
     params?: unknown;
   };
 };
-
-/** Transport interface — implemented by each connection adapter */
-export interface Transport extends CommunicationLayerMethods {
-  /** Connect to the underlying transport */
-  connect(): Promise<void>;
-  /** Tear down the underlying transport */
-  close(): Promise<void>;
-}
 
 /**
  * Flipper headless transport
