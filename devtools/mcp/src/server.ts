@@ -2,11 +2,11 @@ import {
   createExtensionClient,
   type ExtensionClient,
 } from "@player-devtools/client";
+import type { Transport } from "@player-devtools/types";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
-import type { Transport } from "./transport";
 import { TOOL_DEFS, type ToolDef } from "./tools";
 
 export class MCPServer {

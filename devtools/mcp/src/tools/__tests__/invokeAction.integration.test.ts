@@ -10,9 +10,7 @@ import type {
 } from "@player-devtools/types";
 
 // NOTE: this test drives the devtools/MCP side with a real Messenger rather
-// than `createExtensionClient`, because that factory currently lives in the
-// `@player-devtools/client` barrel alongside the React `Panel`, which can't be
-// imported in this node test env (it pulls in UI-only CJS deps). The MCP
+// than `createExtensionClient` because it exercises the bus directly — the MCP
 // handler's playerId→target resolution is unit-tested in select.test.ts; what
 // THIS test proves is the other half: real DevtoolsPlugins on a shared bus only
 // handle actions addressed to their own playerID. The frame built below is

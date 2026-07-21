@@ -15,9 +15,9 @@ orbs:
 executors:
   base:
     docker:
-      - image: docker.io/playerui/bazel-docker:9
+      - image: docker.io/playerui/bazel-docker
     working_directory: ~/devtools
-    resource_class: large
+    resource_class: xlarge
     environment:
       TZ: "/usr/share/zoneinfo/America/Los_Angeles"
   minimal:

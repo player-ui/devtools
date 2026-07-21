@@ -12,11 +12,10 @@ vitest_config(name = "vitest_config")
 
 deps = [
     ":node_modules/@player-devtools/client",
+    ":node_modules/@player-devtools/client-flipper",
     ":node_modules/@player-devtools/messenger",
     ":node_modules/@player-devtools/types",
     "//:node_modules/@modelcontextprotocol/sdk",
-    "//:node_modules/flipper-server",
-    "//:node_modules/flipper-server-client",
     "//:node_modules/zod",
 ]
 

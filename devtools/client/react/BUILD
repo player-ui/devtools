@@ -9,8 +9,9 @@ tsup_config(name = "tsup_config")
 vitest_config(name = "vitest_config")
 
 js_pipeline(
-    package_name = "@player-devtools/client",
+    package_name = "@player-devtools/client-react",
     deps = [
+        ":node_modules/@player-devtools/client",
         ":node_modules/@player-devtools/messenger",
         ":node_modules/@player-devtools/types",
         ":node_modules/@player-devtools/utils",
@@ -27,6 +28,6 @@ js_pipeline(
         "//:node_modules/react",
         "//:node_modules/react-error-boundary",
         "//:node_modules/dequal",
-        "//:node_modules/@devtools-ds/themes"
+        "//:node_modules/@devtools-ds/themes",
     ],
 )

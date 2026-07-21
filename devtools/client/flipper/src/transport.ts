@@ -8,12 +8,20 @@ import * as net from "net";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { WebSocket as WsWebSocket } from "ws";
 import type {
   CommunicationLayerMethods,
   ExtensionSupportedEvents,
   MessengerEvent,
   TransactionMetadata,
+  Transport,
 } from "@player-devtools/types";
+
+// polyfill WebSocket for Node < 22
+if (typeof (globalThis as { WebSocket?: unknown }).WebSocket === "undefined") {
+  (globalThis as { WebSocket?: unknown }).WebSocket =
+    WsWebSocket as unknown as typeof WebSocket;
+}
 
 type MessageCallback = (
   message: TransactionMetadata & MessengerEvent<ExtensionSupportedEvents>,
@@ -30,14 +38,6 @@ type FlipperExecuteMessage = {
     params?: unknown;
   };
 };
-
-/** Transport interface — implemented by each connection adapter */
-export interface Transport extends CommunicationLayerMethods {
-  /** Connect to the underlying transport */
-  connect(): Promise<void>;
-  /** Tear down the underlying transport */
-  close(): Promise<void>;
-}
 
 /**
  * Flipper headless transport
