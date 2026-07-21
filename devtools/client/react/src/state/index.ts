@@ -1,7 +1,7 @@
 import type { CommunicationLayerMethods } from "@player-devtools/types";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 
-import { createExtensionClient } from "./client";
+import { createExtensionClient } from "@player-devtools/client";
 
 /**
  * Thin React adapter over `createExtensionClient`.

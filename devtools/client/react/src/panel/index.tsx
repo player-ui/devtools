@@ -24,10 +24,32 @@ import {
 
 import { ThemeProvider, useDarkMode } from "@devtools-ds/themes";
 
-import { INITIAL_FLOW } from "../constants";
 import { PLAYER_PLUGINS, PUBSUB_PLUGIN } from "../plugins";
 import { useExtensionState } from "../state";
 import { flowDiff } from "../helpers/flowDiff";
+
+/** Placeholder flow rendered until a real Player flow arrives. */
+const INITIAL_FLOW: Flow = {
+  id: "initial-flow",
+  views: [
+    {
+      id: "view-1",
+      type: "text",
+      value: "connecting...",
+    },
+  ],
+  navigation: {
+    BEGIN: "FLOW_1",
+    FLOW_1: {
+      startState: "VIEW_1",
+      VIEW_1: {
+        state_type: "VIEW",
+        ref: "view-1",
+        transitions: {},
+      },
+    },
+  },
+};
 
 const fallbackRender: ErrorBoundary["props"]["fallbackRender"] = ({
   error,

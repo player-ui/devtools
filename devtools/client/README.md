@@ -1,19 +1,22 @@
-# @player-devtools/client
+# Player UI Devtools client
 
-The `@player-devtools/client` exposes the Panel with the ReactPlayer, which is responsible for running content sent by Player devtool plugins on the inspected Player UI instance.
+The devtools client is split into two packages so headless consumers never load React:
 
-The `Panel` is the shared devtools UI surface, hosted by each client: the [browser extension](https://github.com/player-ui/browser-devtools) for web and the [Flipper plugin](../flipper-plugin) for mobile. The agent-facing [MCP server](../mcp) consumes the same Player devtools instrumentation without rendering the `Panel`.
+- [`core/`](./core) — `@player-devtools/client`: the headless client (`createExtensionClient`, state reducer). No React. Consumed by the agent-facing [MCP server](../mcp).
+- [`react/`](./react) — `@player-devtools/client-react`: the React `Panel` with the ReactPlayer, responsible for rendering content sent by Player devtool plugins on the inspected Player UI instance.
+
+The `Panel` is the shared devtools UI surface, hosted by each client: the [browser extension](https://github.com/player-ui/browser-devtools) for web and the [Flipper plugin](../flipper-plugin) for mobile. The agent-facing [MCP server](../mcp) consumes the same Player devtools instrumentation via the headless `@player-devtools/client` core, without rendering the `Panel`.
 
 ## Installation
 
 The Devtools client is available as an npm package. You can install it using npm or yarn:
 
 ```bash
-npm install @player-devtools/client
+npm install @player-devtools/client-react
 ```
 
 ```bash
-yarn add @player-devtools/client
+yarn add @player-devtools/client-react
 ```
 
 ## Overview
@@ -29,7 +32,7 @@ For a more comprehensive understanding of the architecture of the Devtools clien
 The Devtools client is a React component that receives content from devtools plugins running in the Player UI used by the inspected page. It can be used in your React application like any other React component.
 
 ```jsx
-import { Panel } from "@player-devtools/client";
+import { Panel } from "@player-devtools/client-react";
 import type { MessengerOptions } from "@player-devtools/messenger";
 import browser from "webextension-polyfill";
 

@@ -392,23 +392,38 @@ importers:
         specifier: ^3.0.0
         version: 3.25.76
 
-  devtools/client:
+  devtools/client/core:
     dependencies:
       '@player-devtools/messenger':
         specifier: workspace:*
-        version: link:../messenger/core
+        version: link:../../messenger/core
       '@player-devtools/types':
         specifier: workspace:*
-        version: link:../types/core
+        version: link:../../types/core
       '@player-devtools/utils':
         specifier: workspace:*
-        version: link:../utils/core
+        version: link:../../utils/core
 
-  devtools/flipper-plugin:
+  devtools/client/react:
     dependencies:
       '@player-devtools/client':
         specifier: workspace:*
-        version: link:../client
+        version: link:../core
+      '@player-devtools/messenger':
+        specifier: workspace:*
+        version: link:../../messenger/core
+      '@player-devtools/types':
+        specifier: workspace:*
+        version: link:../../types/core
+      '@player-devtools/utils':
+        specifier: workspace:*
+        version: link:../../utils/core
+
+  devtools/flipper-plugin:
+    dependencies:
+      '@player-devtools/client-react':
+        specifier: workspace:*
+        version: link:../client/react
       '@player-devtools/types':
         specifier: workspace:*
         version: link:../types/core
@@ -417,7 +432,7 @@ importers:
     dependencies:
       '@player-devtools/client':
         specifier: workspace:*
-        version: link:../client
+        version: link:../client/core
       '@player-devtools/messenger':
         specifier: workspace:*
         version: link:../messenger/core

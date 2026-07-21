@@ -1,7 +1,8 @@
 packages:
   - cli
   - docs/*
-  - devtools/client
+  - devtools/client/core
+  - devtools/client/react
   - devtools/flipper-plugin
   - devtools/mcp
   - devtools/plugin/core

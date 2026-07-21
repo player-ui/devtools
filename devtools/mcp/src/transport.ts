@@ -8,12 +8,19 @@ import * as net from "net";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { WebSocket as WsWebSocket } from "ws";
 import type {
   CommunicationLayerMethods,
   ExtensionSupportedEvents,
   MessengerEvent,
   TransactionMetadata,
 } from "@player-devtools/types";
+
+// polyfill WebSocket for Node < 22
+if (typeof (globalThis as { WebSocket?: unknown }).WebSocket === "undefined") {
+  (globalThis as { WebSocket?: unknown }).WebSocket =
+    WsWebSocket as unknown as typeof WebSocket;
+}
 
 type MessageCallback = (
   message: TransactionMetadata & MessengerEvent<ExtensionSupportedEvents>,

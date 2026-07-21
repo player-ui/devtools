@@ -11,7 +11,7 @@ import type {
   MessengerEvent,
   TransactionMetadata,
 } from "@player-devtools/types";
-import { Panel } from "@player-devtools/client";
+import { Panel } from "@player-devtools/client-react";
 import {
   Button,
   ChakraProvider,

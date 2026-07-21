@@ -11,7 +11,7 @@ npm_link_all_packages(name = "node_modules")
 vitest_config(name = "vitest_config")
 
 deps = [
-    ":node_modules/@player-devtools/client",
+    ":node_modules/@player-devtools/client-react",
     ":node_modules/@player-devtools/types",
     "//:node_modules/dlv",
     

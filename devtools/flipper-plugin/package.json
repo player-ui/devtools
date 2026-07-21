@@ -6,7 +6,7 @@
   "version": "0.0.0-PLACEHOLDER",
   "main": "dist/index.js",
   "dependencies": {
-    "@player-devtools/client": "workspace:*",
+    "@player-devtools/client-react": "workspace:*",
     "@player-devtools/types": "workspace:*"
   },
   "flipperBundlerEntry": "src/index.tsx",
