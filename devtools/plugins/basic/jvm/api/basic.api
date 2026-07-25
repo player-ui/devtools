@@ -1,0 +1,55 @@
+public final class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin : com/intuit/playerui/devtools/DevtoolsPlugin {
+	public static final field Module Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Module;
+	public fun <init> (Lcom/intuit/playerui/core/bridge/Node;)V
+}
+
+public final class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Module : com/intuit/playerui/core/plugins/RuntimePlugin {
+	public final fun BasicDevtoolsPlugin (Lcom/intuit/playerui/core/bridge/runtime/Runtime;Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options;)Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin;
+	public fun apply (Lcom/intuit/playerui/core/bridge/runtime/Runtime;)V
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options {
+	public static final field Companion Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options$Companion;
+	public fun <init> (Ljava/lang/String;Lcom/intuit/playerui/devtools/DevtoolsHandler;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/intuit/playerui/devtools/DevtoolsHandler;
+	public final fun copy (Ljava/lang/String;Lcom/intuit/playerui/devtools/DevtoolsHandler;)Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options;Ljava/lang/String;Lcom/intuit/playerui/devtools/DevtoolsHandler;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHandler ()Lcom/intuit/playerui/devtools/DevtoolsHandler;
+	public final fun getPlayerID ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Options$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Serializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Serializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+synthetic class com/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Serializer$1 : kotlin/jvm/internal/FunctionReferenceImpl, kotlin/jvm/functions/Function1 {
+	public static final field INSTANCE Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin$Serializer$1;
+	public final fun invoke (Lcom/intuit/playerui/core/bridge/Node;)Lcom/intuit/playerui/devtools/plugins/basic/BasicDevtoolsPlugin;
+	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
