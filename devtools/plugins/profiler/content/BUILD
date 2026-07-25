@@ -19,14 +19,16 @@ entrypoint = ["src/flow.tsx"]
 dsl_compile(
     name = "compiled_flow",
     srcs = entrypoint,
+    cli = "@player-cli/cli",
     config = ":dsl_config",
     data = glob(
         ["src/**"],
         entrypoint,
     ) + [
         "//:node_modules/@devtools-ui/plugin",
-        "//:node_modules/@player-tools/dsl",
+        "//:node_modules/@player-lang/react-dsl",
         "//:node_modules/@player-ui/common-types-plugin",
+        "//:node_modules/@player-ui/types",
         "//:node_modules/react",
     ],
     input_dir = "src",

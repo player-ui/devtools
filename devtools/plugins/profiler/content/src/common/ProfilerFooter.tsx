@@ -1,7 +1,7 @@
 import React from "react";
 import { Collection, Action, Text } from "@devtools-ui/plugin";
-import { expression as e } from "@player-tools/dsl";
-import type { Expression } from "@player-tools/dsl";
+import { expression as e } from "@player-lang/react-dsl";
+import type { Expression } from "@player-ui/types";
 import { INTERACTIONS } from "../constants";
 import { bindings } from "../schema";
 

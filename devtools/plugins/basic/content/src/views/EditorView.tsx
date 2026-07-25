@@ -1,5 +1,6 @@
-import { expression as e } from "@player-tools/dsl";
-import type { Expression, BindingTemplateInstance } from "@player-tools/dsl";
+import { expression as e } from "@player-lang/react-dsl";
+import type { BindingTemplateInstance } from "@player-lang/react-dsl";
+import type { Expression } from "@player-ui/types";
 import { CodeEditor } from "@devtools-ui/plugin";
 import React from "react";
 import { VIEWS_IDS, INTERACTIONS } from "../constants";

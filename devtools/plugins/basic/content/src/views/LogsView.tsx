@@ -1,6 +1,6 @@
 import React from "react";
 import { Table } from "@devtools-ui/plugin";
-import type { BindingTemplateInstance } from "@player-tools/dsl";
+import type { BindingTemplateInstance } from "@player-lang/react-dsl";
 import { VIEWS_IDS } from "../constants";
 import { Screen } from "../common";
 import { bindings } from "../schema";

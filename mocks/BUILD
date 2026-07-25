@@ -23,6 +23,8 @@ compile_mocks(
     name = "mocks",
     mock_dirs = MOCK_DIRS,
     dsl_config = ":dsl_config",
+    cli = "@player-cli/cli",
+    dsl_package = "@player-lang/react-dsl",
     data = [
         "//:node_modules/@player-ui/reference-assets-cli-preset",
         "//:node_modules/@player-ui/reference-assets-plugin-components",

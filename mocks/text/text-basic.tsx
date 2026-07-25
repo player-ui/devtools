@@ -4,7 +4,7 @@ import {
   Info,
   Action,
 } from "@player-ui/reference-assets-plugin-components";
-import type { DSLFlow } from "@player-tools/dsl";
+import type { DSLFlow } from "@player-lang/react-dsl";
 
 const view1 = (
   <Info id="text-view">
