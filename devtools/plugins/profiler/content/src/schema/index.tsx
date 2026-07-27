@@ -1,6 +1,6 @@
 import { dataTypes } from "@player-ui/common-types-plugin";
 import type { Schema } from "@player-ui/types";
-import { makeBindingsForObject } from "@player-tools/dsl";
+import { makeBindingsForObject } from "@player-lang/react-dsl";
 
 const RecordType: Schema.DataType<Record<string, unknown>> = {
   type: "RecordType",

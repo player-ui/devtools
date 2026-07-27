@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/player-ui/playerui-swift-package.git",
       "state" : {
-        "revision" : "4ddfe6ceeaaaeb70f6d4316eb2937545faac5447",
-        "version" : "0.14.0"
+        "revision" : "57c3528fbdda1d98982cec9cb7c01a198353af8d",
+        "version" : "0.15.5"
       }
     },
     {

@@ -1,0 +1,55 @@
+public final class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin : com/intuit/playerui/devtools/DevtoolsPlugin {
+	public static final field Module Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Module;
+	public fun <init> (Lcom/intuit/playerui/core/bridge/Node;)V
+}
+
+public final class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Module : com/intuit/playerui/core/plugins/RuntimePlugin {
+	public final fun ProfilerDevtoolsPlugin (Lcom/intuit/playerui/core/bridge/runtime/Runtime;Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options;)Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin;
+	public fun apply (Lcom/intuit/playerui/core/bridge/runtime/Runtime;)V
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options {
+	public static final field Companion Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options$Companion;
+	public fun <init> (Ljava/lang/String;Lcom/intuit/playerui/devtools/DevtoolsHandler;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/intuit/playerui/devtools/DevtoolsHandler;
+	public final fun copy (Ljava/lang/String;Lcom/intuit/playerui/devtools/DevtoolsHandler;)Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options;Ljava/lang/String;Lcom/intuit/playerui/devtools/DevtoolsHandler;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHandler ()Lcom/intuit/playerui/devtools/DevtoolsHandler;
+	public final fun getPlayerID ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options$$serializer;
+	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Options$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Serializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Serializer;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+synthetic class com/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Serializer$1 : kotlin/jvm/internal/FunctionReferenceImpl, kotlin/jvm/functions/Function1 {
+	public static final field INSTANCE Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin$Serializer$1;
+	public final fun invoke (Lcom/intuit/playerui/core/bridge/Node;)Lcom/intuit/playerui/devtools/plugins/profiler/ProfilerDevtoolsPlugin;
+	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
+}
+

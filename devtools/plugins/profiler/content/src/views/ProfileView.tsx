@@ -1,10 +1,10 @@
 import React from "react";
 import { FlameGraph } from "@devtools-ui/plugin";
-import { expression as e, binding as b } from "@player-tools/dsl";
+import { expression as e, binding as b } from "@player-lang/react-dsl";
 import type {
   BindingTemplateInstance,
   ExpressionTemplateInstance,
-} from "@player-tools/dsl";
+} from "@player-lang/react-dsl";
 import { VIEWS_IDS } from "../constants";
 import { Screen, ProfilerFooter } from "../common";
 import { bindings } from "../schema";
