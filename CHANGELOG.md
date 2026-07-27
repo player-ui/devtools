@@ -1,3 +1,26 @@
+# 0.14.1 (Mon Jul 27 2026)
+
+### Release Notes
+
+#### Declare Player as a peer dependency and adopt Player 1.0 tooling scopes ([#19](https://github.com/player-ui/devtools/pull/19))
+
+- The devtools plugins now declare `@player-ui/*` as **peer dependencies** (`>=0.15.4`). Consumers must provide a compatible `@player-ui/player` (plus `react`/`types`) — any version from `0.15.4` onward, including `1.x`, satisfies it.
+- Build tooling migrated off the deprecated `@player-tools/*` scope to `@player-cli`, `@player-lang`, and `@xlr-lib`.
+
+---
+
+#### 🐛 Bug Fix
+
+- Release main [#20](https://github.com/player-ui/devtools/pull/20) ([@intuit-svc](https://github.com/intuit-svc))
+- Declare Player as a peer dependency and adopt Player 1.0 tooling scopes [#19](https://github.com/player-ui/devtools/pull/19) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### Authors: 2
+
+- [@intuit-svc](https://github.com/intuit-svc)
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.14.1-next.0 (Mon Jul 27 2026)
 
 ### Release Notes
