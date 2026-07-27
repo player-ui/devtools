@@ -25,7 +25,7 @@
     "@chakra-ui/anatomy": "2.3.4",
     "@chakra-ui/react": "2.8.2",
     "@devtools-ds/themes": "^1.2.1",
-    "@devtools-ui/plugin": "0.4.1--canary.62.3837",
+    "@devtools-ui/plugin": "0.4.1",
     "@emotion/styled": "^11",
     "@eslint/js": "^9.29.0",
     "@modelcontextprotocol/inspector": "^0.21.1",

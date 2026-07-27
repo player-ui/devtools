@@ -44,8 +44,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@devtools-ui/plugin':
-        specifier: 0.4.1--canary.62.3837
-        version: 0.4.1--canary.62.3837(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(@types/use-sync-external-store@1.5.0)(codemirror@6.0.2)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))
+        specifier: 0.4.1
+        version: 0.4.1(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(@types/use-sync-external-store@1.5.0)(codemirror@6.0.2)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))
       '@emotion/styled':
         specifier: ^11
         version: 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
@@ -2092,8 +2092,8 @@ packages:
     peerDependencies:
       react: '>= 16.8.6'
 
-  '@devtools-ui/action@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-DUKtyj9ZxCmtNjiLyzKB1hrE2fgTdAYSdlOdNhNhuLG68UANJsbRJjVTWODfYpssQxq+VfcPABguoaU8uEswbg==, tarball: https://registry.npmjs.org/@devtools-ui/action/-/action-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/action@0.4.1':
+    resolution: {integrity: sha512-mjYjQaqP6y6zywcNqpGD445RugaXij0q6vGsN3cChG5Smf3b06xWUcmX3QZYmojFugEgNobfrbEai2V+gct+pA==, tarball: https://registry.npmjs.org/@devtools-ui/action/-/action-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2101,8 +2101,8 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/code-editor@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-uBuxdENupUfE3K3IzPv7GnsAHKvqlS1+f5080L33gApRQ28iAhUdSId8s7rdDyaxZStIMmChjHXtbxTAmPhu+g==, tarball: https://registry.npmjs.org/@devtools-ui/code-editor/-/code-editor-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/code-editor@0.4.1':
+    resolution: {integrity: sha512-bVFZiW9dYxKEEqMyOBuPnOXOcjxiRrxnzzGEiMf90S71ef+T6PirDDJcBV81odawsgqe2gwTIM7gt6gOZ+reVw==, tarball: https://registry.npmjs.org/@devtools-ui/code-editor/-/code-editor-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2110,25 +2110,16 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/collection@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-lOVbXdNyxvE7wLXl4aB2l/iUnamofSO6fulq2gEkF2gg6EDbFYEwfqzErlE1bVNHR4CnNKyHnBiMkuHgbm1lgg==, tarball: https://registry.npmjs.org/@devtools-ui/collection/-/collection-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/collection@0.4.1':
+    resolution: {integrity: sha512-BsRdzopr+fTIGFzgpRWPFbTzBrUghRV3ue/1vikBL8NFUHEbys/iVVdlw0MPbQDjgDSbKvgh66Wr9TY1AbQciA==, tarball: https://registry.npmjs.org/@devtools-ui/collection/-/collection-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/player': 0.15.5
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/console@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-YdEAS1WWtCZWzXiwRHDuk2nXRPN9+C79c3Lhqwc1u/U9a17LBR/6J9IC9bic55xTzWdx7nedEDaZmnWA6Apmgw==, tarball: https://registry.npmjs.org/@devtools-ui/console/-/console-0.4.1--canary.62.3837.tgz}
-    peerDependencies:
-      '@player-lang/react-dsl': 1.0.1
-      '@player-ui/asset-transform-plugin': 0.15.5
-      '@player-ui/player': 0.15.5
-      '@player-ui/react': 0.15.5
-      '@player-ui/types': 0.15.5
-
-  '@devtools-ui/copy-to-clipboard@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-FrVWVo0R3ewI/qwzG+6RYWENp0mPiNy5tzoS6x5DibYK7uvx/31/NqC4ukTrUNNubMaUKq0QILdWkWC9hYvUJw==, tarball: https://registry.npmjs.org/@devtools-ui/copy-to-clipboard/-/copy-to-clipboard-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/console@0.4.1':
+    resolution: {integrity: sha512-wSr7ojPFF8XOF16ng/cENMGNOefHvZSaZCr6LpeN7+RwwxmhHEA/ZFUqO80hpwDeCGLUWkPiRCq9WDvSAUfPQQ==, tarball: https://registry.npmjs.org/@devtools-ui/console/-/console-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2136,8 +2127,8 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/flame-graph@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-9jYH4MkSGUb5+U0QltFzjoBWdur/RsOVL3ZM+0Asw7F6tUOezm6oiQriOoalJS4Lddi8UZQapZYjR7Q5rI228Q==, tarball: https://registry.npmjs.org/@devtools-ui/flame-graph/-/flame-graph-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/copy-to-clipboard@0.4.1':
+    resolution: {integrity: sha512-x0k76KfKBO19BoIt3gQ6M9qQ8lW9sw/dpRGJ0WLqT9xsk6B7vKaZ78GSb9B29p3gFrfjde3gdBpGuQ51nrWiRg==, tarball: https://registry.npmjs.org/@devtools-ui/copy-to-clipboard/-/copy-to-clipboard-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2145,8 +2136,8 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/input@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-VcwMFUqDBehqEBk47rKU5SSQ4PsxotKrpprSczNmMC8xpbDunTRfYEuXfGqDb/rkv1bGvcrSI/qbH2h9EM05gA==, tarball: https://registry.npmjs.org/@devtools-ui/input/-/input-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/flame-graph@0.4.1':
+    resolution: {integrity: sha512-+YTW9MH/6TztOiQdlOt65HLbkEVJMjZJxfY/3Y+FvSwIWcKzyfqIiFy6KqCRI+Z9NOAU+9FGP94vSYa1HhBVAg==, tarball: https://registry.npmjs.org/@devtools-ui/flame-graph/-/flame-graph-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2154,38 +2145,8 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/list@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-Il0mgpPhnbXcNQ5YcR9uWpx/mOCuWGi2oKgA8DAL3inDO3LZk85WkuR0ItTEwC56+1dlO3lyREFwhOV/2Ks1FQ==, tarball: https://registry.npmjs.org/@devtools-ui/list/-/list-0.4.1--canary.62.3837.tgz}
-    peerDependencies:
-      '@player-lang/react-dsl': 1.0.1
-      '@player-ui/player': 0.15.5
-      '@player-ui/react': 0.15.5
-      '@player-ui/types': 0.15.5
-
-  '@devtools-ui/navigation@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-j8BASScQYB7FZnOXE40v+3I8ruAuXw4Rw+C4/ZbxCo6wwd0uiW1oeTa0vQRApQUC7AO16uJICxxvM/I/ALXX7Q==, tarball: https://registry.npmjs.org/@devtools-ui/navigation/-/navigation-0.4.1--canary.62.3837.tgz}
-    peerDependencies:
-      '@player-lang/react-dsl': 1.0.1
-      '@player-ui/player': 0.15.5
-      '@player-ui/react': 0.15.5
-      '@player-ui/types': 0.15.5
-
-  '@devtools-ui/object-inspector@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-4Bei8BOXzURv8t5zD+ru+8CIxv7Xsrq4fgBe1H16p2DS/0HMZOJpBhg+SegmOgS5Nh3G95ENrU9JhZbIAJJK3g==, tarball: https://registry.npmjs.org/@devtools-ui/object-inspector/-/object-inspector-0.4.1--canary.62.3837.tgz}
-    peerDependencies:
-      '@player-lang/react-dsl': 1.0.1
-      '@player-ui/player': 0.15.5
-      '@player-ui/react': 0.15.5
-      '@player-ui/types': 0.15.5
-
-  '@devtools-ui/plugin@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-fjgmPZIzReKjz4EpCHopVvcgvUw2Chws/txGn/GKwI5xhIYcFJUQKQuqicvBeTtbLyhhFG2SkMlaqNsxt5yIXg==, tarball: https://registry.npmjs.org/@devtools-ui/plugin/-/plugin-0.4.1--canary.62.3837.tgz}
-    peerDependencies:
-      '@player-ui/player': 0.15.5
-      '@player-ui/react': 0.15.5
-
-  '@devtools-ui/radio-group@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-uFcooQrON+5d3sXafRJ335sNOhdXzM7XFoWg90okPeaOXvyC2i1XsvmD2dzdXla4+TS++LBN8V/J0jaJtlCY+Q==, tarball: https://registry.npmjs.org/@devtools-ui/radio-group/-/radio-group-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/input@0.4.1':
+    resolution: {integrity: sha512-lbyO50WiFUtliJ62X1gJH4jeubkyzKcToyHvWXT8if7rmb8ktNrD1epBo42l31VgSoSAXS9uHWD68pdYDGEt3Q==, tarball: https://registry.npmjs.org/@devtools-ui/input/-/input-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2193,8 +2154,38 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/stacked-view@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-ICoTv1Cu5aOySQ6keCso/xAa2O5pP6Rb85Hd1Sp9cPKWTTlDpOhKrBoc0tdrCZ5nMxytFkvKBY4pB1LtJ8SDOQ==, tarball: https://registry.npmjs.org/@devtools-ui/stacked-view/-/stacked-view-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/list@0.4.1':
+    resolution: {integrity: sha512-cVlmAj721rttoFkI9EQPkX/99Hue3zkRLJsm3C1MtRqOUD5uxsu81RFqjnzGLTwkWzWh//NlsY7IL2RYZpK3NA==, tarball: https://registry.npmjs.org/@devtools-ui/list/-/list-0.4.1.tgz}
+    peerDependencies:
+      '@player-lang/react-dsl': 1.0.1
+      '@player-ui/player': 0.15.5
+      '@player-ui/react': 0.15.5
+      '@player-ui/types': 0.15.5
+
+  '@devtools-ui/navigation@0.4.1':
+    resolution: {integrity: sha512-qTWnBi8alagoqFuRERyKFrg+gVWkYxuqYAJ0Jl6WDXk6xBJQ6Q+hylKSP775kTZRA3/Gm4vBmFsNVbRshVG3HQ==, tarball: https://registry.npmjs.org/@devtools-ui/navigation/-/navigation-0.4.1.tgz}
+    peerDependencies:
+      '@player-lang/react-dsl': 1.0.1
+      '@player-ui/player': 0.15.5
+      '@player-ui/react': 0.15.5
+      '@player-ui/types': 0.15.5
+
+  '@devtools-ui/object-inspector@0.4.1':
+    resolution: {integrity: sha512-RpJjk+H21L6+sSft1VuKXQJVM1xLssXTcAu+syNUlp8BpmR5j1HcG4t60u/FMcgDvJskDlCO229Mgwn/5JS9hQ==, tarball: https://registry.npmjs.org/@devtools-ui/object-inspector/-/object-inspector-0.4.1.tgz}
+    peerDependencies:
+      '@player-lang/react-dsl': 1.0.1
+      '@player-ui/player': 0.15.5
+      '@player-ui/react': 0.15.5
+      '@player-ui/types': 0.15.5
+
+  '@devtools-ui/plugin@0.4.1':
+    resolution: {integrity: sha512-1GdirheUu0kBYJMNqXvM7Z8e0cTH0FYkULxT3zewaOE7tFdfzrtqPEi1REmvrRWOmgh396QkC6pdSAUFvB9mWQ==, tarball: https://registry.npmjs.org/@devtools-ui/plugin/-/plugin-0.4.1.tgz}
+    peerDependencies:
+      '@player-ui/player': 0.15.5
+      '@player-ui/react': 0.15.5
+
+  '@devtools-ui/radio-group@0.4.1':
+    resolution: {integrity: sha512-yl7dY0+7fCYC58mainUPuPplBlq0k5KWzHu8FYBrqCPTUaT6Lm6ARepI9Xy/FbKFCaT2CnQnXwEK2LzAjsnV5w==, tarball: https://registry.npmjs.org/@devtools-ui/radio-group/-/radio-group-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2202,8 +2193,8 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/table@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-l4Vr31dC12COL9QsZucyo0lf1nZ3zOJucvibnKLcEq0LK/lG31CgNpkhmrk0U3zdGnxXLI9in6n9IV/JbCYn9Q==, tarball: https://registry.npmjs.org/@devtools-ui/table/-/table-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/stacked-view@0.4.1':
+    resolution: {integrity: sha512-oYRkfmqstfN1GAeXrP0VvM6XWZWhkXHslkFSmCrGPr8NfgfDbRr0fR49U9n9Gq8Kp4LeqVxcqL5J7fEQyslbqw==, tarball: https://registry.npmjs.org/@devtools-ui/stacked-view/-/stacked-view-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -2211,14 +2202,23 @@ packages:
       '@player-ui/react': 0.15.5
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/text@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-8WyfzV7BsrLUCX4ba8fBycbTE2W4TLrENs71I2Kge+7xAldkyjSvsfi34GSM/jg2dXntsQUSc5TlKmWa8/jPww==, tarball: https://registry.npmjs.org/@devtools-ui/text/-/text-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/table@0.4.1':
+    resolution: {integrity: sha512-hjcIeav9ryeldEMfHMylJz0WWr8GUFur5PDPw+gFYfNGtCTW2ESzJ0KEThiW0dIJDsFT2/bljE/P2acBRFy1UA==, tarball: https://registry.npmjs.org/@devtools-ui/table/-/table-0.4.1.tgz}
+    peerDependencies:
+      '@player-lang/react-dsl': 1.0.1
+      '@player-ui/asset-transform-plugin': 0.15.5
+      '@player-ui/player': 0.15.5
+      '@player-ui/react': 0.15.5
+      '@player-ui/types': 0.15.5
+
+  '@devtools-ui/text@0.4.1':
+    resolution: {integrity: sha512-TBzv1BusC6OG15eGMbT3Ol3OkZxqmUj6JxU17PYUI1KUTR/GYCnyK8o3Vvln5ya/WI7TNvDKpyoyiKoihbjyqA==, tarball: https://registry.npmjs.org/@devtools-ui/text/-/text-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/types': 0.15.5
 
-  '@devtools-ui/toggle@0.4.1--canary.62.3837':
-    resolution: {integrity: sha512-LatD3ksWshPA2pnsHHs/Ifg1++0Yc2FqYeYn7OA5DaL6e4SN7dHPW3ruDlmbia3n9Dt1IOPhWJ8U8XfSW/pZLg==, tarball: https://registry.npmjs.org/@devtools-ui/toggle/-/toggle-0.4.1--canary.62.3837.tgz}
+  '@devtools-ui/toggle@0.4.1':
+    resolution: {integrity: sha512-ptdjHb6zCeU61GfJMcdj7ZiX26w7wNWDqnIjuKAxM9pyVPK3bZI9q843eG7Blw5HGNX6qEL3iOV6bdV2iXV+OA==, tarball: https://registry.npmjs.org/@devtools-ui/toggle/-/toggle-0.4.1.tgz}
     peerDependencies:
       '@player-lang/react-dsl': 1.0.1
       '@player-ui/asset-transform-plugin': 0.15.5
@@ -14585,11 +14585,11 @@ snapshots:
       - '@types/react'
       - react-dom
 
-  '@devtools-ui/action@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/action@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14607,7 +14607,7 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/code-editor@0.4.1--canary.62.3837(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(codemirror@6.0.2)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/code-editor@0.4.1(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(codemirror@6.0.2)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@codemirror/lang-json': 6.0.2
@@ -14639,10 +14639,10 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/collection@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/collection@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14659,12 +14659,12 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/console@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/console@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@devtools-ds/console': 1.2.1(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14682,11 +14682,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/copy-to-clipboard@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/copy-to-clipboard@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14706,7 +14706,7 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/flame-graph@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/flame-graph@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
@@ -14727,10 +14727,10 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/input@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/input@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14748,11 +14748,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/list@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/list@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14769,11 +14769,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/navigation@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/navigation@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14790,12 +14790,12 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/object-inspector@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/object-inspector@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@devtools-ds/object-inspector': 1.2.1(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14812,24 +14812,24 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/plugin@0.4.1--canary.62.3837(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(@types/use-sync-external-store@1.5.0)(codemirror@6.0.2)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/plugin@0.4.1(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(@types/use-sync-external-store@1.5.0)(codemirror@6.0.2)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/action': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/code-editor': 0.4.1--canary.62.3837(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(codemirror@6.0.2)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/console': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/copy-to-clipboard': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/flame-graph': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/input': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/list': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/navigation': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/object-inspector': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/radio-group': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/stacked-view': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/table': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/toggle': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/action': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/code-editor': 0.4.1(@babel/runtime@7.28.4)(@codemirror/autocomplete@6.18.7)(@codemirror/language@6.11.3)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.2)(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(codemirror@6.0.2)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/console': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/copy-to-clipboard': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/flame-graph': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/input': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/list': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/navigation': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/object-inspector': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/radio-group': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/stacked-view': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/table': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/toggle': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@player-ui/asset-provider-plugin-react': 0.15.5(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react@18.3.1)
       '@player-ui/asset-transform-plugin': 0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1)
       '@player-ui/player': 1.0.1
@@ -14857,11 +14857,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/radio-group@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/radio-group@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14879,11 +14879,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/stacked-view@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/stacked-view@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14901,11 +14901,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/table@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/table@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
@@ -14923,7 +14923,7 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/text@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/text@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
@@ -14940,11 +14940,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@devtools-ui/toggle@0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
+  '@devtools-ui/toggle@0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/asset-transform-plugin@0.15.5(@player-ui/player@1.0.1)(@player-ui/types@1.0.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))':
     dependencies:
       '@chakra-ui/react': 2.8.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(framer-motion@11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@devtools-ui/collection': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
-      '@devtools-ui/text': 0.4.1--canary.62.3837(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/collection': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/player@1.0.1)(@player-ui/react@1.0.1(@player-ui/types@1.0.1)(@types/react@18.3.24)(@types/use-sync-external-store@1.5.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
+      '@devtools-ui/text': 0.4.1(@emotion/is-prop-valid@1.4.0)(@player-lang/react-dsl@1.0.1(@types/react@18.3.24)(react@18.3.1))(@player-ui/types@1.0.1)(react-dom@18.3.1(react@18.3.1))
       '@emotion/react': 11.14.0(@types/react@18.3.24)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1)
       '@player-lang/react-dsl': 1.0.1(@types/react@18.3.24)(react@18.3.1)
