@@ -29,6 +29,18 @@ type MessageCallback = (
 
 const PLUGIN_API = "player-ui-devtools";
 
+/**
+ * All diagnostics go to stderr.
+ *
+ * This transport runs inside the MCP server process, where stdout is the
+ * JSON-RPC channel — every byte written there must be a newline-delimited
+ * JSON-RPC message. `console.log` and `console.debug` both write to stdout in
+ * Node, so they would corrupt the protocol stream.
+ */
+const log = (...args: Array<unknown>): void => {
+  console.error(...args);
+};
+
 /** Shape of a Flipper `client-message` payload after JSON.parse */
 type FlipperExecuteMessage = {
   method: "execute";
@@ -225,13 +237,17 @@ export class FlipperServerTransport implements Transport {
     const { shouldStart, commit } = this.refcount.acquire();
 
     if (shouldStart) {
-      console.log("[FlipperServerTransport] Starting flipper-server...");
+      log("[FlipperServerTransport] Starting flipper-server...");
       const serverScript = require.resolve("flipper-server/server.js");
       // Detached + unref'd: the daemon must survive this process exiting so
       // other instances keep their connections. We never kill it directly —
       // shutdown is driven by the refcount in close().
+      //
+      // The daemon must never inherit our fd 1: it outlives this process and
+      // would write into a later session's JSON-RPC stream. Its stderr stays
+      // inherited so daemon diagnostics remain visible.
       const child = spawn(process.execPath, [serverScript, "--open=true"], {
-        stdio: "inherit",
+        stdio: ["ignore", "ignore", "inherit"],
         detached: true,
       });
       child.on("error", (err: Error) => {
@@ -243,12 +259,12 @@ export class FlipperServerTransport implements Transport {
       child.unref();
       await waitForPort(host, port);
       commit(child.pid!);
-      console.log("[FlipperServerTransport] flipper-server ready.");
+      log("[FlipperServerTransport] flipper-server ready.");
     } else {
       // Daemon already running (started by another instance) — wait for it to
       // accept connections in case it's still coming up, then attach.
       await waitForPort(host, port);
-      console.log("[FlipperServerTransport] Attached to flipper-server.");
+      log("[FlipperServerTransport] Attached to flipper-server.");
     }
 
     // Read the auth token the flipper-server wrote during startup
@@ -280,13 +296,10 @@ export class FlipperServerTransport implements Transport {
 
     // Track client connects/disconnects
     this.server.on("client-connected", (info) => {
-      console.log(
-        "[FlipperServerTransport] client-connected:",
-        JSON.stringify(info),
-      );
+      log("[FlipperServerTransport] client-connected:", JSON.stringify(info));
     });
     this.server.on("client-disconnected", ({ id }) => {
-      console.log("[FlipperServerTransport] client-disconnected:", id);
+      log("[FlipperServerTransport] client-disconnected:", id);
       this.activeClientIds.delete(id);
     });
 
@@ -299,7 +312,7 @@ export class FlipperServerTransport implements Transport {
         return;
       }
 
-      console.debug(
+      log(
         `[FlipperServerTransport] client-message from ${id}: method=${parsed.method} api=${(parsed.params as { api?: string })?.api} pluginMethod=${(parsed.params as { method?: string })?.method}`,
       );
 
@@ -372,7 +385,7 @@ export class FlipperServerTransport implements Transport {
     if (pidToKill !== null) {
       try {
         process.kill(pidToKill);
-        console.log("[FlipperServerTransport] Shut down flipper-server.");
+        log("[FlipperServerTransport] Shut down flipper-server.");
       } catch {
         /* already gone */
       }

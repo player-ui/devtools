@@ -11,6 +11,17 @@ import { reducer } from "./reducer";
 
 const NOOP_ID = -1;
 
+/**
+ * Messenger diagnostics go to stderr, never stdout.
+ *
+ * This client also runs inside the MCP server process, where stdout is the
+ * JSON-RPC channel — `console.log` there would corrupt the protocol stream.
+ * `console.error` is stderr in Node and a normal console entry in browsers.
+ */
+const LOGGER = {
+  log: (...args: Array<unknown>): void => console.error(...args),
+};
+
 export type ExtensionClient = {
   getState: () => ExtensionState;
   subscribe: (fn: (state: ExtensionState) => void) => () => void;
@@ -33,7 +44,7 @@ export const createExtensionClient = (
     context: "devtools",
     messageCallback: (message) => store.dispatch(message),
     ...communicationLayer,
-    logger: console,
+    logger: LOGGER,
   });
 
   const selectPlayer = (playerID: string): void => {
