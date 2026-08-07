@@ -1,3 +1,23 @@
+# 0.14.2-next.0 (Thu Aug 06 2026)
+
+### Release Notes
+
+#### Keep flipper diagnostics off the MCP stdout channel ([#21](https://github.com/player-ui/devtools/pull/21))
+
+Fixes MCP protocol stream corruption. The Flipper transport wrote diagnostics to stdout — which the MCP stdio transport reserves for JSON-RPC — and let the spawned `flipper-server` daemon inherit that same stream. Both now write to stderr. MCP clients could previously see dropped or duplicated tool results, most often under heavy device-message traffic.
+
+---
+
+#### 🐛 Bug Fix
+
+- Keep flipper diagnostics off the MCP stdout channel [#21](https://github.com/player-ui/devtools/pull/21) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### Authors: 1
+
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.14.1 (Mon Jul 27 2026)
 
 ### Release Notes
