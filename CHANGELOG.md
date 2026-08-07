@@ -1,3 +1,29 @@
+# 0.14.2-next.1 (Thu Aug 06 2026)
+
+### Release Notes
+
+#### Add anonymous usage telemetry to the MCP server ([#22](https://github.com/player-ui/devtools/pull/22))
+
+The MCP server now reports anonymous usage analytics — server starts, tool names, latency, and errors — so we can see how widely devtools is used and whether it works in the field.
+
+**Tool arguments and tool responses are never transmitted.** Outgoing events are filtered through an allowlist of known-safe properties, so flow content cannot leave your machine.
+
+Identity is a random UUID stored at `~/.player-ui-devtools/install.json`; delete the file to reset it. Opt out with `PLAYER_DEVTOOLS_TELEMETRY_DISABLED=1` or the cross-vendor `DO_NOT_TRACK=1`.
+
+**Breaking:** `@player-devtools/mcp` now requires Node `^20.20.0 || >=22.22.0`.
+
+---
+
+#### 🐛 Bug Fix
+
+- Add anonymous usage telemetry to the MCP server [#22](https://github.com/player-ui/devtools/pull/22) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### Authors: 1
+
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.14.2-next.0 (Thu Aug 06 2026)
 
 ### Release Notes
