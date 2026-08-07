@@ -143,7 +143,7 @@ and whether it's working in the field. It is **on by default** and sends:
 | | |
 | --- | --- |
 | Identity | A random UUID generated on first run and stored at `~/.player-ui-devtools/install.json`. It is not derived from anything about you or your machine — delete the file and a new one is generated. |
-| Events | Server start, tool call, tools list, and errors. |
+| Events | Session start (`$mcp_initialize`), tool calls (`$mcp_tool_call`), tool listing (`$mcp_tools_list`), and errors (`$exception`). |
 | Properties | Tool **name**, call duration, whether the call errored, the MCP client name/version (e.g. which editor), the devtools version, OS platform, Node major version, and whether the Flipper transport connected. |
 
 **Tool arguments and tool responses are never transmitted.** Those can contain
@@ -161,5 +161,32 @@ export DO_NOT_TRACK=1
 
 `DO_NOT_TRACK=0` and `DO_NOT_TRACK=false` are treated as "tracking is fine", not
 as an opt-out.
+
+Nothing else is needed to make this work — no account, no key, no configuration.
+Builds you make yourself (anything not a tagged release) send nothing at all.
+
+<details>
+<summary>Maintainers: how the ingestion key is supplied</summary>
+
+The PostHog key is stamped into released builds; it is not in the repo and is
+not something users provide.
+
+Set `POSTHOG_PROJECT_KEY` in the release CI environment.
+[`helpers/release/workspace-status.sh`](../../helpers/release/workspace-status.sh)
+emits it as `STABLE_POSTHOG_KEY`, and
+[`tsup.config.ts`](../../tsup.config.ts) substitutes it into the
+`__POSTHOG_KEY__` global — the same mechanism that stamps `__VERSION__`.
+
+Stamping only happens under `--config=release`, so PR and local builds resolve
+the global to an empty string and stay silent. Only public `phc_` project keys
+are accepted: the value is baked into published artifacts and the shared remote
+cache, so a `phx_` personal or `phs_` secret key is rejected at runtime rather
+than shipped.
+
+To point a build at a different project or region without rebuilding, override
+`PLAYER_DEVTOOLS_TELEMETRY_KEY` / `PLAYER_DEVTOOLS_TELEMETRY_HOST` at runtime —
+useful for verifying against a local listener.
+
+</details>
 
 [browser extension]: https://github.com/player-ui/browser-devtools
