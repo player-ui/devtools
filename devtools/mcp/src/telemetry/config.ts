@@ -1,9 +1,22 @@
+declare global {
+  const __POSTHOG_KEY__: string;
+}
+
 /**
- * PostHog project API key. This is a *public, write-only* ingestion token — it
- * cannot read any data back out, which is why it is safe to ship in an
- * open-source package. Replace the placeholder to enable telemetry.
+ * PostHog project API key, stamped at release build time from the
+ * `POSTHOG_PROJECT_KEY` CI environment variable (see
+ * helpers/release/workspace-status.sh and tsup.config.ts), mirroring how
+ * `__VERSION__` is stamped.
+ *
+ * This is a *public, write-only* ingestion token — it can only send events and
+ * cannot read data back, which is why it is safe to ship in an open-source
+ * package.
+ *
+ * The `typeof` guard is required: the global is absent in local and test
+ * builds, where it resolves to an empty string and disables telemetry.
  */
-const POSTHOG_PROJECT_KEY = "phc_REPLACE_ME_WITH_REAL_PROJECT_KEY";
+const POSTHOG_PROJECT_KEY =
+  typeof __POSTHOG_KEY__ !== "undefined" ? __POSTHOG_KEY__ : "";
 
 const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
 
@@ -39,9 +52,13 @@ export function resolveTelemetryConfig(
   if (isOptedOut(env)) return { enabled: false };
 
   const apiKey = env.PLAYER_DEVTOOLS_TELEMETRY_KEY ?? POSTHOG_PROJECT_KEY;
-  // An unreplaced placeholder would fire doomed requests on every startup;
-  // treat it as "not configured" so the package is safe to ship unprovisioned.
-  if (!apiKey || apiKey.includes("REPLACE_ME")) return { enabled: false };
+  // Unstamped (local/dev builds) or unset in CI — stay silent rather than
+  // firing doomed requests at PostHog on every startup.
+  if (!apiKey) return { enabled: false };
+  // Only public write-only project keys may ship. A `phx_` (personal) or
+  // `phs_` (project secret) key is a real credential and must never be baked
+  // into a published artifact, so refuse to use one even if stamped.
+  if (!apiKey.startsWith("phc_")) return { enabled: false };
 
   const host = (
     env.PLAYER_DEVTOOLS_TELEMETRY_HOST ?? DEFAULT_POSTHOG_HOST

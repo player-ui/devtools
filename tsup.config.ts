@@ -31,6 +31,7 @@ function getStampedSubstitutions(): Record<string, string> {
   const customSubstitutions = {
     __VERSION__: "{STABLE_VERSION}",
     __GIT_COMMIT__: "{STABLE_GIT_COMMIT}",
+    __POSTHOG_KEY__: "{STABLE_POSTHOG_KEY}",
   };
 
   const substitutions: Record<string, string> = {};
