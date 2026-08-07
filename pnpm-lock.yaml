@@ -115,6 +115,9 @@ importers:
       '@player-ui/types':
         specifier: '>=0.15.4'
         version: 1.0.1
+      '@posthog/mcp':
+        specifier: 0.10.8
+        version: 0.10.8(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))(posthog-node@5.48.1(rxjs@7.8.2))
       '@storybook/addon-docs':
         specifier: ^7.6.10
         version: 7.6.20(@types/react-dom@18.3.7(@types/react@18.3.24))(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -319,6 +322,9 @@ importers:
       oclif:
         specifier: ^4.4.2
         version: 4.22.22(@types/node@24.5.2)
+      posthog-node:
+        specifier: ^5.0.0
+        version: 5.48.1(rxjs@7.8.2)
       prettier:
         specifier: ^3.5.3
         version: 3.6.2
@@ -3109,19 +3115,23 @@ packages:
 
   '@modelcontextprotocol/inspector-cli@0.21.2':
     resolution: {integrity: sha512-Om2ApfIbkbfR7+PqJX0bO2Qwg0z55MgxquC+G0YL6x80ElpZMfxITsWQ1238kh3bv1zlwPSePc2kvDnCcU5tXw==, tarball: https://registry.npmjs.org/@modelcontextprotocol/inspector-cli/-/inspector-cli-0.21.2.tgz}
+    deprecated: 'v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.'
     hasBin: true
 
   '@modelcontextprotocol/inspector-client@0.21.2':
     resolution: {integrity: sha512-8us3hVXDgMHGb5jF1bBE/a6rRRlEaS+SKjbDFB56oE6+mNcAP9JgL8h6T0fYd3XQ3vL/CYxjVeQE+5yRdvhsVg==, tarball: https://registry.npmjs.org/@modelcontextprotocol/inspector-client/-/inspector-client-0.21.2.tgz}
+    deprecated: 'v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.'
     hasBin: true
 
   '@modelcontextprotocol/inspector-server@0.21.2':
     resolution: {integrity: sha512-ASFNPFMnT0Vn5u6aYRwwMrwA/0qpxb1lg3sE5GjWii5bUfPNXuIaLOXuXKSOFIMG4o82RxpuipdqX1ZdsmTPUw==, tarball: https://registry.npmjs.org/@modelcontextprotocol/inspector-server/-/inspector-server-0.21.2.tgz}
+    deprecated: 'v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.'
     hasBin: true
 
   '@modelcontextprotocol/inspector@0.21.2':
     resolution: {integrity: sha512-f/zIzl6ccYjIxSTgmol9EKvd8AXsXkIaZX16kLGhrYwxrApvU3IL6IzgOqATKP/2kgyKdFUOVLlHMxX9e6BZZA==, tarball: https://registry.npmjs.org/@modelcontextprotocol/inspector/-/inspector-0.21.2.tgz}
     engines: {node: '>=22.7.5'}
+    deprecated: 'v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.'
     hasBin: true
 
   '@modelcontextprotocol/sdk@1.29.0':
@@ -3747,6 +3757,19 @@ packages:
 
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==, tarball: https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz}
+
+  '@posthog/core@1.46.9':
+    resolution: {integrity: sha512-EXO6y5ih+jBkTCpUCuYgQmajuDZuvy6vMvflkub6pLQyi0GPlCPWVSvZZkOeQw9e2MxoD5GteeGCt9R8+UJ/yQ==, tarball: https://registry.npmjs.org/@posthog/core/-/core-1.46.9.tgz}
+
+  '@posthog/mcp@0.10.8':
+    resolution: {integrity: sha512-p3beWalPLashncxN1Q5XCrQgEn87JDToGTLBL2ThLMTREgxllz2yNEbnjpAfBlKYCP/RII9EYJ6UEL8IHT6hNQ==, tarball: https://registry.npmjs.org/@posthog/mcp/-/mcp-0.10.8.tgz}
+    engines: {node: ^20.20.0 || >=22.22.0}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.26.0'
+      posthog-node: ^5.0.0
+
+  '@posthog/types@1.402.2':
+    resolution: {integrity: sha512-ZZTiS4dLwF4/D0YTzS3gGSLFnhuNOY5yu4d9VGS9trGe5GW6FjIXo20p18K5BPW2RZSYSld8sdnSAY3AUXleUQ==, tarball: https://registry.npmjs.org/@posthog/types/-/types-1.402.2.tgz}
 
   '@radix-ui/number@1.0.1':
     resolution: {integrity: sha512-T5gIdVO2mmPW3NNhjNgEP3cqMXjXL9UbO0BzWcXfvdBs+BohbQxvd/K5hSVKmn9/lbTdsQVKbUcP5WLCwvUbBg==, tarball: https://registry.npmjs.org/@radix-ui/number/-/number-1.0.1.tgz}
@@ -9722,6 +9745,15 @@ packages:
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==, tarball: https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz}
     engines: {node: ^10 || ^12 || >=14}
+
+  posthog-node@5.48.1:
+    resolution: {integrity: sha512-BxLX2SqGEQhPqCPTalpyo0RRv1NMbf7UaN7q9d/ED77ksD6XOmE7ko2vIKO8F0zPL1NtKxIi+DYXap9lvR0RaA==, tarball: https://registry.npmjs.org/posthog-node/-/posthog-node-5.48.1.tgz}
+    engines: {node: ^20.20.0 || >=22.22.0}
+    peerDependencies:
+      rxjs: ^7.0.0
+    peerDependenciesMeta:
+      rxjs:
+        optional: true
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==, tarball: https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz}
@@ -16818,6 +16850,18 @@ snapshots:
       config-chain: 1.1.13
 
   '@popperjs/core@2.11.8': {}
+
+  '@posthog/core@1.46.9':
+    dependencies:
+      '@posthog/types': 1.402.2
+
+  '@posthog/mcp@0.10.8(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))(posthog-node@5.48.1(rxjs@7.8.2))':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
+      '@posthog/core': 1.46.9
+      posthog-node: 5.48.1(rxjs@7.8.2)
+
+  '@posthog/types@1.402.2': {}
 
   '@radix-ui/number@1.0.1':
     dependencies:
@@ -24295,6 +24339,12 @@ snapshots:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  posthog-node@5.48.1(rxjs@7.8.2):
+    dependencies:
+      '@posthog/core': 1.46.9
+    optionalDependencies:
+      rxjs: 7.8.2
 
   prelude-ls@1.2.1: {}
 

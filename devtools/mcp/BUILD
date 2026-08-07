@@ -16,6 +16,9 @@ deps = [
     ":node_modules/@player-devtools/messenger",
     ":node_modules/@player-devtools/types",
     "//:node_modules/@modelcontextprotocol/sdk",
+    "//:node_modules/@posthog/mcp",
+    "//:node_modules/@types/node",
+    "//:node_modules/posthog-node",
     "//:node_modules/zod",
 ]
 

@@ -9,6 +9,9 @@
     "dist",
     "bin"
   ],
+  "engines": {
+    "node": "^20.20.0 || >=22.22.0"
+  },
   "dependencies": {
     "@player-devtools/client": "workspace:*",
     "@player-devtools/client-flipper": "workspace:*",
