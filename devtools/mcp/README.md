@@ -26,8 +26,8 @@ The package ships a CLI, `player-devtools-mcp`, which is what an MCP client runs
 
 ### Register with Claude Code
 
-Add it as an MCP server with `claude mcp add` — no env vars or tokens are
-required:
+Add it as an MCP server with `claude mcp add` — no tokens are required (see
+[Telemetry](#telemetry) for the optional opt-out variables):
 
 ```bash
 claude mcp add player-devtools -- npx -y @player-devtools/mcp@latest
@@ -134,5 +134,32 @@ just mcp-inspect  # open the MCP inspector against the server
 
 Register it with an MCP client (e.g. Claude) by pointing the client at the
 `player-devtools-mcp` command over stdio.
+
+## Telemetry
+
+The server reports anonymous usage analytics so we can tell how widely it's used
+and whether it's working in the field. It is **on by default** and sends:
+
+| | |
+| --- | --- |
+| Identity | A random UUID generated on first run and stored at `~/.player-ui-devtools/install.json`. It is not derived from anything about you or your machine — delete the file and a new one is generated. |
+| Events | Server start, tool call, tools list, and errors. |
+| Properties | Tool **name**, call duration, whether the call errored, the MCP client name/version (e.g. which editor), the devtools version, OS platform, Node major version, and whether the Flipper transport connected. |
+
+**Tool arguments and tool responses are never transmitted.** Those can contain
+Player flow content, so every outgoing event is filtered through an allowlist of
+known-safe property names — anything not explicitly listed is dropped before the
+event leaves the process.
+
+To opt out, set either variable to any value:
+
+```bash
+export PLAYER_DEVTOOLS_TELEMETRY_DISABLED=1
+# or the cross-vendor convention, which we also honor
+export DO_NOT_TRACK=1
+```
+
+`DO_NOT_TRACK=0` and `DO_NOT_TRACK=false` are treated as "tracking is fine", not
+as an opt-out.
 
 [browser extension]: https://github.com/player-ui/browser-devtools

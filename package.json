@@ -53,6 +53,7 @@
     "@player-ui/reference-assets-plugin-react": ">=0.15.4",
     "@player-ui/storybook": ">=0.15.4",
     "@player-ui/types": ">=0.15.4",
+    "@posthog/mcp": "0.10.8",
     "@storybook/addon-docs": "^7.6.10",
     "@storybook/blocks": "^7.6.10",
     "@storybook/builder-vite": "^7.6.10",
@@ -117,6 +118,7 @@
     "log-update": "^4.0.0",
     "mkdirp": "^1.0.4",
     "oclif": "^4.4.2",
+    "posthog-node": "^5.0.0",
     "prettier": "^3.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -144,11 +146,11 @@
   },
   "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": "^22.12.0",
+    "node": ">=22.22.0",
     "pnpm": "^10.12.1"
   },
   "volta": {
-    "node": "22.12.0",
+    "node": "22.22.0",
     "pnpm": "10.12.1"
   },
   "pnpm": {
