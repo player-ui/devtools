@@ -13,8 +13,10 @@ js_pipeline(
     deps = [
         ":node_modules/@player-devtools/types",
         "//:node_modules/@types/ws",
+        "//:node_modules/flipper-common",
         "//:node_modules/flipper-server",
         "//:node_modules/flipper-server-client",
+        "//:node_modules/open",
         "//:node_modules/ws",
     ],
 )

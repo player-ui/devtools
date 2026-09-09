@@ -3,7 +3,9 @@ import {
   FlipperServerState,
   type FlipperServer,
 } from "flipper-server-client";
+import type { InstalledPluginDetails } from "flipper-common";
 import { spawn } from "child_process";
+import open from "open";
 import * as net from "net";
 import * as fs from "fs";
 import * as os from "os";
@@ -28,6 +30,7 @@ type MessageCallback = (
 ) => void;
 
 const PLUGIN_API = "player-ui-devtools";
+const PLUGIN_NPM_NAME = "flipper-plugin-player-ui-devtools";
 
 /**
  * All diagnostics go to stderr.
@@ -49,6 +52,12 @@ type FlipperExecuteMessage = {
     method: string;
     params?: unknown;
   };
+};
+
+/** Wire shape of the `init`/`deinit` plugin-activation handshake (`js-flipper`'s `FlipperClient.onMessageReceived`) */
+type FlipperPluginLifecycleMessage = {
+  method: "init" | "deinit";
+  params: { plugin: string };
 };
 
 /**
@@ -218,12 +227,41 @@ export class FlipperServerTransport implements Transport {
    */
   private activeClientIds = new Set<string>();
 
+  /**
+   * Client IDs currently connected to flipper-server, regardless of whether
+   * the devtools plugin has been activated for them. Used by `enablePlugin`'s
+   * "all connected clients" convenience.
+   */
+  private connectedClientIds = new Set<string>();
+
   constructor(
     private options: {
       /** Flipper server host; defaults to "localhost" */
       host?: string;
       /** Flipper server WebSocket port; defaults to 52342 */
       port?: number;
+      /**
+       * Whether to open a browser/PWA UI once the server is up. Defaults to
+       * `false` — an agent driving this transport has no use for a browser
+       * tab, unlike a human running `flipper-server` directly.
+       */
+      open?: boolean;
+      /**
+       * URL to open in the browser when `open` is true. Defaults to
+       * `http://localhost:{port}`. `flipper-server` itself always binds to
+       * localhost regardless of this value — this only controls what URL
+       * gets opened, so a custom host (e.g. a branded domain) must already
+       * resolve to this machine (e.g. via `/etc/hosts`) for it to work.
+       */
+      url?: string;
+      /**
+       * Activate the devtools plugin automatically for every client that
+       * connects, instead of requiring an explicit `enablePlugin()` call per
+       * client. Off by default so a caller can choose when/whether to
+       * activate a given device; turn this on for a fully hands-off session
+       * where every connecting device should be watched immediately.
+       */
+      autoEnablePlugin?: boolean;
     } = {},
   ) {}
 
@@ -239,6 +277,10 @@ export class FlipperServerTransport implements Transport {
     if (shouldStart) {
       log("[FlipperServerTransport] Starting flipper-server...");
       const serverScript = require.resolve("flipper-server/server.js");
+      // We always pass --open=false and drive any browser-open ourselves
+      // (below) so we control both whether it happens and what URL is used —
+      // flipper-server's own --open only ever opens http://localhost:{port}.
+
       // Detached + unref'd: the daemon must survive this process exiting so
       // other instances keep their connections. We never kill it directly —
       // shutdown is driven by the refcount in close().
@@ -246,10 +288,14 @@ export class FlipperServerTransport implements Transport {
       // The daemon must never inherit our fd 1: it outlives this process and
       // would write into a later session's JSON-RPC stream. Its stderr stays
       // inherited so daemon diagnostics remain visible.
-      const child = spawn(process.execPath, [serverScript, "--open=true"], {
-        stdio: ["ignore", "ignore", "inherit"],
-        detached: true,
-      });
+      const child = spawn(
+        process.execPath,
+        [serverScript, "--open=false", `--port=${port}`],
+        {
+          stdio: ["ignore", "ignore", "inherit"],
+          detached: true,
+        },
+      );
       child.on("error", (err: Error) => {
         console.error(
           "[FlipperServerTransport] flipper-server process error:",
@@ -265,6 +311,16 @@ export class FlipperServerTransport implements Transport {
       // accept connections in case it's still coming up, then attach.
       await waitForPort(host, port);
       log("[FlipperServerTransport] Attached to flipper-server.");
+    }
+
+    if (this.options.open) {
+      const url = this.options.url ?? `http://localhost:${port}`;
+      log(`[FlipperServerTransport] Opening ${url}`);
+      try {
+        await open(url);
+      } catch (err) {
+        console.warn("[FlipperServerTransport] Failed to open UI:", err);
+      }
     }
 
     // Read the auth token the flipper-server wrote during startup
@@ -297,10 +353,20 @@ export class FlipperServerTransport implements Transport {
     // Track client connects/disconnects
     this.server.on("client-connected", (info) => {
       log("[FlipperServerTransport] client-connected:", JSON.stringify(info));
+      this.connectedClientIds.add(info.id);
+      if (this.options.autoEnablePlugin) {
+        this.enablePlugin(info.id).catch((err) => {
+          console.warn(
+            `[FlipperServerTransport] Failed to auto-enable plugin for client ${info.id}:`,
+            err,
+          );
+        });
+      }
     });
     this.server.on("client-disconnected", ({ id }) => {
       log("[FlipperServerTransport] client-disconnected:", id);
       this.activeClientIds.delete(id);
+      this.connectedClientIds.delete(id);
     });
 
     // Route inbound device messages to our Messenger listeners
@@ -364,6 +430,93 @@ export class FlipperServerTransport implements Transport {
     );
   };
 
+  /**
+   * Ensures `flipper-plugin-player-ui-devtools` is installed on the attached
+   * flipper-server, installing the published npm package if it's missing.
+   *
+   * This is Flipper's own documented plugin-install RPC (the same
+   * `exec(...)` commands the desktop UI's "Install Plugin" button calls) —
+   * not a filesystem workaround. It's opt-in: callers that manage plugin
+   * installation themselves (or run against a flipper-server that already
+   * has it) can skip calling this.
+   */
+  async ensurePluginInstalled(): Promise<InstalledPluginDetails> {
+    if (!this.server) {
+      throw new Error("FlipperServerTransport is not connected");
+    }
+
+    const installed = await this.server.exec("plugins-get-installed-plugins");
+    const existing = installed.find((p) => p.name === PLUGIN_NPM_NAME);
+    if (existing) {
+      log(
+        `[FlipperServerTransport] ${PLUGIN_NPM_NAME}@${existing.version} already installed.`,
+      );
+      return existing;
+    }
+
+    log(`[FlipperServerTransport] Installing ${PLUGIN_NPM_NAME} from npm...`);
+    const details = await this.server.exec(
+      "plugins-install-from-npm",
+      PLUGIN_NPM_NAME,
+    );
+    log(
+      `[FlipperServerTransport] Installed ${PLUGIN_NPM_NAME}@${details.version}.`,
+    );
+    return details;
+  }
+
+  /**
+   * Activates the devtools plugin for a connected client by sending the
+   * `init` handshake `js-flipper`'s device SDK requires before it will open
+   * a live plugin connection (`onConnect`/`FlipperConnection`) and start
+   * relaying `client-message`s for our api. Nothing in flipper-server itself
+   * sends this automatically for a non-background plugin like ours unless a
+   * full Flipper desktop app is attached and its tab is selected — this
+   * method lets a caller trigger the same handshake directly, without
+   * needing a desktop UI at all.
+   *
+   * Pass a specific `clientId`, or omit it to enable for every client
+   * currently connected to flipper-server — including ones `autoEnablePlugin`
+   * already activated, so `init` must tolerate being sent more than once to
+   * the same client (Flipper's own device SDK treats it as idempotent).
+   */
+  async enablePlugin(clientId?: string): Promise<void> {
+    await this.sendLifecycleMessage("init", clientId);
+  }
+
+  /** Symmetric counterpart to `enablePlugin` — releases the plugin connection without disconnecting the client from flipper-server. */
+  async disablePlugin(clientId?: string): Promise<void> {
+    await this.sendLifecycleMessage("deinit", clientId);
+  }
+
+  private async sendLifecycleMessage(
+    method: "init" | "deinit",
+    clientId?: string,
+  ): Promise<void> {
+    if (!this.server) {
+      throw new Error("FlipperServerTransport is not connected");
+    }
+
+    const targets = clientId ? [clientId] : [...this.connectedClientIds];
+    const payload: FlipperPluginLifecycleMessage = {
+      method,
+      params: { plugin: PLUGIN_API },
+    };
+
+    await Promise.all(
+      targets.map((id) =>
+        this.server!.exec("client-request-response", id, payload).catch(
+          (err) => {
+            console.warn(
+              `[FlipperServerTransport] Failed to ${method} plugin for client ${id}:`,
+              err,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   addListener: CommunicationLayerMethods["addListener"] = (callback) => {
     this.listeners.add(callback);
   };
@@ -375,6 +528,7 @@ export class FlipperServerTransport implements Transport {
   async close(): Promise<void> {
     this.listeners.clear();
     this.activeClientIds.clear();
+    this.connectedClientIds.clear();
     this.server?.close();
     this.server = null;
 
