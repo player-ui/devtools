@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import type { FlipperServer } from "flipper-server-client";
+
 import { FlipperServerTransport } from "../transport";
 
 const INSTALLED = {
@@ -25,6 +29,22 @@ function fakeFlipperServer(
   return { exec } as unknown as FlipperServer;
 }
 
+/** Access private fields for seeding — avoids real sockets/child processes
+ * while exercising the connection-state and plugin-activation surfaces. */
+type TransportInternals = {
+  server: unknown;
+  refcount: { peek: () => { pid: number; refs: number } | null };
+  owns: boolean;
+  host: string;
+  port: number;
+  connectedClientIds: Set<string>;
+  activeClientIds: Set<string>;
+};
+
+function internals(transport: FlipperServerTransport): TransportInternals {
+  return transport as unknown as TransportInternals;
+}
+
 /** Reaches into the transport's private fields to set up state without going through `connect()`. */
 function attach(
   transport: FlipperServerTransport,
@@ -37,14 +57,23 @@ function attach(
     activeClientIds?: Array<string>;
   } = {},
 ): void {
-  const t = transport as unknown as {
-    server: FlipperServer;
-    connectedClientIds: Set<string>;
-    activeClientIds: Set<string>;
-  };
+  const t = internals(transport);
   t.server = server;
   t.connectedClientIds = new Set(connectedClientIds);
   t.activeClientIds = new Set(activeClientIds);
+}
+
+/**
+ * A transport whose refcount is stubbed to `null` so tests don't depend on
+ * (or race) a real `flipper-server.refcount` file possibly left on disk by
+ * other processes on the machine running the test.
+ */
+function makeIsolatedTransport(
+  options?: ConstructorParameters<typeof FlipperServerTransport>[0],
+): FlipperServerTransport {
+  const transport = new FlipperServerTransport(options);
+  internals(transport).refcount = { peek: () => null };
+  return transport;
 }
 
 describe("FlipperServerTransport", () => {
@@ -261,6 +290,175 @@ describe("FlipperServerTransport", () => {
     it("rejects when not connected", async () => {
       const transport = new FlipperServerTransport();
       await expect(transport.disablePlugin()).rejects.toThrow("not connected");
+    });
+  });
+
+  describe("getDiagnostics", () => {
+    it("reports disconnected defaults before connect() is called", () => {
+      const transport = makeIsolatedTransport();
+      expect(transport.getDiagnostics()).toEqual({
+        connected: false,
+        host: "localhost",
+        port: 52342,
+        owns: false,
+        refs: null,
+        activeClientIds: [],
+      });
+    });
+
+    it("reflects custom host/port options even before connecting", () => {
+      const transport = makeIsolatedTransport({
+        host: "127.0.0.1",
+        port: 9999,
+      });
+      // host/port are only assigned inside connect(); options alone don't
+      // seed the instance fields, matching the plan's "set at top of
+      // connect()" requirement.
+      expect(transport.getDiagnostics()).toMatchObject({
+        host: "localhost",
+        port: 52342,
+      });
+    });
+
+    it("reports connected + owns + refs + activeClientIds once seeded", () => {
+      const transport = makeIsolatedTransport();
+      const state = internals(transport);
+      state.server = {};
+      state.owns = true;
+      state.activeClientIds = new Set(["a", "b"]);
+      state.refcount = { peek: () => ({ pid: 123, refs: 1 }) };
+
+      expect(transport.getDiagnostics()).toEqual({
+        connected: true,
+        host: "localhost",
+        port: 52342,
+        owns: true,
+        refs: 1,
+        activeClientIds: ["a", "b"],
+      });
+    });
+  });
+
+  describe("FlipperRefcount.peek (via getDiagnostics)", () => {
+    it("does not mutate the refcount file", () => {
+      const dir = path.join(os.tmpdir(), "player-devtools-mcp");
+      const file = path.join(dir, "flipper-server.refcount");
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(file, JSON.stringify({ pid: process.pid, refs: 4 }));
+
+      try {
+        const transport = new FlipperServerTransport();
+        const before = fs.readFileSync(file, "utf8");
+        const { refs } = transport.getDiagnostics();
+        const after = fs.readFileSync(file, "utf8");
+
+        expect(refs).toBe(4);
+        expect(after).toBe(before);
+      } finally {
+        fs.rmSync(file, { force: true });
+      }
+    });
+  });
+
+  describe("restart", () => {
+    it("soft-errors without touching the daemon when this instance does not own it", async () => {
+      const transport = new FlipperServerTransport();
+      const close = vi.spyOn(transport, "close");
+      const connect = vi.spyOn(transport, "connect");
+
+      const result = await transport.restart();
+
+      expect(result).toEqual({
+        ok: false,
+        reason: "this instance does not own the flipper-server daemon",
+      });
+      expect(close).not.toHaveBeenCalled();
+      expect(connect).not.toHaveBeenCalled();
+    });
+
+    it("soft-errors without touching the daemon when other consumers are attached", async () => {
+      const transport = new FlipperServerTransport();
+      const state = internals(transport);
+      state.owns = true;
+      state.refcount = { peek: () => ({ pid: 1, refs: 3 }) };
+
+      const close = vi.spyOn(transport, "close");
+      const connect = vi.spyOn(transport, "connect");
+
+      const result = await transport.restart();
+
+      expect(result).toEqual({
+        ok: false,
+        reason: "other consumers are attached to this daemon",
+      });
+      expect(close).not.toHaveBeenCalled();
+      expect(connect).not.toHaveBeenCalled();
+    });
+
+    it("closes and reconnects when this instance is the sole owner", async () => {
+      const transport = new FlipperServerTransport();
+      const state = internals(transport);
+      state.owns = true;
+      state.refcount = { peek: () => ({ pid: 1, refs: 1 }) };
+
+      const close = vi.spyOn(transport, "close").mockResolvedValue(undefined);
+      const connect = vi
+        .spyOn(transport, "connect")
+        .mockImplementation(async () => {
+          state.host = "localhost";
+          state.port = 52342;
+        });
+
+      const result = await transport.restart();
+
+      expect(close).toHaveBeenCalledOnce();
+      expect(connect).toHaveBeenCalledOnce();
+      expect(result).toEqual({ ok: true, host: "localhost", port: 52342 });
+    });
+  });
+
+  describe("getPluginInstallStatus", () => {
+    it("returns not-installed when the server is not connected", async () => {
+      const transport = new FlipperServerTransport();
+      await expect(transport.getPluginInstallStatus()).resolves.toEqual({
+        installed: false,
+      });
+    });
+
+    it("returns not-installed when the daemon has no matching plugin", async () => {
+      const transport = new FlipperServerTransport();
+      internals(transport).server = {
+        exec: vi.fn().mockResolvedValue([{ id: "some-other-plugin" }]),
+      };
+
+      await expect(transport.getPluginInstallStatus()).resolves.toEqual({
+        installed: false,
+      });
+    });
+
+    it("matches by id and reports the version when present", async () => {
+      const transport = new FlipperServerTransport();
+      internals(transport).server = {
+        exec: vi
+          .fn()
+          .mockResolvedValue([{ id: "player-ui-devtools", version: "1.2.3" }]),
+      };
+
+      await expect(transport.getPluginInstallStatus()).resolves.toEqual({
+        installed: true,
+        version: "1.2.3",
+      });
+    });
+
+    it("matches by name when id is absent, without a version", async () => {
+      const transport = new FlipperServerTransport();
+      internals(transport).server = {
+        exec: vi.fn().mockResolvedValue([{ name: "player-ui-devtools" }]),
+      };
+
+      await expect(transport.getPluginInstallStatus()).resolves.toEqual({
+        installed: true,
+      });
     });
   });
 });
