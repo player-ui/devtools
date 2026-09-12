@@ -3,7 +3,7 @@ import type { PluginData } from "@player-devtools/types";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import type { ToolDef } from "./index";
+import { ok, err, type ToolDef } from "./index";
 
 type Failure = { error: string };
 type PlayerOk = {
@@ -49,16 +49,6 @@ function resolveBasicPlugin(
   const [basicPlugin] = Object.values(player.plugins);
   if (!basicPlugin) return { error: "no plugin registered for this player" };
   return { id, player, basicPlugin };
-}
-
-function ok(value: unknown): CallToolResult {
-  return { content: [{ type: "text", text: JSON.stringify(value) }] };
-}
-
-function err(message: string): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify({ error: message }) }],
-  };
 }
 
 export function handleGetFlow(

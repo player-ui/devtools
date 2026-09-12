@@ -25,6 +25,17 @@ export type ToolDef<Shape extends ZodRawShape = ZodRawShape> = {
   ) => CallToolResult | Promise<CallToolResult>;
 };
 
+/** Shared JSON-envelope helpers used by every tool handler in this package. */
+export function ok(value: unknown): CallToolResult {
+  return { content: [{ type: "text", text: JSON.stringify(value) }] };
+}
+
+export function err(message: string): CallToolResult {
+  return {
+    content: [{ type: "text", text: JSON.stringify({ error: message }) }],
+  };
+}
+
 export * from "./flow";
 export * from "./players";
 export * from "./plugins";

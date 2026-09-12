@@ -2,7 +2,7 @@ import type { ExtensionClient } from "@player-devtools/client";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import type { ToolDef } from "./index";
+import { ok, err, type ToolDef } from "./index";
 
 const selectPlayerShape = {
   playerId: z.string().describe("The Player ID to select."),
@@ -21,16 +21,6 @@ const invokeActionShape = {
 const SelectPlayerInput = z.object(selectPlayerShape);
 
 const InvokeActionInput = z.object(invokeActionShape);
-
-function err(message: string): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify({ error: message }) }],
-  };
-}
-
-function ok(value: unknown): CallToolResult {
-  return { content: [{ type: "text", text: JSON.stringify(value) }] };
-}
 
 export function handleSelectPlayer(
   client: ExtensionClient,

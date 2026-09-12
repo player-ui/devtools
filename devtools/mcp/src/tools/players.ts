@@ -2,7 +2,7 @@ import type { ExtensionClient } from "@player-devtools/client";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import type { ToolDef } from "./index";
+import { ok, err, type ToolDef } from "./index";
 
 const playerIdShape = {
   playerId: z
@@ -15,17 +15,7 @@ const GetPlayerStatusInput = z.object(playerIdShape);
 
 export function handleListPlayers(client: ExtensionClient): CallToolResult {
   const { players, current } = client.getState();
-  return {
-    content: [
-      {
-        type: "text",
-        text: JSON.stringify({
-          players: Object.keys(players),
-          current: current.player,
-        }),
-      },
-    ],
-  };
+  return ok({ players: Object.keys(players), current: current.player });
 }
 
 export function handleGetPlayerStatus(
@@ -35,26 +25,10 @@ export function handleGetPlayerStatus(
   const { playerId } = GetPlayerStatusInput.parse(input);
   const { players, current } = client.getState();
   const id = playerId ?? current.player;
-  if (!id) return errorResult("no player selected");
+  if (!id) return err("no player selected");
   const player = players[id];
-  if (!player) return errorResult(`player not found: ${id}`);
-  return {
-    content: [
-      {
-        type: "text",
-        text: JSON.stringify({
-          active: player.active,
-          plugins: Object.keys(player.plugins),
-        }),
-      },
-    ],
-  };
-}
-
-function errorResult(message: string): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify({ error: message }) }],
-  };
+  if (!player) return err(`player not found: ${id}`);
+  return ok({ active: player.active, plugins: Object.keys(player.plugins) });
 }
 
 export const listPlayersDef: ToolDef = {
