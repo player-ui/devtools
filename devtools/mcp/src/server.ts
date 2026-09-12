@@ -38,14 +38,22 @@ export class MCPServer {
       // loosely-typed view to keep inference shallow.
       const register = this.server.registerTool.bind(this.server) as (
         name: string,
-        config: { description: string; inputSchema: ToolDef["inputSchema"] },
-        cb: (args: unknown) => CallToolResult,
+        config: {
+          description: string;
+          inputSchema: ToolDef["inputSchema"];
+          annotations?: ToolDef["annotations"];
+        },
+        cb: (args: unknown) => CallToolResult | Promise<CallToolResult>,
       ) => unknown;
 
       register(
         def.name,
-        { description: def.description, inputSchema: def.inputSchema },
-        (args) => def.handle(this.client, args),
+        {
+          description: def.description,
+          inputSchema: def.inputSchema,
+          annotations: def.annotations,
+        },
+        (args) => def.handle(this.client, args, this.transport),
       );
     }
   }
