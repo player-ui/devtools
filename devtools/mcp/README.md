@@ -104,9 +104,10 @@ await server.start();
 | `autoEnablePlugin` | `false` | Automatically call `enablePlugin()` for every client that connects (see [Plugin activation](#plugin-activation) below). |
 
 The CLI (`player-devtools-mcp` / `bin/run`) reads `open`/`url` from
-`PLAYER_DEVTOOLS_FLIPPER_OPEN` / `PLAYER_DEVTOOLS_FLIPPER_URL`, and always
-installs the plugin and enables it for connected/connecting clients on
-startup (see below) — no manual Flipper UI interaction is required.
+`PLAYER_DEVTOOLS_FLIPPER_OPEN` / `PLAYER_DEVTOOLS_FLIPPER_URL`, and sets
+`autoEnablePlugin: true` so every connecting client gets the plugin installed
+(if needed) and activated automatically (see below) — no manual Flipper UI
+interaction is required.
 
 ### Plugin installation
 
@@ -126,6 +127,13 @@ await transport.connect();
 await transport.ensurePluginInstalled();
 ```
 
+`enablePlugin()` (below) already calls this internally before every
+activation — the plugin can be installed or removed on the attached
+flipper-server independently of this transport (e.g. a human using the
+desktop UI concurrently), so there's no "already installed" snapshot that
+stays trustworthy across calls. Call `ensurePluginInstalled()` directly only
+if you need the installed version without also activating a client.
+
 ### Plugin activation
 
 Flipper only opens a live connection for a plugin (and starts relaying its
@@ -136,8 +144,8 @@ applies to `flipper-plugin-player-ui-devtools` or to a headless MCP session,
 so `FlipperServerTransport` exposes the handshake directly:
 
 ```ts
-await transport.enablePlugin();     // activate for every connected client
-await transport.enablePlugin(id);   // or just one
+await transport.enablePlugin();     // activate every connected client not already active
+await transport.enablePlugin(id);   // or just one, regardless of its active state
 await transport.disablePlugin(id);  // release it again, without disconnecting
 ```
 
