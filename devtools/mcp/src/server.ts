@@ -58,7 +58,7 @@ export class MCPServer {
       this.transportConnected = true;
     } catch (err) {
       console.warn(
-        "[@player-devtools/mcp] Transport connect failed (will operate in disconnected mode):",
+        "[MCPServer] Transport connect failed (will operate in disconnected mode):",
         err instanceof Error ? err.message : err,
       );
     }
