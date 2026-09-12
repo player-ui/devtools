@@ -152,5 +152,18 @@ describe("flipper diagnostic tools", () => {
       );
       expect(parse(result)).toEqual({ installed: true, version: "1.2.3" });
     });
+
+    it("returns a soft error (not an unhandled rejection) when exec() rejects", async () => {
+      const transport = makeFlipperTransport();
+      const exec = vi.fn().mockRejectedValue(new Error("daemon dropped"));
+      (transport as unknown as { server: unknown }).server = { exec };
+
+      const result = await handleGetFlipperPluginInstallStatus(
+        client,
+        {},
+        transport,
+      );
+      expect(parse(result)).toEqual({ error: "daemon dropped" });
+    });
   });
 });

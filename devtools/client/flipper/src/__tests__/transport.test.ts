@@ -157,6 +157,55 @@ describe("FlipperServerTransport", () => {
       expect(connect).toHaveBeenCalledOnce();
       expect(result).toEqual({ ok: true, host: "localhost", port: 52342 });
     });
+
+    it("aborts with a soft error when refs change between the initial check and the pre-kill re-check", async () => {
+      const transport = new FlipperServerTransport();
+      const state = internals(transport);
+      state.owns = true;
+      let calls = 0;
+      state.refcount = {
+        peek: () => {
+          calls += 1;
+          // First peek (in the initial guard) sees refs=1; the re-check
+          // immediately before close() sees a consumer that just attached.
+          return calls === 1 ? { pid: 1, refs: 1 } : { pid: 1, refs: 2 };
+        },
+      };
+
+      const close = vi.spyOn(transport, "close");
+      const connect = vi.spyOn(transport, "connect");
+
+      const result = await transport.restart();
+
+      expect(result).toEqual({
+        ok: false,
+        reason: "other consumers attached to this daemon just before restart",
+      });
+      expect(close).not.toHaveBeenCalled();
+      expect(connect).not.toHaveBeenCalled();
+    });
+
+    it("returns a soft error and resets owns to false when connect() fails after close() succeeds", async () => {
+      const transport = new FlipperServerTransport();
+      const state = internals(transport);
+      state.owns = true;
+      state.refcount = { peek: () => ({ pid: 1, refs: 1 }) };
+
+      const close = vi.spyOn(transport, "close").mockResolvedValue(undefined);
+      const connect = vi
+        .spyOn(transport, "connect")
+        .mockRejectedValue(new Error("Timed out waiting for localhost:52342"));
+
+      const result = await transport.restart();
+
+      expect(close).toHaveBeenCalledOnce();
+      expect(connect).toHaveBeenCalledOnce();
+      expect(result).toEqual({
+        ok: false,
+        reason: "Timed out waiting for localhost:52342",
+      });
+      expect(internals(transport).owns).toBe(false);
+    });
   });
 
   describe("getPluginInstallStatus", () => {
@@ -164,6 +213,7 @@ describe("FlipperServerTransport", () => {
       const transport = new FlipperServerTransport();
       await expect(transport.getPluginInstallStatus()).resolves.toEqual({
         installed: false,
+        reason: "not connected",
       });
     });
 
@@ -201,6 +251,68 @@ describe("FlipperServerTransport", () => {
       await expect(transport.getPluginInstallStatus()).resolves.toEqual({
         installed: true,
       });
+    });
+
+    it("resolves with a failure reason instead of throwing when exec() rejects", async () => {
+      const transport = new FlipperServerTransport();
+      internals(transport).server = {
+        exec: vi.fn().mockRejectedValue(new Error("daemon dropped")),
+      };
+
+      await expect(transport.getPluginInstallStatus()).resolves.toEqual({
+        installed: false,
+        reason: "daemon dropped",
+      });
+    });
+  });
+
+  describe("close", () => {
+    it("waits for the killed daemon process to actually exit before resolving", async () => {
+      vi.useFakeTimers();
+      try {
+        const transport = new FlipperServerTransport();
+        const state = internals(transport);
+        state.refcount = {
+          peek: () => null,
+        } as unknown as TransportInternals["refcount"];
+        (
+          transport as unknown as {
+            refcount: { release: () => number | null };
+          }
+        ).refcount.release = () => 4242;
+
+        let alive = true;
+        const killSpy = vi.spyOn(process, "kill").mockImplementation(((
+          pid: number,
+          signal?: string | number,
+        ) => {
+          if (signal === 0) {
+            if (!alive) throw new Error("ESRCH");
+            return true;
+          }
+          return true;
+        }) as typeof process.kill);
+
+        const closePromise = transport.close();
+        let resolved = false;
+        void closePromise.then(() => {
+          resolved = true;
+        });
+
+        // Still "alive" — close() must not have resolved yet.
+        await vi.advanceTimersByTimeAsync(300);
+        expect(resolved).toBe(false);
+
+        // Now the process exits; the next poll should observe it and resolve.
+        alive = false;
+        await vi.advanceTimersByTimeAsync(200);
+        await closePromise;
+        expect(resolved).toBe(true);
+
+        killSpy.mockRestore();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });
