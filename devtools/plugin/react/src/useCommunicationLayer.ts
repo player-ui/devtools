@@ -55,11 +55,18 @@ const ensureFlipperConnectionStarted = (): Promise<void> => {
           onDisconnect() {
             console.log("Flipper client disconnected");
             flipperConnection = null;
+            // allow a future call to re-run start()/addPlugin() so the plugin
+            // can reconnect after Flipper desktop closes/reopens or the
+            // device connection drops
+            flipperBootstrapPromise = null;
           },
         });
       })
       .catch((error) => {
         console.error("Failed to start Flipper client", error);
+        // reset the mutex so a future call retries the bootstrap from
+        // scratch instead of being permanently poisoned by this failure
+        flipperBootstrapPromise = null;
       });
   }
 
@@ -84,10 +91,16 @@ export const startFlipperConnection = (
     flipperListeners.add(listener);
   };
 
+  const removeListener: CommunicationLayerMethods["removeListener"] = (
+    listener,
+  ) => {
+    flipperListeners.delete(listener);
+  };
+
   setLayerCallbacks((current) => ({
     sendMessage: [...current.sendMessage, sendMessage],
     addListener: [...current.addListener, addListener],
-    removeListener: current.removeListener,
+    removeListener: [...current.removeListener, removeListener],
   }));
 };
 
