@@ -29,11 +29,18 @@ export * from "./flow";
 export * from "./players";
 export * from "./plugins";
 export * from "./select";
+export * from "./flipper";
 
 import { listPlayersDef, getPlayerStatusDef } from "./players";
 import { getFlowDef, getDataDef, getLogsDef, getPluginDataDef } from "./flow";
 import { describePluginDef } from "./plugins";
 import { selectPlayerDef, invokeActionDef } from "./select";
+import {
+  getFlipperStatusDef,
+  getFlipperConsumersDef,
+  restartFlipperServerDef,
+  getFlipperPluginInstallStatusDef,
+} from "./flipper";
 
 /** Every tool the MCP server exposes. */
 export const TOOL_DEFS: ToolDef[] = [
@@ -46,4 +53,8 @@ export const TOOL_DEFS: ToolDef[] = [
   describePluginDef,
   selectPlayerDef,
   invokeActionDef,
+  getFlipperStatusDef,
+  getFlipperConsumersDef,
+  restartFlipperServerDef,
+  getFlipperPluginInstallStatusDef,
 ];
