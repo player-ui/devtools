@@ -532,8 +532,9 @@ describe("FlipperServerTransport", () => {
         exec: vi.fn().mockResolvedValue({ unexpected: "shape" }),
       };
 
-      await expect(transport.getPluginInstallStatus()).resolves.toMatchObject({
+      await expect(transport.getPluginInstallStatus()).resolves.toEqual({
         installed: false,
+        reason: "plugins.find is not a function",
       });
     });
   });
@@ -589,7 +590,6 @@ describe("FlipperServerTransport", () => {
 
     it("is idempotent: a second concurrent close() does not re-run teardown", async () => {
       const transport = new FlipperServerTransport();
-      const state = internals(transport);
 
       let releaseCalls = 0;
       (
@@ -610,27 +610,37 @@ describe("FlipperServerTransport", () => {
       await Promise.all([first, second]);
 
       expect(releaseCalls).toBe(1);
-      expect(state).toBeDefined();
     });
   });
 
   describe("connect", () => {
-    it("kills the spawned child when waitForPort fails after spawn", async () => {
+    it("kills the spawned child and waits for it to exit when waitForPort fails after spawn", async () => {
       // Exercises connect()'s `shouldStart` spawn path: the real flipper-server
       // child is spawned, but nothing is listening on the target port, so
       // waitForPort() times out. Nothing has committed this child's PID to
-      // the refcount file yet, so connect() must kill it itself or it orphans.
+      // the refcount file yet, so connect() must kill it itself (via the same
+      // killAndWait() used elsewhere in this file) or it orphans.
       //
       // Under this workspace's vitest environment (happy-dom), `vi.mock`
       // cannot reliably intercept Node builtin modules (`child_process`,
       // `net`) for code paths already resolved outside the test file's own
-      // module graph, so this spies on `ChildProcess.prototype.kill` instead
-      // — the real spawn() runs, but against a port nothing listens on, and
-      // fake timers fast-forward waitForPort's 30s polling loop.
-      const { ChildProcess } = await import("child_process");
-      const killSpy = vi
-        .spyOn(ChildProcess.prototype, "kill")
-        .mockImplementation(() => true);
+      // module graph, so this spies on the module-level `process.kill`
+      // instead — the real spawn() runs, but against a port nothing listens
+      // on, and fake timers fast-forward both waitForPort's 30s polling loop
+      // and killAndWait's exit-confirmation poll.
+      let alive = true;
+      const processKillSpy = vi.spyOn(process, "kill").mockImplementation(((
+        pid: number,
+        signal?: string | number,
+      ) => {
+        if (signal === 0) {
+          if (!alive) throw new Error("ESRCH");
+          return true;
+        }
+        // The SIGTERM sent by killAndWait().
+        alive = false;
+        return true;
+      }) as typeof process.kill);
 
       vi.useFakeTimers();
       try {
@@ -660,16 +670,21 @@ describe("FlipperServerTransport", () => {
 
         const connectPromise = transport.connect().catch((err) => err as Error);
 
-        // Advance past waitForPort's internal 30s timeout so it rejects.
-        await vi.advanceTimersByTimeAsync(31_000);
+        // Advance past waitForPort's internal 30s timeout so it rejects, then
+        // past killAndWait's poll interval so it observes the SIGTERM'd
+        // child's exit before connect() rethrows.
+        await vi.advanceTimersByTimeAsync(31_200);
 
         const result = await connectPromise;
 
         expect(result).toBeInstanceOf(Error);
-        expect(killSpy).toHaveBeenCalled();
+        // The SIGTERM from killAndWait().
+        expect(processKillSpy).toHaveBeenCalledWith(expect.any(Number));
+        // The liveness poll from killAndWait()'s isPidAlive().
+        expect(processKillSpy).toHaveBeenCalledWith(expect.any(Number), 0);
       } finally {
         vi.useRealTimers();
-        killSpy.mockRestore();
+        processKillSpy.mockRestore();
       }
     });
   });

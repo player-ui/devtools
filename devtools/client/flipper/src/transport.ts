@@ -328,8 +328,12 @@ export class FlipperServerTransport implements Transport {
         // Nothing has recorded this PID in the refcount file yet, so nobody
         // else can track or kill it — if we leave it running here it becomes
         // an orphan daemon that a later connect() would compete with on the
-        // same port instead of detecting.
-        child.kill();
+        // same port instead of detecting. Wait for it to actually exit (via
+        // the same bounded kill-and-confirm mechanism used everywhere else in
+        // this file) before rethrowing, so a caller that retries connect()
+        // right away doesn't spawn a second daemon racing this one for the
+        // port during teardown.
+        await this.killAndWait(child.pid!);
         throw err;
       }
       commit(child.pid!);
