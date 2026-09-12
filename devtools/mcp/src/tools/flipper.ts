@@ -3,17 +3,7 @@ import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@player-devtools/types";
 import { FlipperServerTransport } from "@player-devtools/client-flipper";
 
-import type { ToolDef } from "./index";
-
-function err(message: string): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify({ error: message }) }],
-  };
-}
-
-function ok(value: unknown): CallToolResult {
-  return { content: [{ type: "text", text: JSON.stringify(value) }] };
-}
+import { ok, err, type ToolDef } from "./index";
 
 /** Narrow the generic `Transport` to the concrete Flipper implementation. */
 function asFlipperTransport(
@@ -71,7 +61,9 @@ export async function handleGetFlipperPluginInstallStatus(
     return err("flipper transport not connected");
   }
 
-  return ok(await flipper.getPluginInstallStatus());
+  const status = await flipper.getPluginInstallStatus();
+  if (!status.installed && status.reason) return err(status.reason);
+  return ok(status);
 }
 
 export const getFlipperStatusDef: ToolDef = {

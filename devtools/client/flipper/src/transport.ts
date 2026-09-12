@@ -574,12 +574,52 @@ export class FlipperServerTransport implements Transport {
     // running for the remaining instances.
     const pidToKill = this.refcount.release();
     if (pidToKill !== null) {
+      await this.killAndWait(pidToKill);
+    }
+  }
+
+  /**
+   * Send SIGTERM and wait for the process to actually exit (or a bounded
+   * timeout) before resolving, so callers — notably `restart()` — can rely on
+   * the port being free once `close()` returns instead of racing a new child
+   * for it.
+   */
+  private killAndWait(pid: number, timeoutMs = 5_000): Promise<void> {
+    return new Promise((resolve) => {
       try {
-        process.kill(pidToKill);
-        log("[FlipperServerTransport] Shut down flipper-server.");
+        process.kill(pid);
       } catch {
-        /* already gone */
+        // Already gone.
+        resolve();
+        return;
       }
+
+      const deadline = Date.now() + timeoutMs;
+      const poll = () => {
+        if (!this.isPidAlive(pid)) {
+          log("[FlipperServerTransport] Shut down flipper-server.");
+          resolve();
+          return;
+        }
+        if (Date.now() >= deadline) {
+          log(
+            "[FlipperServerTransport] Timed out waiting for flipper-server to exit.",
+          );
+          resolve();
+          return;
+        }
+        setTimeout(poll, 100);
+      };
+      poll();
+    });
+  }
+
+  private isPidAlive(pid: number): boolean {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -627,8 +667,35 @@ export class FlipperServerTransport implements Transport {
       };
     }
 
-    await this.close();
-    await this.connect();
+    // Re-verify immediately before the destructive close(): another instance
+    // could have called connect()/acquire() between the check above and here,
+    // bumping refs to 2+. This narrows but does not eliminate the race — a
+    // consumer could still slip in between this re-check and close() itself;
+    // a fully atomic fix would need close()+connect() to run inside
+    // refcount.withLock(), which isn't reentrant-safe with connect()'s own
+    // internal use of the lock, so we accept this narrow residual window.
+    const recheck = this.refcount.peek();
+    if (recheck?.refs !== 1) {
+      return {
+        ok: false,
+        reason: "other consumers attached to this daemon just before restart",
+      };
+    }
+
+    try {
+      await this.close();
+      await this.connect();
+    } catch (err) {
+      // The daemon this instance owned/attempted to own is now in an unknown
+      // or dead state — don't leave `owns` set, or a later restart() call
+      // will misreport "other consumers are attached" against a stale
+      // refcount for a daemon that no longer exists.
+      this.owns = false;
+      return {
+        ok: false,
+        reason: err instanceof Error ? err.message : String(err),
+      };
+    }
     return { ok: true, host: this.host, port: this.port };
   }
 
@@ -636,12 +703,21 @@ export class FlipperServerTransport implements Transport {
   async getPluginInstallStatus(): Promise<{
     installed: boolean;
     version?: string;
+    reason?: string;
   }> {
-    if (!this.server) return { installed: false };
+    if (!this.server) return { installed: false, reason: "not connected" };
 
-    const plugins = (await this.server.exec(
-      "plugins-get-installed-plugins",
-    )) as Array<{ id?: string; name?: string; version?: string }>;
+    let plugins: Array<{ id?: string; name?: string; version?: string }>;
+    try {
+      plugins = (await this.server.exec(
+        "plugins-get-installed-plugins",
+      )) as Array<{ id?: string; name?: string; version?: string }>;
+    } catch (err) {
+      return {
+        installed: false,
+        reason: err instanceof Error ? err.message : String(err),
+      };
+    }
 
     const plugin = plugins.find(
       (candidate) =>
