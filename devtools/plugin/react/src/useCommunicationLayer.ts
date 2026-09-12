@@ -18,23 +18,27 @@ type CommunicationLayerMethods = Pick<
 
 type Callbacks = IntoArrays<CommunicationLayerMethods>;
 
+type FlipperListener = (
+  message: TransactionMetadata & MessengerEvent<ExtensionSupportedEvents>,
+) => void;
+
 // keep track of the Flipper connection between React renders
 let flipperConnection: FlipperPluginConnection | null = null;
 
-/** Adds a Flipper client and starts the connection */
-export const startFlipperConnection = (
-  setLayerCallbacks: (
-    value: React.SetStateAction<IntoArrays<CommunicationLayerMethods>>,
-  ) => void,
-): void => {
-  const listeners: Array<
-    (
-      message: TransactionMetadata & MessengerEvent<ExtensionSupportedEvents>,
-    ) => void
-  > = [];
+// shared across every startFlipperConnection() caller so a plugin instance that
+// registers before or after the connection is established still receives messages
+const flipperListeners = new Set<FlipperListener>();
 
-  if (!flipperConnection) {
-    flipperClient
+// module-level bootstrap mutex: js-flipper's own start()/addPlugin() are not
+// safe to call more than once (see FlipperClient internals) - every caller must
+// await this SAME promise rather than issuing its own start()/addPlugin() call,
+// or the second registration silently overwrites the first under the shared
+// "player-ui-devtools" plugin id and that instance's connection never resolves
+let flipperBootstrapPromise: Promise<void> | null = null;
+
+const ensureFlipperConnectionStarted = (): Promise<void> => {
+  if (!flipperBootstrapPromise) {
+    flipperBootstrapPromise = flipperClient
       .start("player-ui-devtools")
       .then(() => {
         flipperClient.addPlugin({
@@ -45,7 +49,7 @@ export const startFlipperConnection = (
             flipperConnection = conn;
 
             conn.receive("message::flipper", (message) => {
-              listeners.forEach((listener) => listener(message));
+              flipperListeners.forEach((listener) => listener(message));
             });
           },
           onDisconnect() {
@@ -59,6 +63,17 @@ export const startFlipperConnection = (
       });
   }
 
+  return flipperBootstrapPromise;
+};
+
+/** Adds a Flipper client and starts the connection */
+export const startFlipperConnection = (
+  setLayerCallbacks: (
+    value: React.SetStateAction<IntoArrays<CommunicationLayerMethods>>,
+  ) => void,
+): void => {
+  void ensureFlipperConnectionStarted();
+
   const sendMessage: CommunicationLayerMethods["sendMessage"] = async (
     message,
   ) => {
@@ -66,7 +81,7 @@ export const startFlipperConnection = (
   };
 
   const addListener: CommunicationLayerMethods["addListener"] = (listener) => {
-    listeners.push(listener);
+    flipperListeners.add(listener);
   };
 
   setLayerCallbacks((current) => ({
