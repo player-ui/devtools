@@ -157,6 +157,43 @@ describe("startFlipperConnection", () => {
     await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(2));
   });
 
+  it("re-registers the plugin via addPlugin() after onDisconnect even when start() no-ops because the websocket never dropped", async () => {
+    // js-flipper's real FlipperClient.start() is `if (this.ws) { return; }` -
+    // the most common disconnect (Flipper desktop sending a plugin-level
+    // "deinit") never tears down the websocket, so start() short-circuits on
+    // every call after the first and does no reconnect work of its own. The
+    // bootstrap must not rely on start() to do anything on retry - it only
+    // needs to resolve so addPlugin() runs again and re-registers a fresh
+    // plugin object under the shared id.
+    start.mockImplementation(() => Promise.resolve());
+
+    const { startFlipperConnection } = await import("../useCommunicationLayer");
+
+    startFlipperConnection(vi.fn());
+
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
+
+    const firstPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
+    const { connection } = fakeConnection();
+    firstPlugin.onConnect(connection);
+
+    // Flipper desktop sends "deinit" for this plugin id; the underlying ws
+    // stays open, so a subsequent start() call will short-circuit.
+    firstPlugin.onDisconnect();
+
+    startFlipperConnection(vi.fn());
+
+    await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(2));
+    // addPlugin must fire again even though start() did no reconnect work,
+    // otherwise the stale plugin object (closed over the disconnected
+    // state) stays registered and the plugin never comes back online.
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(2));
+
+    const secondPlugin = addPlugin.mock.calls[1][0] as FakePlugin;
+    expect(secondPlugin.getId()).toBe(firstPlugin.getId());
+    expect(secondPlugin).not.toBe(firstPlugin);
+  });
+
   it("removeListener stops a listener from receiving further messages", async () => {
     start.mockResolvedValue(undefined);
 
