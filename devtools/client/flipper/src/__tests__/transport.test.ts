@@ -522,6 +522,20 @@ describe("FlipperServerTransport", () => {
         reason: "daemon dropped",
       });
     });
+
+    it("returns the soft-error shape instead of throwing when exec() resolves with a malformed non-array value", async () => {
+      const transport = new FlipperServerTransport();
+      internals(transport).server = {
+        // Simulates a version-mismatched daemon response: exec() resolves
+        // (doesn't reject) with something that isn't an array, so `.find()`
+        // would throw a TypeError if called outside the try/catch.
+        exec: vi.fn().mockResolvedValue({ unexpected: "shape" }),
+      };
+
+      await expect(transport.getPluginInstallStatus()).resolves.toMatchObject({
+        installed: false,
+      });
+    });
   });
 
   describe("close", () => {
@@ -570,6 +584,92 @@ describe("FlipperServerTransport", () => {
         killSpy.mockRestore();
       } finally {
         vi.useRealTimers();
+      }
+    });
+
+    it("is idempotent: a second concurrent close() does not re-run teardown", async () => {
+      const transport = new FlipperServerTransport();
+      const state = internals(transport);
+
+      let releaseCalls = 0;
+      (
+        transport as unknown as {
+          refcount: { release: () => number | null };
+        }
+      ).refcount = {
+        peek: () => null,
+        release: () => {
+          releaseCalls += 1;
+          return null;
+        },
+      } as unknown as TransportInternals["refcount"];
+
+      const first = transport.close();
+      const second = transport.close();
+
+      await Promise.all([first, second]);
+
+      expect(releaseCalls).toBe(1);
+      expect(state).toBeDefined();
+    });
+  });
+
+  describe("connect", () => {
+    it("kills the spawned child when waitForPort fails after spawn", async () => {
+      // Exercises connect()'s `shouldStart` spawn path: the real flipper-server
+      // child is spawned, but nothing is listening on the target port, so
+      // waitForPort() times out. Nothing has committed this child's PID to
+      // the refcount file yet, so connect() must kill it itself or it orphans.
+      //
+      // Under this workspace's vitest environment (happy-dom), `vi.mock`
+      // cannot reliably intercept Node builtin modules (`child_process`,
+      // `net`) for code paths already resolved outside the test file's own
+      // module graph, so this spies on `ChildProcess.prototype.kill` instead
+      // — the real spawn() runs, but against a port nothing listens on, and
+      // fake timers fast-forward waitForPort's 30s polling loop.
+      const { ChildProcess } = await import("child_process");
+      const killSpy = vi
+        .spyOn(ChildProcess.prototype, "kill")
+        .mockImplementation(() => true);
+
+      vi.useFakeTimers();
+      try {
+        const transport = new FlipperServerTransport({
+          host: "127.0.0.1",
+          // Reserved/unused port: nothing should ever be listening here in CI
+          // or locally, so real net.connect attempts genuinely fail fast.
+          port: 1,
+        });
+        const state = internals(transport);
+        state.refcount = {
+          peek: () => null,
+        } as unknown as TransportInternals["refcount"];
+        (
+          transport as unknown as {
+            refcount: {
+              acquire: () => {
+                shouldStart: boolean;
+                commit: (pid: number) => void;
+              };
+            };
+          }
+        ).refcount.acquire = () => ({
+          shouldStart: true,
+          commit: vi.fn(),
+        });
+
+        const connectPromise = transport.connect().catch((err) => err as Error);
+
+        // Advance past waitForPort's internal 30s timeout so it rejects.
+        await vi.advanceTimersByTimeAsync(31_000);
+
+        const result = await connectPromise;
+
+        expect(result).toBeInstanceOf(Error);
+        expect(killSpy).toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+        killSpy.mockRestore();
       }
     });
   });

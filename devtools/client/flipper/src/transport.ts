@@ -322,7 +322,16 @@ export class FlipperServerTransport implements Transport {
         );
       });
       child.unref();
-      await waitForPort(host, port);
+      try {
+        await waitForPort(host, port);
+      } catch (err) {
+        // Nothing has recorded this PID in the refcount file yet, so nobody
+        // else can track or kill it — if we leave it running here it becomes
+        // an orphan daemon that a later connect() would compete with on the
+        // same port instead of detecting.
+        child.kill();
+        throw err;
+      }
       commit(child.pid!);
       log("[FlipperServerTransport] flipper-server ready.");
     } else {
@@ -562,7 +571,24 @@ export class FlipperServerTransport implements Transport {
     this.listeners.delete(callback);
   };
 
+  /**
+   * In-flight `close()` promise, if one is currently running on this
+   * instance. Guards `refcount.release()` and `killAndWait()` against being
+   * invoked twice for a single logical close — e.g. `restart()`'s internal
+   * `close()` racing an external `MCPServer.stop()` -> `transport.close()`.
+   */
+  private closing: Promise<void> | null = null;
+
   async close(): Promise<void> {
+    if (this.closing) return this.closing;
+
+    this.closing = this.doClose().finally(() => {
+      this.closing = null;
+    });
+    return this.closing;
+  }
+
+  private async doClose(): Promise<void> {
     this.listeners.clear();
     this.activeClientIds.clear();
     this.connectedClientIds.clear();
@@ -707,26 +733,25 @@ export class FlipperServerTransport implements Transport {
   }> {
     if (!this.server) return { installed: false, reason: "not connected" };
 
-    let plugins: Array<{ id?: string; name?: string; version?: string }>;
     try {
-      plugins = (await this.server.exec(
+      const plugins = (await this.server.exec(
         "plugins-get-installed-plugins",
       )) as Array<{ id?: string; name?: string; version?: string }>;
+
+      const plugin = plugins.find(
+        (candidate) =>
+          candidate.id === PLUGIN_API || candidate.name === PLUGIN_API,
+      );
+
+      if (!plugin) return { installed: false };
+      return plugin.version
+        ? { installed: true, version: plugin.version }
+        : { installed: true };
     } catch (err) {
       return {
         installed: false,
         reason: err instanceof Error ? err.message : String(err),
       };
     }
-
-    const plugin = plugins.find(
-      (candidate) =>
-        candidate.id === PLUGIN_API || candidate.name === PLUGIN_API,
-    );
-
-    if (!plugin) return { installed: false };
-    return plugin.version
-      ? { installed: true, version: plugin.version }
-      : { installed: true };
   }
 }
