@@ -1,18 +1,28 @@
 import type { ExtensionClient } from "@player-devtools/client";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import type {
+  CallToolResult,
+  ToolAnnotations,
+} from "@modelcontextprotocol/sdk/types.js";
+import type { Transport } from "@player-devtools/types";
 import type { ZodRawShape } from "zod";
 
 /**
  * A tool definition consumed by the MCP server. `inputSchema` is a Zod raw
  * shape — the SDK derives the JSON Schema, validates input, and types the
- * handler's `args`. The handler receives the running devtools client plus the
- * validated args.
+ * handler's `args`. The handler receives the running devtools client, the
+ * validated args, and the raw `Transport` for tools that need connection-level
+ * diagnostics `ExtensionClient` doesn't expose.
  */
 export type ToolDef<Shape extends ZodRawShape = ZodRawShape> = {
   name: string;
   description: string;
   inputSchema: Shape;
-  handle: (client: ExtensionClient, args: unknown) => CallToolResult;
+  annotations?: ToolAnnotations;
+  handle: (
+    client: ExtensionClient,
+    args: unknown,
+    transport?: Transport,
+  ) => CallToolResult | Promise<CallToolResult>;
 };
 
 export * from "./flow";
