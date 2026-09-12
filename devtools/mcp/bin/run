@@ -20,20 +20,8 @@ const server = new MCPServer(transport);
 
 server
   .start()
-  .then(async () => {
-    try {
-      // autoEnablePlugin (above) activates every client as it connects; no
-      // separate enablePlugin() call is needed here.
-      await transport.ensurePluginInstalled();
-    } catch (err) {
-      console.warn(
-        "[@player-devtools/mcp] Failed to install the devtools plugin:",
-        err,
-      );
-    }
-  })
   .catch((err) => {
-    console.error("Failed to start MCP server:", err);
+    console.error("[@player-devtools/mcp] Failed to start MCP server:", err);
     process.exit(1);
   });
 

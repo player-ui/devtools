@@ -475,29 +475,47 @@ export class FlipperServerTransport implements Transport {
    * method lets a caller trigger the same handshake directly, without
    * needing a desktop UI at all.
    *
+   * Calls `ensurePluginInstalled()` first, every time — the plugin can be
+   * installed/removed on the attached flipper-server independently of this
+   * transport (e.g. a human using the desktop UI concurrently), so there's
+   * no snapshot of "already installed" we can trust across calls.
+   *
    * Pass a specific `clientId`, or omit it to enable for every client
-   * currently connected to flipper-server — including ones `autoEnablePlugin`
-   * already activated, so `init` must tolerate being sent more than once to
-   * the same client (Flipper's own device SDK treats it as idempotent).
+   * currently connected to flipper-server that we don't already believe is
+   * active (see `activeClientIds`) — `init` is otherwise harmless to repeat,
+   * but there's no reason to re-send it to a client already talking to us.
    */
   async enablePlugin(clientId?: string): Promise<void> {
-    await this.sendLifecycleMessage("init", clientId);
+    await this.ensurePluginInstalled();
+    const targets = clientId
+      ? [clientId]
+      : [...this.connectedClientIds].filter(
+          (id) => !this.activeClientIds.has(id),
+        );
+    await this.sendLifecycleMessage("init", targets);
   }
 
-  /** Symmetric counterpart to `enablePlugin` — releases the plugin connection without disconnecting the client from flipper-server. */
+  /**
+   * Symmetric counterpart to `enablePlugin` — releases the plugin connection
+   * without disconnecting the client from flipper-server.
+   *
+   * Pass a specific `clientId`, or omit it to disable for every client we
+   * currently believe is active (see `activeClientIds`) — there's nothing to
+   * release for a client that was never activated.
+   */
   async disablePlugin(clientId?: string): Promise<void> {
-    await this.sendLifecycleMessage("deinit", clientId);
+    const targets = clientId ? [clientId] : [...this.activeClientIds];
+    await this.sendLifecycleMessage("deinit", targets);
   }
 
   private async sendLifecycleMessage(
     method: "init" | "deinit",
-    clientId?: string,
+    targets: Array<string>,
   ): Promise<void> {
     if (!this.server) {
       throw new Error("FlipperServerTransport is not connected");
     }
 
-    const targets = clientId ? [clientId] : [...this.connectedClientIds];
     const payload: FlipperPluginLifecycleMessage = {
       method,
       params: { plugin: PLUGIN_API },
