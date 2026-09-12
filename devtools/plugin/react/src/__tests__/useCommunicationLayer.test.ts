@@ -111,4 +111,95 @@ describe("startFlipperConnection", () => {
     expect(firstListeners).toEqual([{ payload: "hello" }]);
     expect(secondListeners).toEqual([{ payload: "hello" }]);
   });
+
+  it("retries the bootstrap on a later call after flipperClient.start() rejects", async () => {
+    start.mockRejectedValueOnce(new Error("boom"));
+
+    const { startFlipperConnection } = await import("../useCommunicationLayer");
+
+    startFlipperConnection(vi.fn());
+
+    await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(1));
+    // let the rejection's .catch() handler run and reset the mutex
+    await vi.waitFor(() => {
+      // addPlugin must never have been called for the failed attempt
+      expect(addPlugin).not.toHaveBeenCalled();
+    });
+
+    start.mockResolvedValueOnce(undefined);
+
+    startFlipperConnection(vi.fn());
+
+    await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
+  });
+
+  it("re-bootstraps after onDisconnect fires, allowing reconnection", async () => {
+    start.mockResolvedValue(undefined);
+
+    const { startFlipperConnection } = await import("../useCommunicationLayer");
+
+    startFlipperConnection(vi.fn());
+
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
+
+    const registeredPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
+    const { connection } = fakeConnection();
+    registeredPlugin.onConnect(connection);
+
+    // simulate Flipper desktop closing / the device connection dropping
+    registeredPlugin.onDisconnect();
+
+    // a later call must re-run the full start()/addPlugin() bootstrap
+    startFlipperConnection(vi.fn());
+
+    await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(2));
+  });
+
+  it("removeListener stops a listener from receiving further messages", async () => {
+    start.mockResolvedValue(undefined);
+
+    const { startFlipperConnection } = await import("../useCommunicationLayer");
+
+    const firstListeners: unknown[] = [];
+    const secondListeners: unknown[] = [];
+    let removeFirst: (() => void) | undefined;
+
+    startFlipperConnection((updater) => {
+      const result = updater({
+        sendMessage: [],
+        addListener: [],
+        removeListener: [],
+      });
+      const listener = (message: unknown) => firstListeners.push(message);
+      result.addListener.forEach((add) => add(listener));
+      removeFirst = () =>
+        result.removeListener.forEach((remove) => remove(listener));
+    });
+
+    startFlipperConnection((updater) => {
+      const result = updater({
+        sendMessage: [],
+        addListener: [],
+        removeListener: [],
+      });
+      result.addListener.forEach((add) =>
+        add((message) => secondListeners.push(message)),
+      );
+    });
+
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
+
+    const { emit, connection } = fakeConnection();
+    const registeredPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
+    registeredPlugin.onConnect(connection);
+
+    removeFirst?.();
+
+    emit({ payload: "hello" });
+
+    expect(firstListeners).toEqual([]);
+    expect(secondListeners).toEqual([{ payload: "hello" }]);
+  });
 });
