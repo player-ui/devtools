@@ -146,6 +146,14 @@ class FlipperRefcount {
     }
   }
 
+  /**
+   * Read the current refcount state without mutating it. Still goes through
+   * `withLock` so a concurrent acquire/release can't be observed mid-write.
+   */
+  peek(): RefcountFile | null {
+    return this.withLock(() => this.read());
+  }
+
   private write(state: RefcountFile): void {
     fs.writeFileSync(this.file, JSON.stringify(state));
   }
@@ -218,6 +226,16 @@ export class FlipperServerTransport implements Transport {
    */
   private activeClientIds = new Set<string>();
 
+  /** Resolved connection target, set at the top of `connect()`. */
+  private host = "localhost";
+  private port = 52342;
+
+  /**
+   * Whether this instance started the shared daemon (vs. attaching to one
+   * another instance started). Only an owner may consider restarting it.
+   */
+  private owns = false;
+
   constructor(
     private options: {
       /** Flipper server host; defaults to "localhost" */
@@ -228,13 +246,14 @@ export class FlipperServerTransport implements Transport {
   ) {}
 
   async connect(): Promise<void> {
-    const host = this.options.host ?? "localhost";
-    const port = this.options.port ?? 52342;
+    const host = (this.host = this.options.host ?? "localhost");
+    const port = (this.port = this.options.port ?? 52342);
 
     // Register interest in the shared daemon. The first instance to do so is
     // told to start it; the rest just attach. The daemon outlives any single
     // MCP process and is only torn down when the last instance detaches.
     const { shouldStart, commit } = this.refcount.acquire();
+    this.owns = shouldStart;
 
     if (shouldStart) {
       log("[FlipperServerTransport] Starting flipper-server...");
@@ -390,5 +409,76 @@ export class FlipperServerTransport implements Transport {
         /* already gone */
       }
     }
+  }
+
+  /** Read-only snapshot of this transport's connection to the shared daemon. */
+  getDiagnostics(): {
+    connected: boolean;
+    host: string;
+    port: number;
+    owns: boolean;
+    refs: number | null;
+    activeClientIds: string[];
+  } {
+    const state = this.refcount.peek();
+    return {
+      connected: this.server !== null,
+      host: this.host,
+      port: this.port,
+      owns: this.owns,
+      refs: state?.refs ?? null,
+      activeClientIds: [...this.activeClientIds],
+    };
+  }
+
+  /**
+   * Restart the shared daemon. Only ever acts when this instance both owns
+   * the daemon (started it) and is its sole remaining consumer — otherwise
+   * this soft-errors without touching the daemon, since killing it out from
+   * under other attached instances would break their connections.
+   */
+  async restart(): Promise<
+    { ok: true; host: string; port: number } | { ok: false; reason: string }
+  > {
+    if (!this.owns) {
+      return {
+        ok: false,
+        reason: "this instance does not own the flipper-server daemon",
+      };
+    }
+
+    const state = this.refcount.peek();
+    if (state?.refs !== 1) {
+      return {
+        ok: false,
+        reason: "other consumers are attached to this daemon",
+      };
+    }
+
+    await this.close();
+    await this.connect();
+    return { ok: true, host: this.host, port: this.port };
+  }
+
+  /** Whether the devtools Flipper plugin is installed, per the live daemon. */
+  async getPluginInstallStatus(): Promise<{
+    installed: boolean;
+    version?: string;
+  }> {
+    if (!this.server) return { installed: false };
+
+    const plugins = (await this.server.exec(
+      "plugins-get-installed-plugins",
+    )) as Array<{ id?: string; name?: string; version?: string }>;
+
+    const plugin = plugins.find(
+      (candidate) =>
+        candidate.id === PLUGIN_API || candidate.name === PLUGIN_API,
+    );
+
+    if (!plugin) return { installed: false };
+    return plugin.version
+      ? { installed: true, version: plugin.version }
+      : { installed: true };
   }
 }
