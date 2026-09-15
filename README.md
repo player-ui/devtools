@@ -62,7 +62,8 @@ platform and connect a client:
 - **Web** — add `BasicReactDevtoolsPlugin` and activate the connection from the
   browser extension popup.
 - **Mobile** — add the platform basic plugin and connect Flipper (see
-  [`just install-flipper-client`](./devtools/flipper-plugin)).
+  [Connecting to Flipper](./devtools/CONNECTING_TO_FLIPPER.md) for the
+  Android/iOS setup).
 - **Agents** — run the [MCP server](./devtools/mcp) against a running Flipper server.
 
 To debug capabilities specific to your integration, build your own plugin on top
