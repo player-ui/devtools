@@ -1,3 +1,15 @@
+# 0.14.3-next.0 (Tue Sep 15 2026)
+
+#### 🐛 Bug Fix
+
+- Adds more detailed implementation documentation for connecting mobile player apps to flipper. [#27](https://github.com/player-ui/devtools/pull/27) (angela_villadiego@intuit.com)
+
+#### Authors: 1
+
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+---
+
 # 0.14.2 (Thu Aug 06 2026)
 
 ### Release Notes
