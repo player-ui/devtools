@@ -1,17 +1,29 @@
 #!/usr/bin/env node
 
 const { MCPServer } = require("@player-devtools/mcp");
-const {
-  FlipperServerTransport,
-} = require("@player-devtools/client-flipper");
+const { FlipperServerTransport } = require("@player-devtools/client-flipper");
 
-const transport = new FlipperServerTransport();
+// PLAYER_DEVTOOLS_FLIPPER_OPEN=true opens a browser/PWA UI once flipper-server
+// is up (off by default — an agent has no use for a browser tab).
+// PLAYER_DEVTOOLS_FLIPPER_URL overrides the URL that gets opened (defaults to
+// http://localhost:{port}); the host still needs to resolve to this machine.
+const transport = new FlipperServerTransport({
+  open: process.env.PLAYER_DEVTOOLS_FLIPPER_OPEN === "true",
+  url: process.env.PLAYER_DEVTOOLS_FLIPPER_URL,
+  // flipper-server never activates a non-background plugin like ours on its
+  // own unless a full Flipper desktop app is attached with our tab selected —
+  // we don't want to depend on that, so every connecting device gets the
+  // plugin activated for it automatically.
+  autoEnablePlugin: true,
+});
 const server = new MCPServer(transport);
 
-server.start().catch((err) => {
-  console.error("Failed to start MCP server:", err);
-  process.exit(1);
-});
+server
+  .start()
+  .catch((err) => {
+    console.error("[@player-devtools/mcp] Failed to start MCP server:", err);
+    process.exit(1);
+  });
 
 process.on("SIGINT", () => {
   server.stop().then(() => process.exit(0));
