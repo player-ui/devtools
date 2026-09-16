@@ -99,6 +99,59 @@ await server.start();
 | --- | --- | --- |
 | `host` | `"localhost"` | Flipper server host. |
 | `port` | `52342` | Flipper server WebSocket port. |
+| `open` | `false` | Open a browser/PWA UI once the server is up. Off by default — an agent has no use for a browser tab. |
+| `url` | `http://localhost:{port}` | URL to open when `open` is true. `flipper-server` itself always binds to `localhost`, regardless of this value — it only controls what gets opened in the browser, so a custom host must already resolve to this machine (e.g. via `/etc/hosts`). |
+| `autoEnablePlugin` | `false` | Automatically call `enablePlugin()` for every client that connects (see [Plugin activation](#plugin-activation) below). |
+
+The CLI (`player-devtools-mcp` / `bin/run`) reads `open`/`url` from
+`PLAYER_DEVTOOLS_FLIPPER_OPEN` / `PLAYER_DEVTOOLS_FLIPPER_URL`, and sets
+`autoEnablePlugin: true` so every connecting client gets the plugin installed
+(if needed) and activated automatically (see below) — no manual Flipper UI
+interaction is required.
+
+### Plugin installation
+
+`flipper-server` has no built-in way to auto-fetch a plugin — but it does
+expose the same install RPCs its own desktop UI's "Install Plugin" button
+uses, over the same `exec(...)` mechanism this transport already relies on.
+`FlipperServerTransport.ensurePluginInstalled()` calls
+`plugins-get-installed-plugins` to check whether
+`flipper-plugin-player-ui-devtools` is already installed, and if not, installs
+it from npm via `plugins-install-from-npm` — no filesystem access, no
+dependency on this repo's Bazel/justfile tooling, just Flipper's documented
+plugin-management API:
+
+```ts
+const transport = new FlipperServerTransport();
+await transport.connect();
+await transport.ensurePluginInstalled();
+```
+
+`enablePlugin()` (below) already calls this internally before every
+activation — the plugin can be installed or removed on the attached
+flipper-server independently of this transport (e.g. a human using the
+desktop UI concurrently), so there's no "already installed" snapshot that
+stays trustworthy across calls. Call `ensurePluginInstalled()` directly only
+if you need the installed version without also activating a client.
+
+### Plugin activation
+
+Flipper only opens a live connection for a plugin (and starts relaying its
+messages) after sending it an `init` handshake — normally something only the
+Flipper *desktop app* does, either automatically for a small class of
+"background" plugins, or when a human selects that plugin's tab. Neither
+applies to `flipper-plugin-player-ui-devtools` or to a headless MCP session,
+so `FlipperServerTransport` exposes the handshake directly:
+
+```ts
+await transport.enablePlugin();     // activate every connected client not already active
+await transport.enablePlugin(id);   // or just one, regardless of its active state
+await transport.disablePlugin(id);  // release it again, without disconnecting
+```
+
+Pass `autoEnablePlugin: true` to the constructor to have this happen
+automatically for every client as it connects, instead of calling
+`enablePlugin()` yourself.
 
 ### Shared `flipper-server` daemon
 
