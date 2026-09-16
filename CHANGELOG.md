@@ -1,3 +1,28 @@
+# 0.15.0 (Wed Sep 16 2026)
+
+### Release Notes
+
+#### Configure Flipper server open URL, plugin install, and activation ([#24](https://github.com/player-ui/devtools/pull/24))
+
+`@player-devtools/mcp` no longer requires any manual Flipper desktop app interaction to install or activate the Player UI Devtools plugin — the MCP server now installs the plugin (via Flipper's own plugin-management API) and activates it automatically for each connecting device. `FlipperServerTransport` gains `open`/`url` options for controlling whether/where a browser UI opens (env vars `PLAYER_DEVTOOLS_FLIPPER_OPEN`/`PLAYER_DEVTOOLS_FLIPPER_URL` for the CLI), and new `ensurePluginInstalled()`/`enablePlugin()`/`disablePlugin()` methods for consumers embedding the transport directly.
+
+---
+
+#### 🚀 Enhancement
+
+- Configure Flipper server open URL, plugin install, and activation [#24](https://github.com/player-ui/devtools/pull/24) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### 🐛 Bug Fix
+
+- Adds more detailed implementation documentation for connecting mobile player apps to flipper. [#27](https://github.com/player-ui/devtools/pull/27) (angela_villadiego@intuit.com)
+
+#### Authors: 2
+
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.14.3-next.0 (Tue Sep 15 2026)
 
 #### 🐛 Bug Fix
