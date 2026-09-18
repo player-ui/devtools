@@ -104,9 +104,9 @@ See [`DevtoolsFlipperPlugin.swift`](./plugin/ios/Sources/DevtoolsFlipperPlugin.s
 
 Web serves the Devtools UI directly as a browser extension -- however, this doesn't allow
 for your agent to leverage our MCP to easily access this data. The browser extension does
-have a toggle for connecting to Flipper via the browser extension, such that all web Players
-can effectively connect to any embedded devtools client or MCP. Ensure you have a devtools
-plugin installed to your Player (i.e. [`BasicReactDevtoolsPlugin`](./plugins/basic#react--player-devtoolsbasic-plugin-react))
+have a toggle for enabling the Flipper connection via the browser extension, such that all
+web-based Players can effectively connect to any embedded devtools client or MCP. Ensure you
+have a devtools plugin installed to your Player (i.e. [`BasicReactDevtoolsPlugin`](./plugins/basic#react--player-devtoolsbasic-plugin-react))
 and toggle devtools & the Flipper connection via the browser popup.
 
 ## Related
