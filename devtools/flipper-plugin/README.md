@@ -46,13 +46,12 @@ Flipper desktop  ──"message::plugin" (inbound)──▶  plugin()  ──▶
 
 1. Install **Flipper**:
    [fbflipper.com/docs/getting-started](https://fbflipper.com/docs/getting-started/#installation)
-2. Install the `flipper-plugin-player-ui-devtools` plugin (see [Building &
-   installing the plugin](#building--installing-the-plugin) to build it from this
-   repo).
+2. Install `player-ui-devtools` plugin via the plugin manager (see [Building &
+   installing the plugin](#building--installing-the-plugin-locally) to test local changes).
 3. Enable the plugin.
 4. Connect to your app, open the plugin, and start debugging.
 
-### Building & installing the plugin
+### Building & installing the plugin locally
 
 Flipper loads desktop plugins from `~/.flipper/installed-plugins`. This repo
 provides a recipe that builds the plugin with Bazel and syncs it into that

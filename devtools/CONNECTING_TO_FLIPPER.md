@@ -1,34 +1,40 @@
 # Connecting to Flipper
 
-[Flipper](https://fbflipper.com) is the desktop client for inspecting **mobile**
-(Android / iOS) Players — it plays the same role the browser extension plays
-for web. Web does not use Flipper; see [Web](#web) below.
+[Flipper](https://fbflipper.com) is a multiplatform debugging tool -- primarily
+aimed at providing a central place for debugging multiplatform applications.
+Our browser extension surfaces the Player UI Devtools directly within the browser,
+and our Flipper plugin, `player-ui-devtools`, renders the same within the Flipper desktop app.
 
-Connecting an app has two parts: install the desktop plugin once, then wire
-your app's Player to a Flipper connection.
+More importantly, the Flipper platform provides a stable multiplatform connection
+model for debugging applications -- which we leverage for other devtools clients,
+such as the MCP. This enables any Player, regardless of platform, to connect to
+our devtools suite in a consistent manner.
 
-## 1. Install the Flipper desktop plugin (mobile only, one-time)
+Connecting an app has two parts:
+- [Local env setup](#local-env-setup)
+- [Application configuration](#application-configuration)
+  1. Establish Flipper connection
+  2. Install Player Devtools plugin
 
-> **Driving devtools from an agent instead?** Skip this — the [MCP server](./mcp)
-> manages its own `flipper-server` for you (see [Installation](./mcp#installation)).
+## Local env setup
 
-1. Install Flipper:
-   [fbflipper.com/docs/getting-started](https://fbflipper.com/docs/getting-started/#installation).
-2. Build and install this repo's desktop plugin into `~/.flipper/installed-plugins`:
-   ```bash
-   just install-flipper-client
-   ```
-3. Restart Flipper and enable the **Player UI Devtools** plugin.
+If you already have the Flipper desktop app installed, you can use that directly -- 
+simply install the `player-ui-devtools` Flipper plugin via the plugin manager and
+enable it once you have established a connection to an app.
 
-See [`flipper-plugin`](./flipper-plugin) for what the recipe does and
-troubleshooting steps if the plugin doesn't appear.
+That said, our MCP will run a Flipper server and perform all 1-time setup for you.
+If you don't already have Flipper installed manually, It's recommended to simply add
+the MCP to your project and start it up. Flipper UI will be served at http://localhost:52342
+by default if you're interested, but is not required to connect your agent to devtools.
 
-## 2. Wire up the app
+See the [`MCP`](./mcp) docs for more info.
 
-Add a [Devtools plugin](./plugin) (typically the [basic plugin](./plugins/basic))
+## Application configuration
+
+Add a [Devtools plugin](./plugin) (for example, the [basic plugin](./plugins/basic))
 to your Player, keyed by a `playerID`, then connect that platform's `FlipperClient`.
-Android and iOS each need their own native `FlipperClient` connection; web has
-no Flipper step.
+Android and iOS each need their own native `FlipperClient` connection; the browser
+extension has a toggle for enabling the Flipper connection for web.
 
 ### Android
 
@@ -94,18 +100,14 @@ class DemoViewModel: ObservableObject {
 
 See [`DevtoolsFlipperPlugin.swift`](./plugin/ios/Sources/DevtoolsFlipperPlugin.swift).
 
-> **NOTE**
-> The demo's own `Package.swift` pins a different `SwiftFlipper` fork/branch
-> than the published `PlayerUIDevtools` package — follow the root
-> [`Package.swift`](../Package.swift)'s resolution, not the demo's dev-only one.
-
 ### Web
 
-Web doesn't connect to Flipper — it uses the browser extension instead. Add
-`BasicReactDevtoolsPlugin` to your `ReactPlayer` and toggle the connection from
-the Devtools' extension popup (which sets `localStorage["player-ui-devtools-active"]`).
-See [`plugins/basic`](./plugins/basic#react--player-devtoolsbasic-plugin-react)
-for the web wiring.
+Web serves the Devtools UI directly as a browser extension -- however, this doesn't allow
+for your agent to leverage our MCP to easily access this data. The browser extension does
+have a toggle for connecting to Flipper via the browser extension, such that all web Players
+can effectively connect to any embedded devtools client or MCP. Ensure you have a devtools
+plugin installed to your Player (i.e. [`BasicReactDevtoolsPlugin`](./plugins/basic#react--player-devtoolsbasic-plugin-react))
+and toggle devtools & the Flipper connection via the browser popup.
 
 ## Related
 

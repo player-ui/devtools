@@ -27,7 +27,7 @@ let package = Package(
         // Just copy it over.
         .package(url: "https://github.com/intuit/swift-hooks.git", from: "0.1.0"),
         .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.15.4"),
-        .package(url:"https://github.com/chiragramani/SwiftFlipper.git", branch: "0.1"),
+        .package(url: "https://github.com/player-ui/SwiftFlipper.git", exact: "0.3.0"),
 
         // Formatting Dependencies
         .package(url: "https://github.com/realm/SwiftLint.git", from: "0.54.0"), // REQUIRED. Do not remove.
