@@ -1,3 +1,15 @@
+# 0.15.1 (Fri Sep 18 2026)
+
+#### 🐛 Bug Fix
+
+- Release main [#30](https://github.com/player-ui/devtools/pull/30) ([@intuit-svc](https://github.com/intuit-svc))
+
+#### Authors: 1
+
+- [@intuit-svc](https://github.com/intuit-svc)
+
+---
+
 # 0.15.0 (Wed Sep 16 2026)
 
 ### Release Notes
