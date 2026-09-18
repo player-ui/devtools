@@ -21,10 +21,10 @@
     {
       "identity" : "flipperpluginutils",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/chiragramani/FlipperPluginUtils",
+      "location" : "https://github.com/player-ui/FlipperPluginUtils",
       "state" : {
-        "branch" : "main",
-        "revision" : "f68ac6cc7954867b4ea9d9fa13be5995174c4929"
+        "revision" : "f68ac6cc7954867b4ea9d9fa13be5995174c4929",
+        "version" : "0.1.0"
       }
     },
     {
@@ -75,10 +75,10 @@
     {
       "identity" : "swiftflipper",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/chiragramani/SwiftFlipper.git",
+      "location" : "https://github.com/player-ui/SwiftFlipper.git",
       "state" : {
-        "branch" : "0.1",
-        "revision" : "23ab427d3dd076e14f0028e30d174e004a2faa00"
+        "revision" : "905cb3418337478361fe4b90e7900eeeee550494",
+        "version" : "0.3.0"
       }
     },
     {
