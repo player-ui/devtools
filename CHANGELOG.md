@@ -1,3 +1,24 @@
+# 0.15.2-next.0 (Tue Sep 22 2026)
+
+### Release Notes
+
+#### Update Flipper connection docs and iOS SwiftFlipper dependency ([#31](https://github.com/player-ui/devtools/pull/31))
+
+- iOS demo app now depends on the published `player-ui/SwiftFlipper` (`0.3.0`) and `player-ui/FlipperPluginUtils` (`0.1.0`) releases instead of unpublished dev forks/branches
+- Docs-only changes to `CONNECTING_TO_FLIPPER.md` and `flipper-plugin/README.md` — no consumer-facing API or behavioral changes
+
+---
+
+#### 🐛 Bug Fix
+
+- Update Flipper connection docs and iOS SwiftFlipper dependency [#31](https://github.com/player-ui/devtools/pull/31) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### Authors: 1
+
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.15.1 (Fri Sep 18 2026)
 
 #### 🐛 Bug Fix
