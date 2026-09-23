@@ -22,16 +22,9 @@ type FlipperListener = (
   message: TransactionMetadata & MessengerEvent<ExtensionSupportedEvents>,
 ) => void;
 
-/**
- * The single communication proxy shared by every startFlipperConnection()
- * caller in this JS realm - analogous to Android's PlayerDevtoolsFlipperPlugin,
- * which every AndroidDevtoolsPlugin instance looks up and multiplexes over
- * rather than each owning its own FlipperClient registration.
- *
- * `status` surfaces bootstrap failure as inspectable data rather than a
- * promise rejection, so a caller that never checks it still gets a safe
- * no-op proxy instead of an unhandled rejection.
- */
+// Shared across every startFlipperConnection() caller, like Android's
+// PlayerDevtoolsFlipperPlugin. `status` surfaces bootstrap failure as data
+// instead of a rejection, so an unchecked caller still gets a safe no-op.
 type FlipperCommunicationProxy = {
   status: "connected" | "failed";
   sendMessage: (
@@ -41,14 +34,8 @@ type FlipperCommunicationProxy = {
   removeListener: (listener: FlipperListener) => void;
 };
 
-// Consumers may bundle multiple Player/plugin versions in the same app, each
-// with its own copy of this module (and potentially its own js-flipper
-// version) - a module-level mutex only dedupes within a single JS module
-// instance, not across duplicated bundles sharing the same window. Keying off
-// globalThis via Symbol.for gives every copy, regardless of bundle or
-// js-flipper version, the same mutex/proxy so only the first copy to run ever
-// calls flipperClient.start()/addPlugin(); every later copy just awaits the
-// same promise and reads/writes the same shared proxy.
+// globalThis-keyed so duplicated bundles (multiple Player/plugin versions,
+// each with their own copy of this module/js-flipper) share one mutex.
 const FLIPPER_PROXY_KEY = Symbol.for("player-ui-devtools/flipper-proxy");
 
 type GlobalWithFlipperProxy = typeof globalThis & {
@@ -89,10 +76,9 @@ const createFlipperProxy = (): Promise<FlipperCommunicationProxy> => {
         onDisconnect() {
           console.log("Flipper client disconnected");
           connection = null;
-          // allow a future call to re-run start()/addPlugin() so the plugin
-          // can reconnect after Flipper desktop closes/reopens or the
-          // device connection drops
-          delete (globalThis as GlobalWithFlipperProxy)[FLIPPER_PROXY_KEY];
+          // js-flipper reconnects by calling onConnect() again on this same
+          // plugin object - no addPlugin() re-run needed, so don't reset
+          // the global proxy (that would drop the shared listeners).
         },
       });
 
@@ -100,21 +86,14 @@ const createFlipperProxy = (): Promise<FlipperCommunicationProxy> => {
     })
     .catch((error) => {
       console.error("Failed to start Flipper client", error);
-      // reset the mutex so a future call retries the bootstrap from scratch
-      // instead of being permanently poisoned by this failure - the shared
-      // promise itself never rejects, so a caller that doesn't check
-      // `status` still gets a safe no-op proxy rather than an unhandled
-      // rejection
+      // reset the mutex so a later call retries instead of staying poisoned
       delete (globalThis as GlobalWithFlipperProxy)[FLIPPER_PROXY_KEY];
 
       return { ...proxy, status: "failed" as const };
     });
 };
 
-/**
- * Exported for tests: lets a caller await (and inspect the `status` of) the
- * same shared bootstrap that startFlipperConnection() fires-and-forgets.
- */
+/** Exported for tests to await/inspect the shared bootstrap's `status`. */
 export const ensureFlipperConnectionStarted =
   (): Promise<FlipperCommunicationProxy> => {
     const globalWithProxy = globalThis as GlobalWithFlipperProxy;

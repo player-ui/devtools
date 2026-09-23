@@ -43,15 +43,11 @@ describe("startFlipperConnection", () => {
     vi.resetModules();
     start.mockReset();
     addPlugin.mockReset();
-    // the bootstrap mutex now lives on globalThis (by design - it must
-    // survive module duplication across bundles), so vi.resetModules()
-    // alone no longer isolates tests from each other
+    // globalThis mutex survives resetModules(), so clear it manually too
     delete (globalThis as Record<symbol, unknown>)[FLIPPER_PROXY_KEY];
   });
 
   it("calls flipperClient.start and addPlugin exactly once no matter how many concurrent callers race the bootstrap", async () => {
-    // mimics the real timing hazard: start() resolves asynchronously, so a second
-    // caller can invoke startFlipperConnection() before the first bootstrap settles
     let resolveStart: () => void;
     start.mockReturnValue(
       new Promise<void>((resolve) => {
@@ -124,24 +120,17 @@ describe("startFlipperConnection", () => {
     const { startFlipperConnection, ensureFlipperConnectionStarted } =
       await import("../useCommunicationLayer");
 
-    // capture the first (failing) bootstrap promise before it settles and
-    // resets the global mutex - calling ensureFlipperConnectionStarted()
-    // again after the reset would kick off a brand-new bootstrap attempt
-    // instead of inspecting this one
+    // capture before it settles - re-calling after reset would restart the bootstrap
     const firstBootstrap = ensureFlipperConnectionStarted();
 
     startFlipperConnection(vi.fn());
 
     await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(1));
-    // let the rejection's .catch() handler run and reset the mutex
     await vi.waitFor(() => {
-      // addPlugin must never have been called for the failed attempt
       expect(addPlugin).not.toHaveBeenCalled();
     });
 
-    // the shared promise must never reject - failure is surfaced as data so
-    // a caller that never checks `status` still gets a safe no-op proxy
-    // instead of an unhandled rejection
+    // must resolve, not reject, so an unchecked caller never sees an unhandled rejection
     await expect(firstBootstrap).resolves.toMatchObject({
       status: "failed",
     });
@@ -154,64 +143,42 @@ describe("startFlipperConnection", () => {
     await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
   });
 
-  it("re-bootstraps after onDisconnect fires, allowing reconnection", async () => {
+  it("reconnects via a second onConnect() on the same registered plugin, without re-running start()/addPlugin()", async () => {
+    // js-flipper never removes the plugin from its registry on disconnect,
+    // so reconnect is just another onConnect() call on the same plugin.
     start.mockResolvedValue(undefined);
 
     const { startFlipperConnection } = await import("../useCommunicationLayer");
 
-    startFlipperConnection(vi.fn());
+    const messages: unknown[] = [];
+    startFlipperConnection((updater) => {
+      const result = updater({
+        sendMessage: [],
+        addListener: [],
+        removeListener: [],
+      });
+      result.addListener.forEach((add) =>
+        add((message) => messages.push(message)),
+      );
+    });
 
     await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
 
     const registeredPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
-    const { connection } = fakeConnection();
-    registeredPlugin.onConnect(connection);
+    const first = fakeConnection();
+    registeredPlugin.onConnect(first.connection);
 
-    // simulate Flipper desktop closing / the device connection dropping
     registeredPlugin.onDisconnect();
 
-    // a later call must re-run the full start()/addPlugin() bootstrap
-    startFlipperConnection(vi.fn());
+    const second = fakeConnection();
+    registeredPlugin.onConnect(second.connection);
 
-    await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(2));
-    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(2));
-  });
+    expect(start).toHaveBeenCalledTimes(1);
+    expect(addPlugin).toHaveBeenCalledTimes(1);
 
-  it("re-registers the plugin via addPlugin() after onDisconnect even when start() no-ops because the websocket never dropped", async () => {
-    // js-flipper's real FlipperClient.start() is `if (this.ws) { return; }` -
-    // the most common disconnect (Flipper desktop sending a plugin-level
-    // "deinit") never tears down the websocket, so start() short-circuits on
-    // every call after the first and does no reconnect work of its own. The
-    // bootstrap must not rely on start() to do anything on retry - it only
-    // needs to resolve so addPlugin() runs again and re-registers a fresh
-    // plugin object under the shared id.
-    start.mockImplementation(() => Promise.resolve());
-
-    const { startFlipperConnection } = await import("../useCommunicationLayer");
-
-    startFlipperConnection(vi.fn());
-
-    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
-
-    const firstPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
-    const { connection } = fakeConnection();
-    firstPlugin.onConnect(connection);
-
-    // Flipper desktop sends "deinit" for this plugin id; the underlying ws
-    // stays open, so a subsequent start() call will short-circuit.
-    firstPlugin.onDisconnect();
-
-    startFlipperConnection(vi.fn());
-
-    await vi.waitFor(() => expect(start).toHaveBeenCalledTimes(2));
-    // addPlugin must fire again even though start() did no reconnect work,
-    // otherwise the stale plugin object (closed over the disconnected
-    // state) stays registered and the plugin never comes back online.
-    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(2));
-
-    const secondPlugin = addPlugin.mock.calls[1][0] as FakePlugin;
-    expect(secondPlugin.getId()).toBe(firstPlugin.getId());
-    expect(secondPlugin).not.toBe(firstPlugin);
+    // listener registered before the disconnect must survive it
+    second.emit({ payload: "hello" });
+    expect(messages).toEqual([{ payload: "hello" }]);
   });
 
   it("removeListener stops a listener from receiving further messages", async () => {
@@ -254,9 +221,7 @@ describe("startFlipperConnection", () => {
 
     removeFirst?.();
 
-    // addListener/removeListener are now proxied through the shared
-    // bootstrap promise, so they settle on a microtask rather than
-    // synchronously - flush pending microtasks before emitting
+    // addListener/removeListener resolve on a microtask now, not synchronously
     await Promise.resolve();
     await Promise.resolve();
 
@@ -267,13 +232,9 @@ describe("startFlipperConnection", () => {
   });
 
   it("dedupes the bootstrap across duplicated copies of this module, not just concurrent callers within one copy", async () => {
-    // Consumers can bundle multiple Player/plugin versions in the same app,
-    // each carrying its own copy of useCommunicationLayer.ts (and potentially
-    // its own js-flipper version). vi.resetModules() + a fresh dynamic
-    // import() simulates that: each import() below is a distinct module
-    // registry entry, standing in for a separate bundle, while globalThis -
-    // shared across all realms in the same window - is what the mutex must
-    // live on for this test to pass.
+    // simulates two bundled copies of this module (e.g. two Player plugin
+    // versions) via resetModules() + fresh import(); globalThis is what
+    // must dedupe them since each has its own module-local state.
     let resolveStart: () => void;
     start.mockReturnValue(
       new Promise<void>((resolve) => {
@@ -283,8 +244,6 @@ describe("startFlipperConnection", () => {
 
     const firstBundle = await import("../useCommunicationLayer");
 
-    // the top-level vi.mock("js-flipper", ...) above is hoisted and
-    // automatically reapplies to the next fresh import after resetModules()
     vi.resetModules();
     const secondBundle = await import("../useCommunicationLayer");
 
@@ -295,10 +254,7 @@ describe("startFlipperConnection", () => {
     firstBundle.startFlipperConnection(vi.fn());
     secondBundle.startFlipperConnection(vi.fn());
 
-    // only the bundle that wins the race against the shared global mutex
-    // may ever call flipperClient.start()/addPlugin() - the second bundle's
-    // own (possibly differently-versioned) flipperClient must never be
-    // invoked independently
+    // only the winner of the global mutex race ever calls start()/addPlugin()
     expect(start).toHaveBeenCalledTimes(1);
 
     resolveStart!();
