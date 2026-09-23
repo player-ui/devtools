@@ -303,6 +303,7 @@ describe("FlipperServerTransport", () => {
         owns: false,
         refs: null,
         activeClientIds: [],
+        connectedClientIds: [],
       });
     });
 
@@ -320,12 +321,13 @@ describe("FlipperServerTransport", () => {
       });
     });
 
-    it("reports connected + owns + refs + activeClientIds once seeded", () => {
+    it("reports connected + owns + refs + activeClientIds + connectedClientIds once seeded", () => {
       const transport = makeIsolatedTransport();
       const state = internals(transport);
       state.server = {};
       state.owns = true;
       state.activeClientIds = new Set(["a", "b"]);
+      state.connectedClientIds = new Set(["a", "b", "c"]);
       state.refcount = { peek: () => ({ pid: 123, refs: 1 }) };
 
       expect(transport.getDiagnostics()).toEqual({
@@ -335,6 +337,7 @@ describe("FlipperServerTransport", () => {
         owns: true,
         refs: 1,
         activeClientIds: ["a", "b"],
+        connectedClientIds: ["a", "b", "c"],
       });
     });
   });

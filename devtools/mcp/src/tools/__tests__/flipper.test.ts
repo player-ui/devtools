@@ -8,6 +8,9 @@ import {
   handleGetFlipperConsumers,
   handleRestartFlipperServer,
   handleGetFlipperPluginInstallStatus,
+  handleGetFlipperPluginActivationStatus,
+  handleEnableFlipperPlugin,
+  handleDisableFlipperPlugin,
 } from "../flipper";
 
 const client = {} as ExtensionClient;
@@ -67,6 +70,33 @@ describe("flipper diagnostic tools", () => {
       expect(parse(result)).toEqual({ error: "not using a Flipper transport" });
     });
 
+    it("get_flipper_plugin_activation_status soft-errors", () => {
+      const result = handleGetFlipperPluginActivationStatus(
+        client,
+        {},
+        nonFlipperTransport,
+      );
+      expect(parse(result)).toEqual({ error: "not using a Flipper transport" });
+    });
+
+    it("enable_flipper_plugin soft-errors", async () => {
+      const result = await handleEnableFlipperPlugin(
+        client,
+        {},
+        nonFlipperTransport,
+      );
+      expect(parse(result)).toEqual({ error: "not using a Flipper transport" });
+    });
+
+    it("disable_flipper_plugin soft-errors", async () => {
+      const result = await handleDisableFlipperPlugin(
+        client,
+        {},
+        nonFlipperTransport,
+      );
+      expect(parse(result)).toEqual({ error: "not using a Flipper transport" });
+    });
+
     it("soft-errors when no transport is provided at all", () => {
       const result = handleGetFlipperStatus(client, {}, undefined);
       expect(parse(result)).toEqual({ error: "not using a Flipper transport" });
@@ -88,17 +118,21 @@ describe("flipper diagnostic tools", () => {
   });
 
   describe("get_flipper_consumers", () => {
-    it("reports refcount and active client ids", () => {
+    it("reports refcount, active client ids, and connected client ids", () => {
       const transport = makeFlipperTransport();
-      (
-        transport as unknown as { activeClientIds: Set<string> }
-      ).activeClientIds = new Set(["client-a", "client-b"]);
+      const state = transport as unknown as {
+        activeClientIds: Set<string>;
+        connectedClientIds: Set<string>;
+      };
+      state.activeClientIds = new Set(["client-a", "client-b"]);
+      state.connectedClientIds = new Set(["client-a", "client-b", "client-c"]);
 
       const result = handleGetFlipperConsumers(client, {}, transport);
       expect(parse(result)).toEqual({
         owns: false,
         refs: null,
         activeClientIds: ["client-a", "client-b"],
+        connectedClientIds: ["client-a", "client-b", "client-c"],
       });
     });
   });
@@ -164,6 +198,126 @@ describe("flipper diagnostic tools", () => {
         transport,
       );
       expect(parse(result)).toEqual({ error: "daemon dropped" });
+    });
+  });
+
+  describe("get_flipper_plugin_activation_status", () => {
+    it("soft-errors when the transport is not connected", () => {
+      const transport = makeFlipperTransport();
+      const result = handleGetFlipperPluginActivationStatus(
+        client,
+        {},
+        transport,
+      );
+      expect(parse(result)).toEqual({
+        error: "flipper transport not connected",
+      });
+    });
+
+    it("splits connected clients into active and inactive", () => {
+      const transport = makeFlipperTransport();
+      const state = transport as unknown as {
+        server: unknown;
+        activeClientIds: Set<string>;
+        connectedClientIds: Set<string>;
+      };
+      state.server = {};
+      state.activeClientIds = new Set(["a"]);
+      state.connectedClientIds = new Set(["a", "b", "c"]);
+
+      const result = handleGetFlipperPluginActivationStatus(
+        client,
+        {},
+        transport,
+      );
+      expect(parse(result)).toEqual({
+        activeClientIds: ["a"],
+        inactiveClientIds: ["b", "c"],
+      });
+    });
+  });
+
+  describe("enable_flipper_plugin", () => {
+    it("calls enablePlugin with the given clientId and reports it back", async () => {
+      const transport = makeFlipperTransport();
+      const enablePlugin = vi
+        .spyOn(transport, "enablePlugin")
+        .mockResolvedValue(undefined);
+
+      const result = await handleEnableFlipperPlugin(
+        client,
+        { clientId: "a" },
+        transport,
+      );
+
+      expect(enablePlugin).toHaveBeenCalledWith("a");
+      expect(parse(result)).toEqual({ enabled: true, clientId: "a" });
+    });
+
+    it("calls enablePlugin with undefined and reports 'all' when no clientId is given", async () => {
+      const transport = makeFlipperTransport();
+      const enablePlugin = vi
+        .spyOn(transport, "enablePlugin")
+        .mockResolvedValue(undefined);
+
+      const result = await handleEnableFlipperPlugin(client, {}, transport);
+
+      expect(enablePlugin).toHaveBeenCalledWith(undefined);
+      expect(parse(result)).toEqual({ enabled: true, clientId: "all" });
+    });
+
+    it("returns a soft error (not an unhandled rejection) when enablePlugin() rejects", async () => {
+      const transport = makeFlipperTransport();
+      vi.spyOn(transport, "enablePlugin").mockRejectedValue(
+        new Error("FlipperServerTransport is not connected"),
+      );
+
+      const result = await handleEnableFlipperPlugin(client, {}, transport);
+      expect(parse(result)).toEqual({
+        error: "FlipperServerTransport is not connected",
+      });
+    });
+  });
+
+  describe("disable_flipper_plugin", () => {
+    it("calls disablePlugin with the given clientId and reports it back", async () => {
+      const transport = makeFlipperTransport();
+      const disablePlugin = vi
+        .spyOn(transport, "disablePlugin")
+        .mockResolvedValue(undefined);
+
+      const result = await handleDisableFlipperPlugin(
+        client,
+        { clientId: "a" },
+        transport,
+      );
+
+      expect(disablePlugin).toHaveBeenCalledWith("a");
+      expect(parse(result)).toEqual({ disabled: true, clientId: "a" });
+    });
+
+    it("calls disablePlugin with undefined and reports 'all' when no clientId is given", async () => {
+      const transport = makeFlipperTransport();
+      const disablePlugin = vi
+        .spyOn(transport, "disablePlugin")
+        .mockResolvedValue(undefined);
+
+      const result = await handleDisableFlipperPlugin(client, {}, transport);
+
+      expect(disablePlugin).toHaveBeenCalledWith(undefined);
+      expect(parse(result)).toEqual({ disabled: true, clientId: "all" });
+    });
+
+    it("returns a soft error (not an unhandled rejection) when disablePlugin() rejects", async () => {
+      const transport = makeFlipperTransport();
+      vi.spyOn(transport, "disablePlugin").mockRejectedValue(
+        new Error("FlipperServerTransport is not connected"),
+      );
+
+      const result = await handleDisableFlipperPlugin(client, {}, transport);
+      expect(parse(result)).toEqual({
+        error: "FlipperServerTransport is not connected",
+      });
     });
   });
 });

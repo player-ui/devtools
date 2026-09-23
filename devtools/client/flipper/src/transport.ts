@@ -661,6 +661,7 @@ export class FlipperServerTransport implements Transport {
     owns: boolean;
     refs: number | null;
     activeClientIds: string[];
+    connectedClientIds: string[];
   } {
     const state = this.refcount.peek();
     return {
@@ -670,6 +671,7 @@ export class FlipperServerTransport implements Transport {
       owns: this.owns,
       refs: state?.refs ?? null,
       activeClientIds: [...this.activeClientIds],
+      connectedClientIds: [...this.connectedClientIds],
     };
   }
 

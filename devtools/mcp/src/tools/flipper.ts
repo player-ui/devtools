@@ -2,8 +2,20 @@ import type { ExtensionClient } from "@player-devtools/client";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@player-devtools/types";
 import { FlipperServerTransport } from "@player-devtools/client-flipper";
+import { z } from "zod";
 
 import { ok, err, type ToolDef } from "./index";
+
+const clientIdShape = {
+  clientId: z
+    .string()
+    .optional()
+    .describe(
+      "Flipper client ID. Omit to target every connected client — for enable/disable, only clients not already in the desired state are messaged.",
+    ),
+};
+
+const ClientIdInput = z.object(clientIdShape);
 
 /** Narrow the generic `Transport` to the concrete Flipper implementation. */
 function asFlipperTransport(
@@ -32,8 +44,9 @@ export function handleGetFlipperConsumers(
   const flipper = asFlipperTransport(transport);
   if (!flipper) return err("not using a Flipper transport");
 
-  const { owns, refs, activeClientIds } = flipper.getDiagnostics();
-  return ok({ owns, refs, activeClientIds });
+  const { owns, refs, activeClientIds, connectedClientIds } =
+    flipper.getDiagnostics();
+  return ok({ owns, refs, activeClientIds, connectedClientIds });
 }
 
 export async function handleRestartFlipperServer(
@@ -100,4 +113,84 @@ export const getFlipperPluginInstallStatusDef: ToolDef = {
   inputSchema: {},
   annotations: { readOnlyHint: true, destructiveHint: false },
   handle: handleGetFlipperPluginInstallStatus,
+};
+
+export function handleGetFlipperPluginActivationStatus(
+  _client: ExtensionClient,
+  _args: unknown,
+  transport?: Transport,
+): CallToolResult {
+  const flipper = asFlipperTransport(transport);
+  if (!flipper) return err("not using a Flipper transport");
+
+  const { connected, connectedClientIds, activeClientIds } =
+    flipper.getDiagnostics();
+  if (!connected) return err("flipper transport not connected");
+
+  const active = new Set(activeClientIds);
+  return ok({
+    activeClientIds,
+    inactiveClientIds: connectedClientIds.filter((id) => !active.has(id)),
+  });
+}
+
+export async function handleEnableFlipperPlugin(
+  _client: ExtensionClient,
+  args: unknown,
+  transport?: Transport,
+): Promise<CallToolResult> {
+  const flipper = asFlipperTransport(transport);
+  if (!flipper) return err("not using a Flipper transport");
+
+  const { clientId } = ClientIdInput.parse(args);
+  try {
+    await flipper.enablePlugin(clientId);
+  } catch (error) {
+    return err(error instanceof Error ? error.message : String(error));
+  }
+  return ok({ enabled: true, clientId: clientId ?? "all" });
+}
+
+export async function handleDisableFlipperPlugin(
+  _client: ExtensionClient,
+  args: unknown,
+  transport?: Transport,
+): Promise<CallToolResult> {
+  const flipper = asFlipperTransport(transport);
+  if (!flipper) return err("not using a Flipper transport");
+
+  const { clientId } = ClientIdInput.parse(args);
+  try {
+    await flipper.disablePlugin(clientId);
+  } catch (error) {
+    return err(error instanceof Error ? error.message : String(error));
+  }
+  return ok({ disabled: true, clientId: clientId ?? "all" });
+}
+
+export const getFlipperPluginActivationStatusDef: ToolDef = {
+  name: "get_flipper_plugin_activation_status",
+  description:
+    "Get per-client activation status of the Player UI Devtools Flipper plugin: which connected clients have completed the init handshake (active) versus which are connected but not yet activated (inactive). Distinct from get_flipper_plugin_install_status, which only reports whether the plugin is installed on the daemon, not activated for any specific client.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, destructiveHint: false },
+  handle: handleGetFlipperPluginActivationStatus,
+};
+
+export const enableFlipperPluginDef: ToolDef = {
+  name: "enable_flipper_plugin",
+  description:
+    "Activate the Player UI Devtools Flipper plugin for a client by sending the init handshake (installing the plugin on the daemon first, if needed). Pass clientId to target one client, or omit it to activate every connected client not already active.",
+  inputSchema: clientIdShape,
+  annotations: { readOnlyHint: false, destructiveHint: false },
+  handle: handleEnableFlipperPlugin,
+};
+
+export const disableFlipperPluginDef: ToolDef = {
+  name: "disable_flipper_plugin",
+  description:
+    "Deactivate the Player UI Devtools Flipper plugin for a client by sending the deinit handshake, without disconnecting it from flipper-server. Pass clientId to target one client, or omit it to deactivate every currently active client.",
+  inputSchema: clientIdShape,
+  annotations: { readOnlyHint: false, destructiveHint: false },
+  handle: handleDisableFlipperPlugin,
 };

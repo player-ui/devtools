@@ -84,12 +84,15 @@ any Player instance behind it — useful when an agent needs to tell "no Players
 are connected" apart from "the Flipper transport itself is unhealthy." They
 soft-error when the server isn't running on a `FlipperServerTransport`.
 
-| Tool                                | Args | Returns                                                                                                |
-| ----------------------------------- | ---- | ------------------------------------------------------------------------------------------------------ |
-| `get_flipper_status`                | —    | Connection health: `connected`, `host`, `port`, `owns`, `refs`.                                        |
-| `get_flipper_consumers`             | —    | `owns`, `refs` (daemon-wide, not just this process), and `activeClientIds`.                            |
-| `restart_flipper_server`            | —    | Restarts the daemon — only when this process owns it and is its sole consumer, otherwise a soft error. |
-| `get_flipper_plugin_install_status` | —    | Whether the Player UI Devtools Flipper plugin is installed on the daemon.                              |
+| Tool                                   | Args                     | Returns                                                                                                                |
+| -------------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `get_flipper_status`                   | —                        | Connection health: `connected`, `host`, `port`, `owns`, `refs`.                                                        |
+| `get_flipper_consumers`                | —                        | `owns`, `refs` (daemon-wide, not just this process), `activeClientIds`, and `connectedClientIds`.                     |
+| `restart_flipper_server`               | —                        | Restarts the daemon — only when this process owns it and is its sole consumer, otherwise a soft error.                 |
+| `get_flipper_plugin_install_status`    | —                        | Whether the Player UI Devtools Flipper plugin is installed on the daemon.                                              |
+| `get_flipper_plugin_activation_status` | —                        | Per-client activation split: `activeClientIds` (completed the `init` handshake) vs. `inactiveClientIds` (connected but not yet activated). |
+| `enable_flipper_plugin`                | `clientId?`              | Activates the plugin for `clientId`, or every connected-but-inactive client if omitted (see [Plugin activation](#plugin-activation)). |
+| `disable_flipper_plugin`               | `clientId?`              | Deactivates the plugin for `clientId`, or every currently active client if omitted, without disconnecting.             |
 
 > **NOTE**
 > Tool handlers return _soft errors_ (e.g. `{ "error": "player not found" }`) as

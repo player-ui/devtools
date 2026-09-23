@@ -51,6 +51,9 @@ import {
   getFlipperConsumersDef,
   restartFlipperServerDef,
   getFlipperPluginInstallStatusDef,
+  getFlipperPluginActivationStatusDef,
+  enableFlipperPluginDef,
+  disableFlipperPluginDef,
 } from "./flipper";
 
 /** Every tool the MCP server exposes. */
@@ -68,4 +71,7 @@ export const TOOL_DEFS: ToolDef[] = [
   getFlipperConsumersDef,
   restartFlipperServerDef,
   getFlipperPluginInstallStatusDef,
+  getFlipperPluginActivationStatusDef,
+  enableFlipperPluginDef,
+  disableFlipperPluginDef,
 ];
