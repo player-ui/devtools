@@ -42,7 +42,7 @@ const nonFlipperTransport = {
 
 describe("flipper diagnostic tools", () => {
   describe("when the transport is not a FlipperServerTransport", () => {
-    it("get_flipper_status soft-errors", () => {
+    it("get_flipper_connection_status soft-errors", () => {
       const result = handleGetFlipperStatus(client, {}, nonFlipperTransport);
       expect(parse(result)).toEqual({ error: "not using a Flipper transport" });
     });
@@ -103,16 +103,14 @@ describe("flipper diagnostic tools", () => {
     });
   });
 
-  describe("get_flipper_status", () => {
-    it("reports diagnostics from an unconnected transport", () => {
+  describe("get_flipper_connection_status", () => {
+    it("reports connection health from an unconnected transport", () => {
       const transport = makeFlipperTransport();
       const result = handleGetFlipperStatus(client, {}, transport);
       expect(parse(result)).toEqual({
         connected: false,
         host: "localhost",
         port: 52342,
-        owns: false,
-        refs: null,
       });
     });
   });

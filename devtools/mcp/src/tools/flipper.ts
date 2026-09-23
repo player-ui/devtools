@@ -11,7 +11,7 @@ const clientIdShape = {
     .string()
     .optional()
     .describe(
-      "Flipper client ID. Omit to target every connected client — for enable/disable, only clients not already in the desired state are messaged.",
+      "Flipper client ID — a transport-level device/app connection, NOT a Player devtools playerId (see list_players/select_player). A client can be connected, and even activated, before any Player instance on it is visible to those tools. Unlike playerId, there is no 'currently selected' client: omitting this targets every connected client — for enable/disable, only clients not already in the desired state are messaged.",
     ),
 };
 
@@ -32,8 +32,8 @@ export function handleGetFlipperStatus(
   const flipper = asFlipperTransport(transport);
   if (!flipper) return err("not using a Flipper transport");
 
-  const { connected, host, port, owns, refs } = flipper.getDiagnostics();
-  return ok({ connected, host, port, owns, refs });
+  const { connected, host, port } = flipper.getDiagnostics();
+  return ok({ connected, host, port });
 }
 
 export function handleGetFlipperConsumers(
@@ -80,9 +80,9 @@ export async function handleGetFlipperPluginInstallStatus(
 }
 
 export const getFlipperStatusDef: ToolDef = {
-  name: "get_flipper_status",
+  name: "get_flipper_connection_status",
   description:
-    "Get the MCP server's connection status to the shared flipper-server daemon (host, port, ownership, refcount).",
+    "Get the MCP server's basic connection health to the shared flipper-server daemon: whether it's connected, and the host/port it's connected to. For ownership/refcount/client info, use get_flipper_consumers instead.",
   inputSchema: {},
   annotations: { readOnlyHint: true, destructiveHint: false },
   handle: handleGetFlipperStatus,
@@ -91,7 +91,7 @@ export const getFlipperStatusDef: ToolDef = {
 export const getFlipperConsumersDef: ToolDef = {
   name: "get_flipper_consumers",
   description:
-    "Get the active devtools clients attached through this Flipper connection, plus the daemon-wide refcount (reflects all consumers of the shared daemon, not just this process).",
+    "Get who else is attached to the shared flipper-server daemon: whether this process owns it, the daemon-wide refcount (reflects all consumers, not just this process), and the connected/active devtools clients on this connection.",
   inputSchema: {},
   annotations: { readOnlyHint: true, destructiveHint: false },
   handle: handleGetFlipperConsumers,
