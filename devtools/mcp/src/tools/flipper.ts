@@ -180,7 +180,7 @@ export const getFlipperPluginActivationStatusDef: ToolDef = {
 export const enableFlipperPluginDef: ToolDef = {
   name: "enable_flipper_plugin",
   description:
-    "Activate the Player UI Devtools Flipper plugin for a client by sending the init handshake (installing the plugin on the daemon first, if needed). Pass clientId to target one client, or omit it to activate every connected client not already active.",
+    "Activate the Player UI Devtools Flipper plugin for a client by sending the init handshake (installing the plugin on the daemon first, if needed). Pass clientId to target one client, or omit it to activate every connected client not already active. There is no direct mapping from clientId to the playerId(s) it hosts — after activating, poll list_players until the expected Player appears.",
   inputSchema: clientIdShape,
   annotations: { readOnlyHint: false, destructiveHint: false },
   handle: handleEnableFlipperPlugin,
