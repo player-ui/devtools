@@ -22,56 +22,107 @@ type FlipperListener = (
   message: TransactionMetadata & MessengerEvent<ExtensionSupportedEvents>,
 ) => void;
 
-// keep track of the Flipper connection between React renders
-let flipperConnection: FlipperPluginConnection | null = null;
-
-// shared across every startFlipperConnection() caller so a plugin instance that
-// registers before or after the connection is established still receives messages
-const flipperListeners = new Set<FlipperListener>();
-
-// module-level bootstrap mutex: js-flipper's own start()/addPlugin() are not
-// safe to call more than once (see FlipperClient internals) - every caller must
-// await this SAME promise rather than issuing its own start()/addPlugin() call,
-// or the second registration silently overwrites the first under the shared
-// "player-ui-devtools" plugin id and that instance's connection never resolves
-let flipperBootstrapPromise: Promise<void> | null = null;
-
-const ensureFlipperConnectionStarted = (): Promise<void> => {
-  if (!flipperBootstrapPromise) {
-    flipperBootstrapPromise = flipperClient
-      .start("player-ui-devtools")
-      .then(() => {
-        flipperClient.addPlugin({
-          getId() {
-            return "player-ui-devtools";
-          },
-          onConnect(conn) {
-            flipperConnection = conn;
-
-            conn.receive("message::flipper", (message) => {
-              flipperListeners.forEach((listener) => listener(message));
-            });
-          },
-          onDisconnect() {
-            console.log("Flipper client disconnected");
-            flipperConnection = null;
-            // allow a future call to re-run start()/addPlugin() so the plugin
-            // can reconnect after Flipper desktop closes/reopens or the
-            // device connection drops
-            flipperBootstrapPromise = null;
-          },
-        });
-      })
-      .catch((error) => {
-        console.error("Failed to start Flipper client", error);
-        // reset the mutex so a future call retries the bootstrap from
-        // scratch instead of being permanently poisoned by this failure
-        flipperBootstrapPromise = null;
-      });
-  }
-
-  return flipperBootstrapPromise;
+/**
+ * The single communication proxy shared by every startFlipperConnection()
+ * caller in this JS realm - analogous to Android's PlayerDevtoolsFlipperPlugin,
+ * which every AndroidDevtoolsPlugin instance looks up and multiplexes over
+ * rather than each owning its own FlipperClient registration.
+ *
+ * `status` surfaces bootstrap failure as inspectable data rather than a
+ * promise rejection, so a caller that never checks it still gets a safe
+ * no-op proxy instead of an unhandled rejection.
+ */
+type FlipperCommunicationProxy = {
+  status: "connected" | "failed";
+  sendMessage: (
+    ...args: Parameters<CommunicationLayerMethods["sendMessage"]>
+  ) => void;
+  addListener: (listener: FlipperListener) => void;
+  removeListener: (listener: FlipperListener) => void;
 };
+
+// Consumers may bundle multiple Player/plugin versions in the same app, each
+// with its own copy of this module (and potentially its own js-flipper
+// version) - a module-level mutex only dedupes within a single JS module
+// instance, not across duplicated bundles sharing the same window. Keying off
+// globalThis via Symbol.for gives every copy, regardless of bundle or
+// js-flipper version, the same mutex/proxy so only the first copy to run ever
+// calls flipperClient.start()/addPlugin(); every later copy just awaits the
+// same promise and reads/writes the same shared proxy.
+const FLIPPER_PROXY_KEY = Symbol.for("player-ui-devtools/flipper-proxy");
+
+type GlobalWithFlipperProxy = typeof globalThis & {
+  [FLIPPER_PROXY_KEY]?: Promise<FlipperCommunicationProxy>;
+};
+
+const createFlipperProxy = (): Promise<FlipperCommunicationProxy> => {
+  const listeners = new Set<FlipperListener>();
+  let connection: FlipperPluginConnection | null = null;
+
+  const proxy: FlipperCommunicationProxy = {
+    status: "connected",
+    sendMessage: (message) => {
+      connection?.send("message::plugin", message);
+    },
+    addListener: (listener) => {
+      listeners.add(listener);
+    },
+    removeListener: (listener) => {
+      listeners.delete(listener);
+    },
+  };
+
+  return flipperClient
+    .start("player-ui-devtools")
+    .then(() => {
+      flipperClient.addPlugin({
+        getId() {
+          return "player-ui-devtools";
+        },
+        onConnect(conn) {
+          connection = conn;
+
+          conn.receive("message::flipper", (message) => {
+            listeners.forEach((listener) => listener(message));
+          });
+        },
+        onDisconnect() {
+          console.log("Flipper client disconnected");
+          connection = null;
+          // allow a future call to re-run start()/addPlugin() so the plugin
+          // can reconnect after Flipper desktop closes/reopens or the
+          // device connection drops
+          delete (globalThis as GlobalWithFlipperProxy)[FLIPPER_PROXY_KEY];
+        },
+      });
+
+      return proxy;
+    })
+    .catch((error) => {
+      console.error("Failed to start Flipper client", error);
+      // reset the mutex so a future call retries the bootstrap from scratch
+      // instead of being permanently poisoned by this failure - the shared
+      // promise itself never rejects, so a caller that doesn't check
+      // `status` still gets a safe no-op proxy rather than an unhandled
+      // rejection
+      delete (globalThis as GlobalWithFlipperProxy)[FLIPPER_PROXY_KEY];
+
+      return { ...proxy, status: "failed" as const };
+    });
+};
+
+/**
+ * Exported for tests: lets a caller await (and inspect the `status` of) the
+ * same shared bootstrap that startFlipperConnection() fires-and-forgets.
+ */
+export const ensureFlipperConnectionStarted =
+  (): Promise<FlipperCommunicationProxy> => {
+    const globalWithProxy = globalThis as GlobalWithFlipperProxy;
+
+    globalWithProxy[FLIPPER_PROXY_KEY] ??= createFlipperProxy();
+
+    return globalWithProxy[FLIPPER_PROXY_KEY];
+  };
 
 /** Adds a Flipper client and starts the connection */
 export const startFlipperConnection = (
@@ -79,22 +130,22 @@ export const startFlipperConnection = (
     value: React.SetStateAction<IntoArrays<CommunicationLayerMethods>>,
   ) => void,
 ): void => {
-  void ensureFlipperConnectionStarted();
+  const proxyPromise = ensureFlipperConnectionStarted();
 
   const sendMessage: CommunicationLayerMethods["sendMessage"] = async (
     message,
   ) => {
-    flipperConnection?.send("message::plugin", message);
+    (await proxyPromise).sendMessage(message);
   };
 
   const addListener: CommunicationLayerMethods["addListener"] = (listener) => {
-    flipperListeners.add(listener);
+    void proxyPromise.then((proxy) => proxy.addListener(listener));
   };
 
   const removeListener: CommunicationLayerMethods["removeListener"] = (
     listener,
   ) => {
-    flipperListeners.delete(listener);
+    void proxyPromise.then((proxy) => proxy.removeListener(listener));
   };
 
   setLayerCallbacks((current) => ({

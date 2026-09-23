@@ -36,11 +36,17 @@ function fakeConnection(): {
   };
 }
 
+const FLIPPER_PROXY_KEY = Symbol.for("player-ui-devtools/flipper-proxy");
+
 describe("startFlipperConnection", () => {
   beforeEach(() => {
     vi.resetModules();
     start.mockReset();
     addPlugin.mockReset();
+    // the bootstrap mutex now lives on globalThis (by design - it must
+    // survive module duplication across bundles), so vi.resetModules()
+    // alone no longer isolates tests from each other
+    delete (globalThis as Record<symbol, unknown>)[FLIPPER_PROXY_KEY];
   });
 
   it("calls flipperClient.start and addPlugin exactly once no matter how many concurrent callers race the bootstrap", async () => {
@@ -115,7 +121,14 @@ describe("startFlipperConnection", () => {
   it("retries the bootstrap on a later call after flipperClient.start() rejects", async () => {
     start.mockRejectedValueOnce(new Error("boom"));
 
-    const { startFlipperConnection } = await import("../useCommunicationLayer");
+    const { startFlipperConnection, ensureFlipperConnectionStarted } =
+      await import("../useCommunicationLayer");
+
+    // capture the first (failing) bootstrap promise before it settles and
+    // resets the global mutex - calling ensureFlipperConnectionStarted()
+    // again after the reset would kick off a brand-new bootstrap attempt
+    // instead of inspecting this one
+    const firstBootstrap = ensureFlipperConnectionStarted();
 
     startFlipperConnection(vi.fn());
 
@@ -124,6 +137,13 @@ describe("startFlipperConnection", () => {
     await vi.waitFor(() => {
       // addPlugin must never have been called for the failed attempt
       expect(addPlugin).not.toHaveBeenCalled();
+    });
+
+    // the shared promise must never reject - failure is surfaced as data so
+    // a caller that never checks `status` still gets a safe no-op proxy
+    // instead of an unhandled rejection
+    await expect(firstBootstrap).resolves.toMatchObject({
+      status: "failed",
     });
 
     start.mockResolvedValueOnce(undefined);
@@ -234,9 +254,57 @@ describe("startFlipperConnection", () => {
 
     removeFirst?.();
 
+    // addListener/removeListener are now proxied through the shared
+    // bootstrap promise, so they settle on a microtask rather than
+    // synchronously - flush pending microtasks before emitting
+    await Promise.resolve();
+    await Promise.resolve();
+
     emit({ payload: "hello" });
 
     expect(firstListeners).toEqual([]);
     expect(secondListeners).toEqual([{ payload: "hello" }]);
+  });
+
+  it("dedupes the bootstrap across duplicated copies of this module, not just concurrent callers within one copy", async () => {
+    // Consumers can bundle multiple Player/plugin versions in the same app,
+    // each carrying its own copy of useCommunicationLayer.ts (and potentially
+    // its own js-flipper version). vi.resetModules() + a fresh dynamic
+    // import() simulates that: each import() below is a distinct module
+    // registry entry, standing in for a separate bundle, while globalThis -
+    // shared across all realms in the same window - is what the mutex must
+    // live on for this test to pass.
+    let resolveStart: () => void;
+    start.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveStart = resolve;
+      }),
+    );
+
+    const firstBundle = await import("../useCommunicationLayer");
+
+    // the top-level vi.mock("js-flipper", ...) above is hoisted and
+    // automatically reapplies to the next fresh import after resetModules()
+    vi.resetModules();
+    const secondBundle = await import("../useCommunicationLayer");
+
+    expect(secondBundle.startFlipperConnection).not.toBe(
+      firstBundle.startFlipperConnection,
+    );
+
+    firstBundle.startFlipperConnection(vi.fn());
+    secondBundle.startFlipperConnection(vi.fn());
+
+    // only the bundle that wins the race against the shared global mutex
+    // may ever call flipperClient.start()/addPlugin() - the second bundle's
+    // own (possibly differently-versioned) flipperClient must never be
+    // invoked independently
+    expect(start).toHaveBeenCalledTimes(1);
+
+    resolveStart!();
+    await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
+
+    expect(start).toHaveBeenCalledTimes(1);
+    expect(addPlugin).toHaveBeenCalledTimes(1);
   });
 });
