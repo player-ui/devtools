@@ -312,12 +312,11 @@ describe("FlipperServerTransport", () => {
         host: "127.0.0.1",
         port: 9999,
       });
-      // host/port are only assigned inside connect(); options alone don't
-      // seed the instance fields, matching the plan's "set at top of
-      // connect()" requirement.
+      // host/port are resolved from options at construction time, so they're
+      // already correct before connect() has ever run.
       expect(transport.getDiagnostics()).toMatchObject({
-        host: "localhost",
-        port: 52342,
+        host: "127.0.0.1",
+        port: 9999,
       });
     });
 
@@ -407,10 +406,7 @@ describe("FlipperServerTransport", () => {
       const close = vi.spyOn(transport, "close").mockResolvedValue(undefined);
       const connect = vi
         .spyOn(transport, "connect")
-        .mockImplementation(async () => {
-          state.host = "localhost";
-          state.port = 52342;
-        });
+        .mockResolvedValue(undefined);
 
       const result = await transport.restart();
 

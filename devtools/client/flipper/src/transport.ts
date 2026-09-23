@@ -242,9 +242,9 @@ export class FlipperServerTransport implements Transport {
    */
   private connectedClientIds = new Set<string>();
 
-  /** Resolved connection target, set at the top of `connect()`. */
-  private host = "localhost";
-  private port = 52342;
+  /** Resolved connection target, fixed at construction from `options`. */
+  private readonly host: string;
+  private readonly port: number;
 
   /**
    * Whether this instance started the shared daemon (vs. attaching to one
@@ -281,11 +281,14 @@ export class FlipperServerTransport implements Transport {
        */
       autoEnablePlugin?: boolean;
     } = {},
-  ) {}
+  ) {
+    this.host = this.options.host ?? "localhost";
+    this.port = this.options.port ?? 52342;
+  }
 
   async connect(): Promise<void> {
-    const host = (this.host = this.options.host ?? "localhost");
-    const port = (this.port = this.options.port ?? 52342);
+    const host = this.host;
+    const port = this.port;
 
     // Register interest in the shared daemon. The first instance to do so is
     // told to start it; the rest just attach. The daemon outlives any single
