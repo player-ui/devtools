@@ -1,3 +1,29 @@
+# 0.16.0 (Thu Sep 24 2026)
+
+### Release Notes
+
+#### Add Flipper diagnostic and plugin-activation MCP tools ([#29](https://github.com/player-ui/devtools/pull/29))
+
+Added seven new MCP tools for the shared `flipper-server` daemon and the devtools Flipper plugin:
+- `get_flipper_connection_status` and `get_flipper_consumers` report connection health (host, port) and consumer info (ownership, refcount, active/connected clients).
+- `restart_flipper_server` restarts the daemon when safe to do so, failing soft with a clear reason otherwise.
+- `get_flipper_plugin_install_status` checks whether the Player UI Devtools Flipper plugin is installed on the daemon.
+- `get_flipper_plugin_activation_status`, `enable_flipper_plugin`, and `disable_flipper_plugin` report and control per-client plugin activation, so an agent can activate the plugin for a connected client without a human driving the Flipper desktop UI.
+
+All tools fail soft rather than throwing, consistent with the rest of the MCP tool surface. No breaking changes.
+
+---
+
+#### 🚀 Enhancement
+
+- Add Flipper diagnostic and plugin-activation MCP tools [#29](https://github.com/player-ui/devtools/pull/29) ([@sugarmanz](https://github.com/sugarmanz))
+
+#### Authors: 1
+
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.15.1 (Thu Sep 24 2026)
 
 ### Release Notes
