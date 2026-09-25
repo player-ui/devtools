@@ -155,6 +155,14 @@ class FlipperRefcount {
     }
   }
 
+  /**
+   * Read the current refcount state without mutating it. Still goes through
+   * `withLock` so a concurrent acquire/release can't be observed mid-write.
+   */
+  peek(): RefcountFile | null {
+    return this.withLock(() => this.read());
+  }
+
   private write(state: RefcountFile): void {
     fs.writeFileSync(this.file, JSON.stringify(state));
   }
@@ -234,6 +242,16 @@ export class FlipperServerTransport implements Transport {
    */
   private connectedClientIds = new Set<string>();
 
+  /** Resolved connection target, fixed at construction from `options`. */
+  private readonly host: string;
+  private readonly port: number;
+
+  /**
+   * Whether this instance started the shared daemon (vs. attaching to one
+   * another instance started). Only an owner may consider restarting it.
+   */
+  private owns = false;
+
   constructor(
     private options: {
       /** Flipper server host; defaults to "localhost" */
@@ -263,16 +281,20 @@ export class FlipperServerTransport implements Transport {
        */
       autoEnablePlugin?: boolean;
     } = {},
-  ) {}
+  ) {
+    this.host = this.options.host ?? "localhost";
+    this.port = this.options.port ?? 52342;
+  }
 
   async connect(): Promise<void> {
-    const host = this.options.host ?? "localhost";
-    const port = this.options.port ?? 52342;
+    const host = this.host;
+    const port = this.port;
 
     // Register interest in the shared daemon. The first instance to do so is
     // told to start it; the rest just attach. The daemon outlives any single
     // MCP process and is only torn down when the last instance detaches.
     const { shouldStart, commit } = this.refcount.acquire();
+    this.owns = shouldStart;
 
     if (shouldStart) {
       log("[FlipperServerTransport] Starting flipper-server...");
@@ -303,7 +325,20 @@ export class FlipperServerTransport implements Transport {
         );
       });
       child.unref();
-      await waitForPort(host, port);
+      try {
+        await waitForPort(host, port);
+      } catch (err) {
+        // Nothing has recorded this PID in the refcount file yet, so nobody
+        // else can track or kill it — if we leave it running here it becomes
+        // an orphan daemon that a later connect() would compete with on the
+        // same port instead of detecting. Wait for it to actually exit (via
+        // the same bounded kill-and-confirm mechanism used everywhere else in
+        // this file) before rethrowing, so a caller that retries connect()
+        // right away doesn't spawn a second daemon racing this one for the
+        // port during teardown.
+        await this.killAndWait(child.pid!);
+        throw err;
+      }
       commit(child.pid!);
       log("[FlipperServerTransport] flipper-server ready.");
     } else {
@@ -543,7 +578,24 @@ export class FlipperServerTransport implements Transport {
     this.listeners.delete(callback);
   };
 
+  /**
+   * In-flight `close()` promise, if one is currently running on this
+   * instance. Guards `refcount.release()` and `killAndWait()` against being
+   * invoked twice for a single logical close — e.g. `restart()`'s internal
+   * `close()` racing an external `MCPServer.stop()` -> `transport.close()`.
+   */
+  private closing: Promise<void> | null = null;
+
   async close(): Promise<void> {
+    if (this.closing) return this.closing;
+
+    this.closing = this.doClose().finally(() => {
+      this.closing = null;
+    });
+    return this.closing;
+  }
+
+  private async doClose(): Promise<void> {
     this.listeners.clear();
     this.activeClientIds.clear();
     this.connectedClientIds.clear();
@@ -555,12 +607,160 @@ export class FlipperServerTransport implements Transport {
     // running for the remaining instances.
     const pidToKill = this.refcount.release();
     if (pidToKill !== null) {
+      await this.killAndWait(pidToKill);
+    }
+  }
+
+  /**
+   * Send SIGTERM and wait for the process to actually exit (or a bounded
+   * timeout) before resolving, so callers — notably `restart()` — can rely on
+   * the port being free once `close()` returns instead of racing a new child
+   * for it.
+   */
+  private killAndWait(pid: number, timeoutMs = 5_000): Promise<void> {
+    return new Promise((resolve) => {
       try {
-        process.kill(pidToKill);
-        log("[FlipperServerTransport] Shut down flipper-server.");
+        process.kill(pid);
       } catch {
-        /* already gone */
+        // Already gone.
+        resolve();
+        return;
       }
+
+      const deadline = Date.now() + timeoutMs;
+      const poll = () => {
+        if (!this.isPidAlive(pid)) {
+          log("[FlipperServerTransport] Shut down flipper-server.");
+          resolve();
+          return;
+        }
+        if (Date.now() >= deadline) {
+          log(
+            "[FlipperServerTransport] Timed out waiting for flipper-server to exit.",
+          );
+          resolve();
+          return;
+        }
+        setTimeout(poll, 100);
+      };
+      poll();
+    });
+  }
+
+  private isPidAlive(pid: number): boolean {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Read-only snapshot of this transport's connection to the shared daemon. */
+  getDiagnostics(): {
+    connected: boolean;
+    host: string;
+    port: number;
+    owns: boolean;
+    refs: number | null;
+    activeClientIds: string[];
+    connectedClientIds: string[];
+  } {
+    const state = this.refcount.peek();
+    return {
+      connected: this.server !== null,
+      host: this.host,
+      port: this.port,
+      owns: this.owns,
+      refs: state?.refs ?? null,
+      activeClientIds: [...this.activeClientIds],
+      connectedClientIds: [...this.connectedClientIds],
+    };
+  }
+
+  /**
+   * Restart the shared daemon. Only ever acts when this instance both owns
+   * the daemon (started it) and is its sole remaining consumer — otherwise
+   * this soft-errors without touching the daemon, since killing it out from
+   * under other attached instances would break their connections.
+   */
+  async restart(): Promise<
+    { ok: true; host: string; port: number } | { ok: false; reason: string }
+  > {
+    if (!this.owns) {
+      return {
+        ok: false,
+        reason: "this instance does not own the flipper-server daemon",
+      };
+    }
+
+    const state = this.refcount.peek();
+    if (state?.refs !== 1) {
+      return {
+        ok: false,
+        reason: "other consumers are attached to this daemon",
+      };
+    }
+
+    // Re-verify immediately before the destructive close(): another instance
+    // could have called connect()/acquire() between the check above and here,
+    // bumping refs to 2+. This narrows but does not eliminate the race — a
+    // consumer could still slip in between this re-check and close() itself;
+    // a fully atomic fix would need close()+connect() to run inside
+    // refcount.withLock(), which isn't reentrant-safe with connect()'s own
+    // internal use of the lock, so we accept this narrow residual window.
+    const recheck = this.refcount.peek();
+    if (recheck?.refs !== 1) {
+      return {
+        ok: false,
+        reason: "other consumers attached to this daemon just before restart",
+      };
+    }
+
+    try {
+      await this.close();
+      await this.connect();
+    } catch (err) {
+      // The daemon this instance owned/attempted to own is now in an unknown
+      // or dead state — don't leave `owns` set, or a later restart() call
+      // will misreport "other consumers are attached" against a stale
+      // refcount for a daemon that no longer exists.
+      this.owns = false;
+      return {
+        ok: false,
+        reason: err instanceof Error ? err.message : String(err),
+      };
+    }
+    return { ok: true, host: this.host, port: this.port };
+  }
+
+  /** Whether the devtools Flipper plugin is installed, per the live daemon. */
+  async getPluginInstallStatus(): Promise<{
+    installed: boolean;
+    version?: string;
+    reason?: string;
+  }> {
+    if (!this.server) return { installed: false, reason: "not connected" };
+
+    try {
+      const plugins = (await this.server.exec(
+        "plugins-get-installed-plugins",
+      )) as Array<{ id?: string; name?: string; version?: string }>;
+
+      const plugin = plugins.find(
+        (candidate) =>
+          candidate.id === PLUGIN_API || candidate.name === PLUGIN_API,
+      );
+
+      if (!plugin) return { installed: false };
+      return plugin.version
+        ? { installed: true, version: plugin.version }
+        : { installed: true };
+    } catch (err) {
+      return {
+        installed: false,
+        reason: err instanceof Error ? err.message : String(err),
+      };
     }
   }
 }

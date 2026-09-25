@@ -2,7 +2,7 @@ import type { ExtensionClient } from "@player-devtools/client";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import type { ToolDef } from "./index";
+import { ok, err, type ToolDef } from "./index";
 
 const describePluginShape = {
   playerId: z
@@ -13,16 +13,6 @@ const describePluginShape = {
 };
 
 const DescribePluginInput = z.object(describePluginShape);
-
-function err(message: string): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify({ error: message }) }],
-  };
-}
-
-function ok(value: unknown): CallToolResult {
-  return { content: [{ type: "text", text: JSON.stringify(value) }] };
-}
 
 export function handleDescribePlugin(
   client: ExtensionClient,

@@ -6,7 +6,7 @@ Player instance: list running Players, read their flow / data / logs / config,
 inspect plugin state, select a Player, and invoke plugin actions.
 
 It is the agent-facing sibling of the [browser extension] and the
-[Flipper plugin](../flipper-plugin): all three are Devtools *clients* that speak
+[Flipper plugin](../flipper-plugin): all three are Devtools _clients_ that speak
 to the same Player Devtools plugins over the [messenger](../messenger) protocol.
 The MCP server connects to those plugins through a running
 [`flipper-server`](https://github.com/facebook/flipper) and re-exposes them as
@@ -61,23 +61,49 @@ The server registers the following tools (defined as `ToolDef`s in
 player-scoped tool takes an optional `playerId` and falls back to the currently
 selected Player when it's omitted.
 
-| Tool | Args | Returns |
-| --- | --- | --- |
-| `list_players` | — | All known Player instances and which one is selected. |
-| `get_player_status` | `playerId?` | Active status + registered plugin IDs. |
-| `get_flow` | `playerId?` | The current flow (from the basic plugin). |
-| `get_data` | `playerId?` | The current flow data model. |
-| `get_logs` | `playerId?` | Accumulated runtime logs. |
-| `get_plugin_data` | `playerId?`, `pluginId`, `dataKey` | A specific data key from any plugin. |
-| `describe_plugin` | `playerId?`, `pluginId` | The plugin's capability descriptor — the data keys and actions it exposes. **Call this first** to discover what a plugin supports. |
-| `select_player` | `playerId` | Selects a Player as the default target for later calls. |
-| `invoke_action` | `playerId?`, `pluginId`, `action`, `payload?` | Invokes a named action (validated against the plugin's declared capabilities). |
+| Tool                | Args                                          | Returns                                                                                                                            |
+| ------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `list_players`      | —                                             | All known Player instances and which one is selected.                                                                              |
+| `get_player_status` | `playerId?`                                   | Active status + registered plugin IDs.                                                                                             |
+| `get_flow`          | `playerId?`                                   | The current flow (from the basic plugin).                                                                                          |
+| `get_data`          | `playerId?`                                   | The current flow data model.                                                                                                       |
+| `get_logs`          | `playerId?`                                   | Accumulated runtime logs.                                                                                                          |
+| `get_plugin_data`   | `playerId?`, `pluginId`, `dataKey`            | A specific data key from any plugin.                                                                                               |
+| `describe_plugin`   | `playerId?`, `pluginId`                       | The plugin's capability descriptor — the data keys and actions it exposes. **Call this first** to discover what a plugin supports. |
+| `select_player`     | `playerId`                                    | Selects a Player as the default target for later calls.                                                                            |
+| `invoke_action`     | `playerId?`, `pluginId`, `action`, `payload?` | Invokes a named action (validated against the plugin's declared capabilities).                                                     |
 
 A typical agent flow: `list_players` → `select_player` → `describe_plugin` →
 `get_*` / `invoke_action`.
 
+### Diagnostics
+
+These tools inspect and manage the MCP server's connection to the shared
+[`flipper-server` daemon](#shared-flipper-server-daemon) itself, rather than
+any Player instance behind it — useful when an agent needs to tell "no Players
+are connected" apart from "the Flipper transport itself is unhealthy." They
+soft-error when the server isn't running on a `FlipperServerTransport`.
+
+All `clientId` args refer to a Flipper **client** — a transport-level
+device/app connection — not a Player devtools `playerId` (used by
+`list_players` / `select_player` / etc). A client can be connected, and even
+have the plugin activated, before any Player instance on it is visible to the
+player-scoped tools; one client can also host multiple Players. Unlike
+`playerId`, there is no "currently selected" client — omitting `clientId`
+targets every connected client instead of falling back to a selection.
+
+| Tool                                   | Args         | Returns                                                                                                                                    |
+| --------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_flipper_connection_status`         | —            | Basic connection health: `connected`, `host`, `port`.                                                                                       |
+| `get_flipper_consumers`                 | —            | `owns`, `refs` (daemon-wide, not just this process), `activeClientIds`, and `connectedClientIds`.                                           |
+| `restart_flipper_server`                | —            | Restarts the daemon — only when this process owns it and is its sole consumer, otherwise a soft error.                                      |
+| `get_flipper_plugin_install_status`     | —            | Whether the Player UI Devtools Flipper plugin is installed on the daemon (npm-level install, not per-client activation).                    |
+| `get_flipper_plugin_activation_status`  | —            | Per-client activation split: `activeClientIds` (completed the `init` handshake) vs. `inactiveClientIds` (connected but not yet activated).  |
+| `enable_flipper_plugin`                 | `clientId?`  | Activates the plugin for `clientId`, or every connected-but-inactive client if omitted (see [Plugin activation](#plugin-activation)).       |
+| `disable_flipper_plugin`                | `clientId?`  | Deactivates the plugin for `clientId`, or every currently active client if omitted, without disconnecting.                                  |
+
 > **NOTE**
-> Tool handlers return *soft errors* (e.g. `{ "error": "player not found" }`) as
+> Tool handlers return _soft errors_ (e.g. `{ "error": "player not found" }`) as
 > normal results rather than throwing, so a failed call still returns a
 > structured payload the agent can read.
 
@@ -193,10 +219,10 @@ Register it with an MCP client (e.g. Claude) by pointing the client at the
 The server reports anonymous usage analytics so we can tell how widely it's used
 and whether it's working in the field. It is **on by default** and sends:
 
-| | |
-| --- | --- |
-| Identity | A random UUID generated on first run and stored at `~/.player-ui-devtools/install.json`. It is not derived from anything about you or your machine — delete the file and a new one is generated. |
-| Events | Session start (`$mcp_initialize`), tool calls (`$mcp_tool_call`), tool listing (`$mcp_tools_list`), and errors (`$exception`). |
+|            |                                                                                                                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identity   | A random UUID generated on first run and stored at `~/.player-ui-devtools/install.json`. It is not derived from anything about you or your machine — delete the file and a new one is generated.             |
+| Events     | Session start (`$mcp_initialize`), tool calls (`$mcp_tool_call`), tool listing (`$mcp_tools_list`), and errors (`$exception`).                                                                               |
 | Properties | Tool **name**, call duration, whether the call errored, the MCP client name/version (e.g. which editor), the devtools version, OS platform, Node major version, and whether the Flipper transport connected. |
 
 **Tool arguments and tool responses are never transmitted.** Those can contain
