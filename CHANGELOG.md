@@ -1,3 +1,31 @@
+# 0.15.1 (Thu Sep 24 2026)
+
+### Release Notes
+
+#### Fix Flipper connection race when multiple devtools plugins are registered ([#28](https://github.com/player-ui/devtools/pull/28))
+
+Fixed a bug where mounting multiple Player instances with the devtools plugin at the same time could break the Flipper connection - including when those instances come from different bundled versions of the plugin in the same app. The connection now also recovers automatically if Flipper disconnects or fails to start on first try, and listeners are properly cleaned up when a Player instance unmounts.
+
+#### Update Flipper connection docs and iOS SwiftFlipper dependency ([#31](https://github.com/player-ui/devtools/pull/31))
+
+- iOS demo app now depends on the published `player-ui/SwiftFlipper` (`0.3.0`) and `player-ui/FlipperPluginUtils` (`0.1.0`) releases instead of unpublished dev forks/branches
+- Docs-only changes to `CONNECTING_TO_FLIPPER.md` and `flipper-plugin/README.md` — no consumer-facing API or behavioral changes
+
+---
+
+#### 🐛 Bug Fix
+
+- Fix Flipper connection race when multiple devtools plugins are registered [#28](https://github.com/player-ui/devtools/pull/28) ([@sugarmanz](https://github.com/sugarmanz))
+- Update Flipper connection docs and iOS SwiftFlipper dependency [#31](https://github.com/player-ui/devtools/pull/31) ([@sugarmanz](https://github.com/sugarmanz))
+- Release main [#30](https://github.com/player-ui/devtools/pull/30) ([@intuit-svc](https://github.com/intuit-svc))
+
+#### Authors: 2
+
+- [@intuit-svc](https://github.com/intuit-svc)
+- Jeremiah Zucker ([@sugarmanz](https://github.com/sugarmanz))
+
+---
+
 # 0.15.2-next.0 (Tue Sep 22 2026)
 
 ### Release Notes
