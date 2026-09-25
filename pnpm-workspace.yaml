@@ -23,3 +23,11 @@ packages:
 onlyBuiltDependencies:
   - esbuild
   - husky
+
+minimumReleaseAge: 4320 # 3 days
+minimumReleaseAgeExclude:
+  - "@player-cli/*"
+  - "@player-lang/*"
+  - "@xlr-lib/*"
+  - "@player-tools/*"
+  - "@player-ui/*"
