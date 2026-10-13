@@ -1,4 +1,12 @@
-import { describe, beforeEach, expect, test, vi, type Mock } from "vitest";
+import {
+  describe,
+  beforeEach,
+  afterEach,
+  expect,
+  test,
+  vi,
+  type Mock,
+} from "vitest";
 import { Messenger } from "../index";
 import { createMockContext } from "./helpers";
 import {
@@ -569,6 +577,146 @@ describe("Messenger", () => {
       // contiguous ids 1, 2 — no gap that would trip lost-event recovery
       expect(ids).toEqual([1, 2]);
       expect(player).toBeDefined();
+    });
+  });
+
+  // The events/connections records are static, so every Messenger in the
+  // process shares them. Destroying one Messenger (e.g. when a Player unmounts)
+  // must only clear its own records and leave the others' intact.
+  describe("destroy", () => {
+    type Statics = {
+      events: Record<string, unknown>;
+      connections: Record<string, unknown>;
+    };
+    const statics = Messenger as unknown as Statics;
+
+    // Other tests in this file never destroy their messengers, so they keep
+    // beaconing and writing to the shared records under their own ids. Use ids
+    // that no other test uses, and clean up what this block creates.
+    const created: Array<Messenger<BaseEvent<string, unknown>>> = [];
+
+    afterEach(() => {
+      created.splice(0).forEach((messenger) => messenger.destroy());
+    });
+
+    /** Two player messengers and one devtools messenger on a shared bus. */
+    function setup() {
+      const { spies, mockMessagingAPI } = createMockContext();
+
+      const create = (
+        id: string,
+        context: "player" | "devtools",
+        messageCallback: Mock,
+      ) => {
+        const messenger = new Messenger<BaseEvent<string, unknown>>({
+          sendMessage: mockMessagingAPI.sendMessage.bind(mockMessagingAPI),
+          addListener: mockMessagingAPI.addListener.bind(mockMessagingAPI),
+          removeListener:
+            mockMessagingAPI.removeListener.bind(mockMessagingAPI),
+          messageCallback,
+          context,
+          id,
+          logger: console,
+        });
+        created.push(messenger);
+        return messenger;
+      };
+
+      const web1 = create("destroy-web1", "player", spies.web1.messageCallback);
+      const web2 = create("destroy-web2", "player", spies.web2.messageCallback);
+      const devtools = create(
+        "destroy-devtools1",
+        "devtools",
+        spies.devtools.messageCallback,
+      );
+
+      // let the beacons go out so every pair is connected
+      vi.advanceTimersByTime(1000);
+
+      return { spies, create, web1, web2, devtools };
+    }
+
+    test("only clears the destroyed instance's events and connections", () => {
+      const { web1, web2 } = setup();
+
+      web1.sendMessage({ type: "TEST", payload: { from: "web1" } });
+      web2.sendMessage({ type: "TEST", payload: { from: "web2" } });
+
+      expect(statics.events).toHaveProperty("destroy-web1");
+      expect(statics.events).toHaveProperty("destroy-web2");
+      expect(statics.connections).toHaveProperty("destroy-web1");
+      expect(statics.connections).toHaveProperty("destroy-web2");
+
+      web1.destroy();
+
+      expect(statics.events).not.toHaveProperty("destroy-web1");
+      expect(statics.connections).not.toHaveProperty("destroy-web1");
+      expect(statics.events).toHaveProperty("destroy-web2");
+      expect(statics.connections).toHaveProperty("destroy-web2");
+    });
+
+    test("another instance still replays its buffered events to a new peer", () => {
+      const { spies, create, web1, web2 } = setup();
+
+      web2.sendMessage({ type: "TEST", payload: { count: 1 } });
+
+      web1.destroy();
+      spies.web2.sendMessage.mockClear();
+
+      // a devtools instance that shows up after web1 is gone
+      create("destroy-devtools2", "devtools", vi.fn());
+      vi.advanceTimersByTime(1000);
+
+      expect(spies.web2.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "MESSENGER_EVENT_BATCH",
+          sender: "destroy-web2",
+          target: "destroy-devtools2",
+          payload: {
+            events: [
+              expect.objectContaining({
+                type: "TEST",
+                payload: { count: 1 },
+              }),
+            ],
+          },
+        }),
+      );
+    });
+
+    test("another instance keeps its established connection and sequencing", () => {
+      const { spies, web1, web2 } = setup();
+
+      web2.sendMessage({
+        type: "TEST",
+        payload: { count: 1 },
+        target: "destroy-devtools1",
+      });
+      web2.sendMessage({
+        type: "TEST",
+        payload: { count: 2 },
+        target: "destroy-devtools1",
+      });
+
+      web1.destroy();
+      spies.devtools.messageCallback.mockClear();
+
+      web2.sendMessage({
+        type: "TEST",
+        payload: { count: 3 },
+        target: "destroy-devtools1",
+      });
+
+      // continues at id 3 rather than restarting at 1 and being dropped as a
+      // duplicate by the receiver
+      expect(spies.devtools.messageCallback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "TEST",
+          sender: "destroy-web2",
+          id: 3,
+          payload: { count: 3 },
+        }),
+      );
     });
   });
 });

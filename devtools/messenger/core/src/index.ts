@@ -405,11 +405,13 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       this.options.sendMessage(message);
     });
 
-    Messenger.reset();
+    // only clear this instance's records, other instances share the statics
+    delete Messenger.events[this.id];
+    delete Messenger.connections[this.id];
     this.log("destroyed");
   }
 
-  /** reset static records */
+  /** reset static records for every instance, intended for tests */
   static reset() {
     Messenger.events = {};
     Messenger.connections = {};
