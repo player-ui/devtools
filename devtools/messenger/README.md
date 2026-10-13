@@ -100,9 +100,10 @@ they can drop the connection promptly rather than waiting for a timeout.
 
 > **NOTE**
 > Connection bookkeeping (events and connections) is **static**, shared across
-> all `Messenger` instances in the same JS context. `Messenger.reset()` clears
-> it for every instance — useful in tests, but never call it while a live
-> connection is in flight.
+> all `Messenger` instances in the same JS context, keyed by instance `id`.
+> `destroy()` only clears the calling instance's records, so other live
+> instances are unaffected. `Messenger.reset()` clears it for every instance —
+> useful in tests, but never call it while a live connection is in flight.
 
 ## `core` — `@player-devtools/messenger`
 
@@ -152,7 +153,7 @@ const messenger = new Messenger({
 | Method | Description |
 | --- | --- |
 | `sendMessage(message: T \| string): Promise<void>` | Buffers the event (so late peers can be replayed), stamps it with transaction metadata, and sends it. A JSON string is parsed first; a parse failure rejects. A send failure routes the transaction to `handleFailedMessage`. |
-| `destroy(): void` | Stops the beacon interval, removes the listener, sends a `MESSENGER_DISCONNECT` to each known peer, and resets the shared static state. |
+| `destroy(): void` | Stops the beacon interval, removes the listener, sends a `MESSENGER_DISCONNECT` to each known peer, and clears this instance's events and connections from the shared static state. Other instances are not affected. |
 | `static reset(): void` | Clears the shared static events/connections record for all instances in the context. |
 
 ## Native packages
