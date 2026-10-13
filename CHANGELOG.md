@@ -1,3 +1,15 @@
+# 0.16.1-next.0 (Tue Oct 13 2026)
+
+#### 🐛 Bug Fix
+
+- fix: destroy() only clears its own instance's state [#33](https://github.com/player-ui/devtools/pull/33) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+#### Authors: 1
+
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+---
+
 # 0.16.0 (Thu Sep 24 2026)
 
 ### Release Notes
