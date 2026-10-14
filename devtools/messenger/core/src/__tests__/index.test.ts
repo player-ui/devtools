@@ -633,7 +633,7 @@ describe("Messenger", () => {
       // let the beacons go out so every pair is connected
       vi.advanceTimersByTime(1000);
 
-      return { spies, create, web1, web2, devtools };
+      return { spies, mockMessagingAPI, create, web1, web2, devtools };
     }
 
     test("only clears the destroyed instance's events and connections", () => {
@@ -715,6 +715,203 @@ describe("Messenger", () => {
           sender: "destroy-web2",
           id: 3,
           payload: { count: 3 },
+        }),
+      );
+    });
+
+    /** targets of the MESSENGER_DISCONNECTs a sender put on the bus */
+    const disconnectTargets = (spy: Mock, sender: string) =>
+      spy.mock.calls
+        .map(([message]) => message)
+        .filter(
+          (message) =>
+            message.type === "MESSENGER_DISCONNECT" &&
+            message.sender === sender,
+        )
+        .map((message) => message.target);
+
+    /** a transaction as it would arrive from another process */
+    const remoteTransaction = (
+      sender: string,
+      type: string,
+      target?: string,
+    ) => ({
+      _messenger_: true,
+      id: -1,
+      sender,
+      context: "player",
+      type,
+      payload: null,
+      timestamp: 0,
+      ...(target && { target }),
+    });
+
+    test("sends MESSENGER_DISCONNECT to its peers, not to itself or other local players", () => {
+      const { spies, web1 } = setup();
+      spies.devtools.sendMessage.mockClear();
+
+      web1.destroy();
+
+      expect(
+        disconnectTargets(spies.devtools.sendMessage, "destroy-web1"),
+      ).toEqual(["destroy-devtools1"]);
+    });
+
+    test("peers drop only the destroyed instance from their connections", () => {
+      const { web1 } = setup();
+      const devtoolsConnections = () =>
+        statics.connections["destroy-devtools1"] as Record<string, unknown>;
+
+      expect(Object.keys(devtoolsConnections()).sort()).toEqual([
+        "destroy-web1",
+        "destroy-web2",
+      ]);
+
+      web1.destroy();
+
+      expect(Object.keys(devtoolsConnections())).toEqual(["destroy-web2"]);
+    });
+
+    test("a reused id reconnects, is replayed buffered events and is not dropped as a duplicate", () => {
+      const { spies, create, web1, devtools } = setup();
+
+      devtools.sendMessage({ type: "TEST", payload: { count: 1 } });
+      web1.sendMessage({
+        type: "TEST",
+        payload: { count: 1 },
+        target: "destroy-devtools1",
+      });
+      web1.sendMessage({
+        type: "TEST",
+        payload: { count: 2 },
+        target: "destroy-devtools1",
+      });
+
+      web1.destroy();
+      spies.devtools.sendMessage.mockClear();
+      spies.devtools.messageCallback.mockClear();
+
+      const reborn = create("destroy-web1", "player", vi.fn());
+      vi.advanceTimersByTime(1000);
+
+      // devtools replays its buffered events to the new instance
+      expect(spies.devtools.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "MESSENGER_EVENT_BATCH",
+          sender: "destroy-devtools1",
+          target: "destroy-web1",
+        }),
+      );
+
+      // sequencing restarts at 1, which must not look like an old message
+      reborn.sendMessage({
+        type: "TEST",
+        payload: { count: 3 },
+        target: "destroy-devtools1",
+      });
+
+      expect(spies.devtools.messageCallback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "TEST",
+          sender: "destroy-web1",
+          payload: { count: 3 },
+        }),
+      );
+    });
+
+    test("a received MESSENGER_DISCONNECT removes only that peer from this instance", () => {
+      const { mockMessagingAPI } = setup();
+      const devtoolsConnections = () =>
+        statics.connections["destroy-devtools1"] as Record<string, unknown>;
+
+      void mockMessagingAPI.sendMessage(
+        remoteTransaction("remote-P1", "MESSENGER_BEACON"),
+      );
+      void mockMessagingAPI.sendMessage(
+        remoteTransaction("remote-P2", "MESSENGER_BEACON"),
+      );
+      expect(devtoolsConnections()).toHaveProperty("remote-P1");
+      expect(devtoolsConnections()).toHaveProperty("remote-P2");
+
+      void mockMessagingAPI.sendMessage(
+        remoteTransaction(
+          "remote-P1",
+          "MESSENGER_DISCONNECT",
+          "destroy-devtools1",
+        ),
+      );
+
+      expect(devtoolsConnections()).not.toHaveProperty("remote-P1");
+      expect(devtoolsConnections()).toHaveProperty("remote-P2");
+    });
+
+    test("a received MESSENGER_DISCONNECT does not touch a same-process sender's own connections", () => {
+      const { mockMessagingAPI } = setup();
+
+      void mockMessagingAPI.sendMessage(
+        remoteTransaction(
+          "destroy-web1",
+          "MESSENGER_DISCONNECT",
+          "destroy-devtools1",
+        ),
+      );
+
+      expect(statics.connections).toHaveProperty("destroy-web1");
+    });
+
+    test("only targets its own peers when other instances live in another process", () => {
+      const { spies, create } = setup();
+
+      // the player's process only knows about the devtools peer
+      Messenger.reset();
+      const solo = create("destroy-solo", "player", vi.fn());
+      statics.connections["destroy-solo"] = {
+        "remote-devtools": {
+          id: "remote-devtools",
+          messagesReceived: 0,
+          messagesSent: 0,
+          desync: false,
+        },
+      };
+      spies.devtools.sendMessage.mockClear();
+
+      solo.destroy();
+
+      expect(
+        disconnectTargets(spies.devtools.sendMessage, "destroy-solo"),
+      ).toEqual(["remote-devtools"]);
+    });
+
+    test("routes a failed MESSENGER_DISCONNECT to handleFailedMessage", async () => {
+      const handleFailedMessage = vi.fn();
+      const messenger = new Messenger<BaseEvent<string, unknown>>({
+        sendMessage: vi.fn().mockRejectedValue(new Error("transport down")),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        messageCallback: vi.fn(),
+        handleFailedMessage,
+        context: "player",
+        id: "destroy-failing",
+        logger: console,
+      });
+      created.push(messenger);
+      statics.connections["destroy-failing"] = {
+        "remote-devtools": {
+          id: "remote-devtools",
+          messagesReceived: 0,
+          messagesSent: 0,
+          desync: false,
+        },
+      };
+
+      messenger.destroy();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(handleFailedMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "MESSENGER_DISCONNECT",
+          sender: "destroy-failing",
+          target: "remote-devtools",
         }),
       );
     });

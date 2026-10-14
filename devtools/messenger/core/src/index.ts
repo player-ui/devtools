@@ -354,7 +354,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   private handleDisconnectMessage(
     parsed: TransactionMetadata & MessengerEvent<T>,
   ) {
-    delete Messenger.connections[parsed.sender];
+    delete Messenger.connections[this.id]?.[parsed.sender];
 
     this.log(`disconnected - ${parsed.context}:${parsed.sender}`);
   }
@@ -395,14 +395,18 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     // iOS does not leverage this because iOS cannot compare functions
     this.options.removeListener(this.handleMessage);
 
-    Object.keys(Messenger.connections).forEach((connection) => {
+    Object.keys(Messenger.connections[this.id] ?? {}).forEach((connection) => {
       const event: DisconnectEvent = {
         type: "MESSENGER_DISCONNECT",
         payload: null,
         target: connection,
       };
       const message = this.addTransactionMetadata(event);
-      this.options.sendMessage(message);
+      this.options.sendMessage(message).catch(() => {
+        this.options.handleFailedMessage?.(message);
+
+        this.log(`failed to send disconnect from ${this.id} to ${connection}`);
+      });
     });
 
     // only clear this instance's records, other instances share the statics
