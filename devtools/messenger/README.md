@@ -96,7 +96,10 @@ connection. The receiver uses those ids to stay lossless:
   targeted message would look like a duplicate and be dropped.
 
 On teardown, `destroy()` sends a `MESSENGER_DISCONNECT` to each known peer so
-they can drop the connection promptly rather than waiting for a timeout.
+they can drop the connection promptly rather than waiting for a timeout. A
+receiver removes only that peer from its own connections, so a peer that later
+reconnects with the same `id` is handshaked and replayed from scratch. If a
+disconnect fails to send, the transaction is passed to `handleFailedMessage`.
 
 > **NOTE**
 > Connection bookkeeping (events and connections) is **static**, shared across
@@ -141,7 +144,7 @@ const messenger = new Messenger({
 | `id` | `string` | no | This instance's unique id. Generated with `tiny-uid` if omitted. |
 | `beaconIntervalMS` | `number` | no | Milliseconds between beacons. Defaults to `1000`. |
 | `debug` | `boolean` | no | When `true`, emits debug messages through `logger`. Defaults to `false`. |
-| `handleFailedMessage` | `(message) => void` | no | Called with the full transaction when `sendMessage` rejects. |
+| `handleFailedMessage` | `(message) => void` | no | Called with the full transaction when `sendMessage` rejects, including the `MESSENGER_DISCONNECT`s sent by `destroy()`. |
 
 > **NOTE**
 > There is **no `target` constructor option**. Targeting is per-message: set
