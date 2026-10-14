@@ -1,3 +1,15 @@
+# 0.16.1-next.1 (Wed Oct 14 2026)
+
+#### 🐛 Bug Fix
+
+- fix: messenger destroy() now sends disconnects to its actual peers [#34](https://github.com/player-ui/devtools/pull/34) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+#### Authors: 1
+
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+---
+
 # 0.16.1-next.0 (Tue Oct 13 2026)
 
 #### 🐛 Bug Fix
