@@ -1,3 +1,23 @@
+# 0.16.1-next.2 (Thu Oct 15 2026)
+
+### Release Notes
+
+#### Fix a handful of minor bugs with the JVM implementation. ([#35](https://github.com/player-ui/devtools/pull/35))
+
+Fixes three bugs in the JVM devtools bindings that stop a JVM Player from talking to a devtools client.
+
+---
+
+#### 🐛 Bug Fix
+
+- Fix a handful of minor bugs with the JVM implementation. [#35](https://github.com/player-ui/devtools/pull/35) ([@KetanReddy](https://github.com/KetanReddy))
+
+#### Authors: 1
+
+- Ketan Reddy ([@KetanReddy](https://github.com/KetanReddy))
+
+---
+
 # 0.16.1-next.1 (Wed Oct 14 2026)
 
 #### 🐛 Bug Fix
