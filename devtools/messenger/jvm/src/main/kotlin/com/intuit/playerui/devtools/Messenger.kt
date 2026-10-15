@@ -21,6 +21,13 @@ import kotlinx.serialization.json.JsonElement
 
 public typealias MessageHandler = (Event) -> Unit
 
+/**
+ * JVM wrapper around the JS Messenger.
+ *
+ * Note: because this is also a [MessageHandler], runtime formats encode a [Messenger] as a JS
+ * function rather than through [Messenger.Serializer]. When handing a messenger to JS, pass
+ * [node] (the backing JS instance) instead of the [Messenger] itself.
+ */
 @Serializable(with = Messenger.Serializer::class)
 public class Messenger(
     internal val options: Options,
