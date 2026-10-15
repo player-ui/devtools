@@ -21,6 +21,13 @@ import kotlinx.serialization.json.JsonElement
 
 public typealias MessageHandler = (Event) -> Unit
 
+/**
+ * JVM wrapper around the JS Messenger.
+ *
+ * Note: because this is also a [MessageHandler], runtime formats encode a [Messenger] as a JS
+ * function rather than through [Messenger.Serializer]. When handing a messenger to JS, pass
+ * [node] (the backing JS instance) instead of the [Messenger] itself.
+ */
 @Serializable(with = Messenger.Serializer::class)
 public class Messenger(
     internal val options: Options,
@@ -99,7 +106,7 @@ public class Messenger(
 
     @Serializable
     public data class Options(
-        public val context: TransactionMetaData.Context,
+        @SerialName("_context") public val context: TransactionMetaData.Context,
         // Not transient because we want to require an implementation, but it does mean deserialization not supported
         @SerialName("_sendMessage") public val sendMessage: suspend (message: Event) -> Unit,
         public val addListener: (callback: MessageHandler) -> Unit,
@@ -111,6 +118,15 @@ public class Messenger(
         public val debug: Boolean? = null,
         @Transient public val logger: Logger = Logger { },
     ) {
+        // Runtime formats encode enums by ordinal, but the JS Messenger expects the context's serial name
+        @SerialName("context")
+        @Suppress("ktlint:standard:backing-property-naming")
+        private val _context: String =
+            TransactionMetaData.Context
+                .serializer()
+                .descriptor
+                .getElementName(context.ordinal)
+
         // [Logger] structure can't automatically serialize, so we represent as it should be manually
         @SerialName("logger")
         @Suppress("ktlint:standard:backing-property-naming")

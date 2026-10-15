@@ -1,18 +1,21 @@
 public final class com/intuit/playerui/devtools/BeaconEvent : com/intuit/playerui/devtools/Event, com/intuit/playerui/devtools/InternalEvent {
 	public static final field Companion Lcom/intuit/playerui/devtools/BeaconEvent$Companion;
-	public fun <init> (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()J
 	public final fun component2 ()J
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component5 ()Z
-	public final fun copy (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/BeaconEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/BeaconEvent;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/BeaconEvent;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/BeaconEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/BeaconEvent;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/BeaconEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -36,15 +39,17 @@ public final class com/intuit/playerui/devtools/BeaconEvent$Companion {
 
 public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent : com/intuit/playerui/devtools/EventWithPayload {
 	public static final field Companion Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Companion;
-	public fun <init> (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;
 	public final fun component2 ()J
 	public final fun component3 ()J
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component6 ()Z
-	public final fun copy (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
@@ -52,6 +57,7 @@ public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent : com/in
 	public synthetic fun getPayload ()Ljava/lang/Object;
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -104,15 +110,17 @@ public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload$
 
 public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent : com/intuit/playerui/devtools/EventWithPayload {
 	public static final field Companion Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Companion;
-	public fun <init> (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;
 	public final fun component2 ()J
 	public final fun component3 ()J
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component6 ()Z
-	public final fun copy (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
@@ -120,6 +128,7 @@ public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent :
 	public synthetic fun getPayload ()Ljava/lang/Object;
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -172,19 +181,22 @@ public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$P
 
 public final class com/intuit/playerui/devtools/DisconnectEvent : com/intuit/playerui/devtools/Event, com/intuit/playerui/devtools/InternalEvent {
 	public static final field Companion Lcom/intuit/playerui/devtools/DisconnectEvent$Companion;
-	public fun <init> (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()J
 	public final fun component2 ()J
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component5 ()Z
-	public final fun copy (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/DisconnectEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/DisconnectEvent;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/DisconnectEvent;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/DisconnectEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/DisconnectEvent;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/DisconnectEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -209,6 +221,7 @@ public final class com/intuit/playerui/devtools/DisconnectEvent$Companion {
 public abstract class com/intuit/playerui/devtools/Event : com/intuit/playerui/devtools/TransactionMetaData {
 	public static final field Companion Lcom/intuit/playerui/devtools/Event$Companion;
 	public synthetic fun <init> (ILkotlinx/serialization/internal/SerializationConstructorMarker;)V
+	public fun getTarget ()Ljava/lang/String;
 	public abstract fun getType ()Ljava/lang/String;
 	public static final synthetic fun write$Self (Lcom/intuit/playerui/devtools/Event;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
@@ -242,15 +255,17 @@ final class com/intuit/playerui/devtools/EventWithPayload$Companion$1 : kotlin/j
 
 public final class com/intuit/playerui/devtools/EventsBatchEvent : com/intuit/playerui/devtools/EventWithPayload, com/intuit/playerui/devtools/InternalEvent {
 	public static final field Companion Lcom/intuit/playerui/devtools/EventsBatchEvent$Companion;
-	public fun <init> (Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;
 	public final fun component2 ()J
 	public final fun component3 ()J
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component6 ()Z
-	public final fun copy (Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/EventsBatchEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/EventsBatchEvent;Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/EventsBatchEvent;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/EventsBatchEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/EventsBatchEvent;Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/EventsBatchEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
@@ -258,6 +273,7 @@ public final class com/intuit/playerui/devtools/EventsBatchEvent : com/intuit/pl
 	public synthetic fun getPayload ()Ljava/lang/Object;
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -520,15 +536,17 @@ public final class com/intuit/playerui/devtools/MessengerKt {
 
 public final class com/intuit/playerui/devtools/PlayerInitEvent : com/intuit/playerui/devtools/EventWithPayload {
 	public static final field Companion Lcom/intuit/playerui/devtools/PlayerInitEvent$Companion;
-	public fun <init> (Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;
 	public final fun component2 ()J
 	public final fun component3 ()J
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component6 ()Z
-	public final fun copy (Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/PlayerInitEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/PlayerInitEvent;Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/PlayerInitEvent;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/PlayerInitEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/PlayerInitEvent;Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/PlayerInitEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
@@ -536,6 +554,7 @@ public final class com/intuit/playerui/devtools/PlayerInitEvent : com/intuit/pla
 	public synthetic fun getPayload ()Ljava/lang/Object;
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -592,15 +611,17 @@ final class com/intuit/playerui/devtools/PlayerInitEvent$Payload$Companion$$chil
 
 public final class com/intuit/playerui/devtools/RequestLostEventsEvent : com/intuit/playerui/devtools/EventWithPayload, com/intuit/playerui/devtools/InternalEvent {
 	public static final field Companion Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Companion;
-	public fun <init> (Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)V
+	public fun <init> (Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)V
+	public synthetic fun <init> (Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;
 	public final fun component2 ()J
 	public final fun component3 ()J
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Lkotlinx/serialization/json/JsonElement;
 	public final fun component6 ()Z
-	public final fun copy (Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;Z)Lcom/intuit/playerui/devtools/RequestLostEventsEvent;
-	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/RequestLostEventsEvent;Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent;
+	public static synthetic fun copy$default (Lcom/intuit/playerui/devtools/RequestLostEventsEvent;Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;JJLjava/lang/String;Lkotlinx/serialization/json/JsonElement;ZLjava/lang/String;ILjava/lang/Object;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContext ()Lkotlinx/serialization/json/JsonElement;
 	public fun getId ()J
@@ -608,6 +629,7 @@ public final class com/intuit/playerui/devtools/RequestLostEventsEvent : com/int
 	public synthetic fun getPayload ()Ljava/lang/Object;
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -661,6 +683,7 @@ public abstract interface class com/intuit/playerui/devtools/TransactionMetaData
 	public abstract fun getId ()J
 	public abstract fun getSender ()Ljava/lang/String;
 	public abstract fun getTag ()Z
+	public abstract fun getTarget ()Ljava/lang/String;
 	public abstract fun getTimestamp ()J
 }
 
@@ -683,6 +706,7 @@ final class com/intuit/playerui/devtools/TransactionMetaData$Context$Companion$1
 }
 
 public final class com/intuit/playerui/devtools/TransactionMetaData$DefaultImpls {
+	public static fun getTarget (Lcom/intuit/playerui/devtools/TransactionMetaData;)Ljava/lang/String;
 }
 
 public final class com/intuit/playerui/devtools/UnknownEvent : com/intuit/playerui/devtools/Event, com/intuit/playerui/core/bridge/NodeWrapper {
@@ -697,6 +721,7 @@ public final class com/intuit/playerui/devtools/UnknownEvent : com/intuit/player
 	public fun getNode ()Lcom/intuit/playerui/core/bridge/Node;
 	public fun getSender ()Ljava/lang/String;
 	public fun getTag ()Z
+	public fun getTarget ()Ljava/lang/String;
 	public fun getTimestamp ()J
 	public fun getType ()Ljava/lang/String;
 	public fun hashCode ()I

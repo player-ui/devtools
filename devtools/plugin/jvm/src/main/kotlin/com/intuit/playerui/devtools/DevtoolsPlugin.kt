@@ -143,7 +143,17 @@ public open class DevtoolsPlugin(
             ?: throw PlayerException("Could not find registerMessenger on DevtoolsPlugin instance")
     }
 
-    public fun registerMessenger(messenger: Messenger): () -> Unit = registerMessenger.invoke(messenger)
+    /** Register a [Messenger] that has already been applied to this plugin's runtime */
+    public fun registerMessenger(messenger: Messenger): () -> Unit {
+        if (!messenger.isInstantiated) {
+            throw PlayerException("Messenger must be applied to the DevtoolsPlugin runtime before it is registered")
+        }
+        if (messenger.node.runtime !== node.runtime) {
+            throw PlayerException("Messenger was applied to a different runtime than the DevtoolsPlugin")
+        }
+        // pass the backing JS instance -- see [Messenger] for why the Messenger itself can't be passed
+        return registerMessenger.invoke(messenger.node)
+    }
 
     private val apply by lazy {
         node.getInvokable<Unit>("apply")

@@ -115,6 +115,7 @@ class MessengerTest : Messenger.Logger {
 
             assertInstanceOf<BeaconEvent>(beacon)
             assertEquals("queue", beacon.sender)
+            assertEquals(JsonPrimitive("devtools"), beacon.context)
         }
 
     @Test fun `queue messages while handshake is in progress, and send them as the connection is established`() =
@@ -153,12 +154,31 @@ class MessengerTest : Messenger.Logger {
                 }
 
             assertInstanceOf<EventsBatchEvent>(batch)
+            assertEquals("test-2", batch.target)
             assertEquals(3, batch.payload.events.size)
             batch.payload.events.forEachIndexed { index, event ->
                 assertInstanceOf<UnknownEvent>(event)
                 assertEquals(index, event.node.getObject("payload")?.get("count"))
             }
         }
+
+    @Test fun `typed events keep their target`() {
+        buildMessenger("target")
+        listeners.first().invoke(
+            DevtoolsPluginInteractionEvent(
+                payload = DevtoolsPluginInteractionEvent.Payload("evaluate-expression", "{{foo}}"),
+                id = -1,
+                timestamp = 0,
+                sender = "test-2",
+                context = JsonPrimitive("player"),
+                tag = true,
+                target = "target",
+            ),
+        )
+
+        val event = assertInstanceOf<DevtoolsPluginInteractionEvent>(handled.single())
+        assertEquals("target", event.target)
+    }
 
     @Test fun `failure sending message triggers failure handler`() =
         runBlocking {
