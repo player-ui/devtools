@@ -143,7 +143,8 @@ public open class DevtoolsPlugin(
             ?: throw PlayerException("Could not find registerMessenger on DevtoolsPlugin instance")
     }
 
-    public fun registerMessenger(messenger: Messenger): () -> Unit = registerMessenger.invoke(messenger)
+    // [Messenger] is also a [MessageHandler], so passing it directly would encode it as a JS function -- pass the backing JS instance instead
+    public fun registerMessenger(messenger: Messenger): () -> Unit = registerMessenger.invoke(messenger.node)
 
     private val apply by lazy {
         node.getInvokable<Unit>("apply")
