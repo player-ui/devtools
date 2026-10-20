@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
+import type { Messenger } from "@player-devtools/messenger";
+import type { Player } from "@player-ui/player";
 import type {
   DevtoolsPluginInteractionEvent,
   ExtensionSupportedEvents,
@@ -91,5 +93,84 @@ describe("DevtoolsPlugin.processInteraction", () => {
         payload: expect.objectContaining({ type: "next" }),
       }),
     );
+  });
+});
+
+describe("DevtoolsPlugin.teardown", () => {
+  const player = {} as Player;
+
+  /** A fake messenger that records the event types it is sent. */
+  function setupWithMessenger() {
+    const ctx = setup();
+    const sent: Array<string> = [];
+    ctx.plugin.registerMessenger({
+      sendMessage: (message: { type: string }) => sent.push(message.type),
+    } as unknown as Messenger<ExtensionSupportedEvents>);
+    return { ...ctx, sent };
+  }
+
+  it("sends PLAYER_STOPPED over the messenger after PLAYER_INIT", () => {
+    const { plugin, sent } = setupWithMessenger();
+
+    plugin.apply(player);
+    plugin.teardown();
+
+    expect(sent).toEqual([
+      "PLAYER_DEVTOOLS_PLAYER_INIT",
+      "PLAYER_DEVTOOLS_PLAYER_STOPPED",
+    ]);
+  });
+
+  it("only sends PLAYER_STOPPED once", () => {
+    const { plugin, sent } = setupWithMessenger();
+
+    plugin.apply(player);
+    plugin.teardown();
+    plugin.teardown();
+
+    expect(sent.filter((t) => t === "PLAYER_DEVTOOLS_PLAYER_STOPPED")).toEqual([
+      "PLAYER_DEVTOOLS_PLAYER_STOPPED",
+    ]);
+  });
+
+  it("does nothing if the plugin never announced itself", () => {
+    const { plugin, sent } = setupWithMessenger();
+
+    plugin.teardown();
+
+    expect(sent).toEqual([]);
+  });
+
+  it("does nothing if devtools was inactive when applied", () => {
+    const plugin = new DevtoolsPlugin({
+      playerID: "player-a",
+      pluginData: pluginData(),
+      handler: {
+        processInteraction: vi.fn(),
+        checkIfDevtoolsIsActive: () => false,
+      },
+    });
+    const sent: Array<string> = [];
+    plugin.registerMessenger({
+      sendMessage: (message: { type: string }) => sent.push(message.type),
+    } as unknown as Messenger<ExtensionSupportedEvents>);
+
+    plugin.apply(player);
+    plugin.teardown();
+
+    expect(sent).toEqual([]);
+  });
+
+  it("can announce and retire again if re-applied", () => {
+    const { plugin, sent } = setupWithMessenger();
+
+    plugin.apply(player);
+    plugin.teardown();
+    plugin.apply(player);
+    plugin.teardown();
+
+    expect(
+      sent.filter((t) => t === "PLAYER_DEVTOOLS_PLAYER_STOPPED"),
+    ).toHaveLength(2);
   });
 });

@@ -8,7 +8,7 @@ import PlayerUIDevtoolsUtilsSwiftUI
 import PlayerUILogger
 
 /// A protocol defining a Player Plugin that provides DevTools capabilities via Flipper
-public protocol DevtoolsPlugin: BaseDevtoolsPlugin, NativePlugin {
+public protocol DevtoolsPlugin: BaseDevtoolsPlugin, NativePlugin, FlipperDisconnectable {
     /// Our connection to the flipper server
     var flipperPlugin: DevtoolsFlipperPlugin { get }
     /// Keep a reference so the messenger doesn't get garbage collected and destroyed
@@ -42,11 +42,26 @@ public extension DevtoolsPlugin where Self: NativePlugin {
                 messageCallback: try store.dispatch(event:)
             )
             let messenger = try Messenger(options: options)
+            // Only after setup works. This disconnects any plugin being replaced, before this one announces itself.
+            flipperPlugin.register(self, playerID: playerID, kind: pluginName)
             self.messenger = messenger
             _ = registerMessenger(messenger: messenger)
         } catch {
             player.logger.e(error)
         }
+    }
+
+    /// Tell devtools this player is gone, then stop listening.
+    ///
+    /// Runs automatically when this plugin is replaced or deallocated. Safe to call more than once.
+    func disconnect() {
+        // Must come before destroying the messenger, which carries the message
+        teardown()
+        messenger?.destroy()
+        messenger = nil
+        listeners.forEach { flipperPlugin.removeListener(id: $0) }
+        listeners.removeAll()
+        flipperPlugin.unregister(self)
     }
 
     // Exposed for testing

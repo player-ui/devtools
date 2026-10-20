@@ -63,7 +63,12 @@ public abstract class AndroidDevtoolsPlugin<T : DevtoolsPlugin> :
 
         androidPlayer.hooks.state.tap("AndroidDevtoolsPlugin") { state ->
             if (state is ReleasedState) {
-                // messenger and core plugin are already gone at this point
+                // Last chance to tell devtools: the runtime is released right after this hook
+                try {
+                    corePlugin.teardown()
+                } catch (throwable: Throwable) {
+                    androidPlayer.logger.warn("Failed to tell devtools that the player was released: $throwable")
+                }
                 flipperPlugin.removeListener(messenger)
             }
         }

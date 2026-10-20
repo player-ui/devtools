@@ -7,5 +7,7 @@ swiftui_plugin(
       "//devtools/plugin/swiftui:PlayerUIDevtoolsSwiftUIPlugin",
       "//devtools/plugins/basic/ios:PlayerUIDevtoolsBaseBasicDevtoolsPlugin"
       ],
-    test_deps = []
+    test_deps = [
+      "@swiftpkg_playerui_swift_package//:PlayerUITestUtilitiesCore",
+    ]
 )

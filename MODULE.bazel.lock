@@ -3689,7 +3689,7 @@
         "bzlTransitiveDigest": "+z+pZIYCLcHGxGMADT76Mme+Sq6/ptcE1QGsNUmgRZ4=",
         "usagesDigest": "5pbtf6zJZFcAPQSnlUBJd2OrZb5MXjZr++YZ1avmxOQ=",
         "recordedFileInputs": {
-          "@@//ios/demo/Package.resolved": "e2ed8d929107a03df19ab292f265f7d07aa551c9fa9276b3203c4996de24cb88"
+          "@@//ios/demo/Package.resolved": "489329fceef0683e7c2590273a756bb75bef701bb0e262fbcc4b48e08950c490"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -3749,9 +3749,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swiftflipper",
-              "commit": "23ab427d3dd076e14f0028e30d174e004a2faa00",
-              "remote": "https://github.com/chiragramani/SwiftFlipper.git",
-              "version": "",
+              "commit": "905cb3418337478361fe4b90e7900eeeee550494",
+              "remote": "https://github.com/player-ui/SwiftFlipper.git",
+              "version": "0.3.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
@@ -3860,8 +3860,8 @@
             "attributes": {
               "bazel_package_name": "swiftpkg_flipperpluginutils",
               "commit": "f68ac6cc7954867b4ea9d9fa13be5995174c4929",
-              "remote": "https://github.com/chiragramani/FlipperPluginUtils",
-              "version": "",
+              "remote": "https://github.com/player-ui/FlipperPluginUtils",
+              "version": "0.1.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,

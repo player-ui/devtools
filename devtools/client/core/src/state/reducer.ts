@@ -58,8 +58,42 @@ export const reducer = (
       return transaction.payload.events.reduce(reducer, state);
     case "PLAYER_DEVTOOLS_PLAYER_STOPPED":
       return produce(state, (draft) => {
-        const { sender } = transaction;
-        dsetAssign(draft, ["players", sender, "active"], false);
+        const { sender, payload } = transaction;
+        const player = draft.players[sender];
+        if (!player) return;
+
+        // Only drop the player once its last plugin has stopped
+        const stoppedPluginID = payload?.pluginID;
+        if (stoppedPluginID && player.plugins) {
+          delete player.plugins[stoppedPluginID];
+
+          const [remaining] = Object.keys(player.plugins);
+          if (remaining) {
+            if (
+              draft.current.player === sender &&
+              draft.current.plugin === stoppedPluginID
+            ) {
+              draft.current.plugin = remaining;
+            }
+            return;
+          }
+        }
+
+        delete draft.players[sender];
+
+        // Move the selection off the removed player
+        if (draft.current.player === sender) {
+          const nextPlayer = Object.keys(draft.players)[0] ?? null;
+          draft.current.player = nextPlayer;
+
+          const nextPlugins = Object.keys(
+            (nextPlayer && draft.players[nextPlayer]?.plugins) || {},
+          );
+          const { plugin } = draft.current;
+          if (!plugin || !nextPlugins.includes(plugin)) {
+            draft.current.plugin = nextPlugins[0] ?? null;
+          }
+        }
       });
     case "PLAYER_DEVTOOLS_PLAYER_SELECTED":
       return produce(state, (draft) => {

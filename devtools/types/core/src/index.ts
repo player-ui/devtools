@@ -195,7 +195,15 @@ export type DevtoolsDataChangeEvent = BaseEvent<
   DataChangePayload
 >;
 
-export type PlayerStoppedEvent = BaseEvent<"PLAYER_DEVTOOLS_PLAYER_STOPPED">;
+interface StoppedPayload {
+  /** The plugin that stopped. Omit to remove the whole player. */
+  pluginID?: string;
+}
+
+export type PlayerStoppedEvent = BaseEvent<
+  "PLAYER_DEVTOOLS_PLAYER_STOPPED",
+  StoppedPayload | null
+>;
 
 export type DevtoolsEventsBatchEvent = BaseEvent<
   "MESSENGER_EVENT_BATCH",

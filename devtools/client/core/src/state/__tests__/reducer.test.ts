@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type {
+  ExtensionState,
   Transaction,
   DevtoolsDataChangeEvent,
   PlayerInitEvent,
@@ -329,25 +330,167 @@ describe("reducer", () => {
     `);
   });
 
-  test("PLAYER_DEVTOOLS_PLAYER_STOPPED", () => {
-    const newState = reducer(
-      INITIAL_EXTENSION_STATE,
-      mockPlayerStoppedTransaction,
-    );
+  describe("PLAYER_DEVTOOLS_PLAYER_STOPPED", () => {
+    const initWith = (...ids: Array<string>) =>
+      ids.reduce(
+        (state, id) =>
+          reducer(state, { ...mockPlayerInitTransaction, sender: id }),
+        INITIAL_EXTENSION_STATE,
+      );
 
-    expect(newState).toMatchInlineSnapshot(`
-      {
-        "current": {
-          "player": null,
-          "plugin": null,
-        },
-        "players": {
-          "sender-id": {
-            "active": false,
+    test("removes the player", () => {
+      const state = reducer(
+        initWith("sender-id"),
+        mockPlayerStoppedTransaction,
+      );
+
+      expect(state.players).toEqual({});
+    });
+
+    test("leaves other players alone", () => {
+      const state = reducer(
+        initWith("sender-id", "other-id"),
+        mockPlayerStoppedTransaction,
+      );
+
+      expect(Object.keys(state.players)).toEqual(["other-id"]);
+    });
+
+    test("moves the selection off a removed player", () => {
+      const before = initWith("other-id", "sender-id");
+      expect(before.current.player).toBe("sender-id");
+
+      const state = reducer(before, mockPlayerStoppedTransaction);
+
+      expect(state.current.player).toBe("other-id");
+      expect(state.current.plugin).toBe("plugin-id");
+    });
+
+    test("selects a plugin the new player actually has", () => {
+      const withPlugin = (
+        state: ExtensionState,
+        id: string,
+        pluginID: string,
+      ) =>
+        reducer(state, {
+          ...mockPlayerInitTransaction,
+          sender: id,
+          payload: {
+            plugins: {
+              [pluginID]: {
+                ...mockPlayerInitTransaction.payload.plugins["plugin-id"]!,
+                id: pluginID,
+              },
+            },
           },
-        },
-      }
-    `);
+        });
+      // The selected player only has "basic". The other one only has "profiler".
+      let before = withPlugin(INITIAL_EXTENSION_STATE, "other-id", "profiler");
+      before = withPlugin(before, "sender-id", "basic");
+      expect(before.current).toEqual({
+        player: "sender-id",
+        plugin: "profiler",
+      });
+      before = reducer(before, {
+        ...mockPlayerSelectedTransaction,
+        payload: { playerID: "sender-id" },
+      });
+      before = reducer(before, {
+        ...mockPluginSelectedTransaction,
+        payload: { pluginID: "basic" },
+      });
+
+      const state = reducer(before, mockPlayerStoppedTransaction);
+
+      expect(state.current).toEqual({ player: "other-id", plugin: "profiler" });
+    });
+
+    test("clears the selection when the last player is removed", () => {
+      const state = reducer(
+        initWith("sender-id"),
+        mockPlayerStoppedTransaction,
+      );
+
+      expect(state.current).toEqual({ player: null, plugin: null });
+    });
+
+    test("keeps the selection when a different player is removed", () => {
+      const state = reducer(
+        initWith("sender-id", "other-id"),
+        mockPlayerStoppedTransaction,
+      );
+
+      expect(state.current.player).toBe("other-id");
+    });
+
+    test("is a no-op for an unknown player", () => {
+      const state = reducer(
+        INITIAL_EXTENSION_STATE,
+        mockPlayerStoppedTransaction,
+      );
+
+      expect(state).toEqual(INITIAL_EXTENSION_STATE);
+    });
+
+    describe("with a pluginID", () => {
+      const stopped = (pluginID: string) => ({
+        ...mockPlayerStoppedTransaction,
+        payload: { pluginID },
+      });
+      const initPlugin = (state: ExtensionState, pluginID: string) =>
+        reducer(state, {
+          ...mockPlayerInitTransaction,
+          payload: {
+            plugins: {
+              [pluginID]: {
+                ...mockPlayerInitTransaction.payload.plugins["plugin-id"]!,
+                id: pluginID,
+              },
+            },
+          },
+        });
+      const twoPlugins = () =>
+        initPlugin(initPlugin(INITIAL_EXTENSION_STATE, "plugin-a"), "plugin-b");
+
+      test("keeps the player while other plugins remain", () => {
+        const state = reducer(twoPlugins(), stopped("plugin-a"));
+
+        expect(Object.keys(state.players["sender-id"]!.plugins)).toEqual([
+          "plugin-b",
+        ]);
+        expect(state.current.player).toBe("sender-id");
+      });
+
+      test("removes the player when its last plugin stops", () => {
+        const state = reducer(
+          reducer(twoPlugins(), stopped("plugin-a")),
+          stopped("plugin-b"),
+        );
+
+        expect(state.players).toEqual({});
+        expect(state.current).toEqual({ player: null, plugin: null });
+      });
+
+      test("moves the selected plugin off a removed one", () => {
+        const before = twoPlugins();
+        expect(before.current.plugin).toBe("plugin-a");
+
+        const state = reducer(before, stopped("plugin-a"));
+
+        expect(state.current.plugin).toBe("plugin-b");
+      });
+    });
+
+    test("a re-announce after removal re-adds the player (same ID reuse)", () => {
+      const stopped = reducer(
+        initWith("sender-id"),
+        mockPlayerStoppedTransaction,
+      );
+      const state = reducer(stopped, mockPlayerInitTransaction);
+
+      expect(Object.keys(state.players)).toEqual(["sender-id"]);
+      expect(state.current.player).toBe("sender-id");
+    });
   });
 
   test("PLAYER_DEVTOOLS_PLAYER_SELECTED", () => {

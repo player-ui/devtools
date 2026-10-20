@@ -164,6 +164,17 @@ public open class DevtoolsPlugin(
         apply.invoke(player)
     }
 
+    private val teardown by lazy {
+        node.getInvokable<Unit>("teardown")
+            ?: throw PlayerException("Could not find teardown on DevtoolsPlugin instance")
+    }
+
+    /**
+     * Tell devtools this plugin is gone. Call it while the messenger and runtime are still alive.
+     * Safe to call more than once.
+     */
+    public fun teardown(): Unit = teardown.invoke()
+
     @Serializable
     public data class Options(
         public val playerID: String,
