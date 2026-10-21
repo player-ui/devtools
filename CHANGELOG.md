@@ -1,3 +1,15 @@
+# 0.16.1-next.3 (Wed Oct 21 2026)
+
+#### 🐛 Bug Fix
+
+- bugfix: clears dead/disconnected players [#36](https://github.com/player-ui/devtools/pull/36) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+#### Authors: 1
+
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+---
+
 # 0.16.1-next.2 (Thu Oct 15 2026)
 
 ### Release Notes
