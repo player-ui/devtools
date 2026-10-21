@@ -20,6 +20,10 @@ public protocol BaseDevtoolsPlugin: JSBasePlugin {
 
     /// Register new messagers
     func registerMessenger(messenger: Messenger) -> Unsubscribe
+
+    /// Tell devtools this plugin is going away. Call it before destroying the messenger. Safe to call more than once.
+    /// Most apps should use `DevtoolsPlugin.disconnect()` instead.
+    func teardown()
 }
 
 /// A wrapper around the core for DevTools plugins that provides Flipper integration.
@@ -63,6 +67,10 @@ public extension BaseDevtoolsPlugin {
     func registerMessenger(messenger: Messenger) -> Unsubscribe {
         let unsubscribe = pluginRef?.invokeMethodSafely("registerMessenger", withArguments: [messenger.jsCompatible])
         return { unsubscribe?.call(withArguments: []) }
+    }
+
+    func teardown() {
+        _ = pluginRef?.invokeMethodSafely("teardown")
     }
 }
 

@@ -93,6 +93,7 @@ public class com/intuit/playerui/devtools/DevtoolsPlugin : com/intuit/playerui/c
 	public final fun getStore ()Lcom/intuit/playerui/devtools/PluginStore;
 	public fun processInteraction (Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;)V
 	public final fun registerMessenger (Lcom/intuit/playerui/devtools/Messenger;)Lkotlin/jvm/functions/Function0;
+	public final fun teardown ()V
 }
 
 public final class com/intuit/playerui/devtools/DevtoolsPlugin$Module : com/intuit/playerui/core/plugins/RuntimePlugin {
@@ -169,6 +170,11 @@ final class com/intuit/playerui/devtools/DevtoolsPlugin$processInteraction$2 : k
 }
 
 final class com/intuit/playerui/devtools/DevtoolsPlugin$registerMessenger$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
+	public final fun invoke ()Lcom/intuit/playerui/core/bridge/Invokable;
+	public synthetic fun invoke ()Ljava/lang/Object;
+}
+
+final class com/intuit/playerui/devtools/DevtoolsPlugin$teardown$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
 	public final fun invoke ()Lcom/intuit/playerui/core/bridge/Invokable;
 	public synthetic fun invoke ()Ljava/lang/Object;
 }

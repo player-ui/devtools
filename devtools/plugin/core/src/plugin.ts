@@ -3,6 +3,7 @@ import {
   PluginData,
   DevtoolsPluginsStore,
   PlayerInitEvent,
+  PlayerStoppedEvent,
   ExtensionSupportedEvents,
   Transaction,
   DevtoolsPluginInteractionEvent,
@@ -51,6 +52,9 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
   name: string = "DevtoolsPlugin";
 
   private loggedWarning = false;
+
+  /** True once devtools has been told about this player */
+  private announced = false;
 
   store: PluginStore = useStateReducer(reducer, INITIAL_STATE);
   protected lastProcessedInteraction = 0;
@@ -107,6 +111,22 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
           [this.pluginID]: this.options.pluginData,
         },
       },
+      sender: this.options.playerID,
+      context: "player",
+      target: "player",
+      timestamp: Date.now(),
+      _messenger_: true,
+    };
+
+    this.store.dispatch(transaction);
+    this.announced = true;
+  }
+
+  protected dispatchPlayerStopped(): void {
+    const transaction: Transaction<PlayerStoppedEvent> = {
+      id: -1,
+      type: "PLAYER_DEVTOOLS_PLAYER_STOPPED",
+      payload: { pluginID: this.pluginID },
       sender: this.options.playerID,
       context: "player",
       target: "player",
@@ -181,5 +201,16 @@ export class DevtoolsPlugin implements PlayerPlugin, DevtoolsHandler {
     if (!this.checkIfDevtoolsIsActive()) return;
 
     this.dispatchPlayerInit();
+  }
+
+  /**
+   * Tell devtools this plugin is gone. Call it before the messenger is destroyed.
+   * Safe to call more than once.
+   */
+  teardown(): void {
+    if (!this.announced) return;
+    this.announced = false;
+
+    this.dispatchPlayerStopped();
   }
 }

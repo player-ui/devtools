@@ -19,22 +19,17 @@ public class BasicDevtoolsPlugin: BaseBasicDevtoolsPlugin, DevtoolsPlugin {
         super.init(playerID: id)
     }
 
-    /* Let flipper know that this plugin is going away. Deregister the listeners we
-     attached to the DevtoolsFlipperPlugin.
+    /* Let flipper know that this plugin is going away: tell devtools the player is gone, and
+     deregister the listeners we attached to the DevtoolsFlipperPlugin.
 
      Deinits will NOT run when the app is terminated. But if the app is terminated,
      flipper will gracefully handle the abrupt, implicit disconnect, and deregistering
      the listeners won't matter anymore since they won't be called if the app is dead. */
     deinit {
         // If you make your own DevtoolsPlugin, you will need to implement your own
-        // deinit, exactly like this. The DevtoolsPlugin protocol cannot provide a deinit,
+        // deinit that calls `disconnect()`, like this. The DevtoolsPlugin protocol cannot provide a deinit,
         // unfortunately.
-        if let messenger {
-            messenger.destroy()
-        } else {
-            print("[DEBUG] Could not destroy messenger. Messenger already no longer exists.")
-        }
-        listeners.forEach { flipperPlugin.removeListener(id: $0) }
+        disconnect()
         print("[DEBUG] BasicDevtoolsPlugin deinited")
     }
 }

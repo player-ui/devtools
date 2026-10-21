@@ -4,6 +4,12 @@ import Foundation
 import PlayerUI
 import PlayerUIDevtoolsTypes
 
+/// Something that can be told to disconnect.
+public protocol FlipperDisconnectable: AnyObject {
+    /// Tell devtools this player is gone and stop talking to it.
+    func disconnect()
+}
+
 /// A Flipper Plugin that provides Devtools capabilities via Flipper. This is the layer that allows everybody else to
 /// send messages to and receive messages from Flipper.
 public class DevtoolsFlipperPlugin: FlipperPlugin {
@@ -14,6 +20,10 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
     private var flipperConnection: FlipperConnection?
     /// The listeners that are attached to this connection
     public private(set) var listeners: [UUID: MessageListener] = [:]
+
+    /// Attached plugins, by player ID and kind of plugin.
+    private var registered: [String: WeakDisconnectable] = [:]
+    private let registeredLock = NSLock()
 
     public init() {}
     
@@ -50,5 +60,39 @@ public class DevtoolsFlipperPlugin: FlipperPlugin {
     /// If the owner of a listener is going to go away before app termination, ensure that the listeners are removed.
     public func removeListener(id: UUID) {
         _ = listeners.removeValue(forKey: id)
+    }
+
+    /// Attach `plugin` as the `kind` of plugin (e.g. basic, profiler) for the player `playerID`.
+    ///
+    /// If a plugin of the same kind is already attached for that player, it is being replaced, so it is
+    /// disconnected first. Other player IDs are left alone. Plugins are held weakly.
+    ///
+    /// Messages are sent in the background, so the old plugin's "stopped" is very likely, but not guaranteed,
+    /// to arrive before the new plugin's "init".
+    public func register(_ plugin: FlipperDisconnectable, playerID: String, kind: String) {
+        let key = "\(playerID)#\(kind)"
+        registeredLock.lock()
+        let replaced = registered[key]?.value.flatMap { $0 === plugin ? nil : $0 }
+        registered[key] = WeakDisconnectable(plugin)
+        registeredLock.unlock()
+
+        // Outside the lock, as disconnecting calls `unregister`
+        replaced?.disconnect()
+    }
+
+    /// Detach `plugin`. Does nothing if it was not attached.
+    public func unregister(_ plugin: FlipperDisconnectable) {
+        registeredLock.lock()
+        defer { registeredLock.unlock() }
+        // Also clears entries for plugins that are already gone
+        registered = registered.filter { $0.value.value != nil && $0.value.value !== plugin }
+    }
+}
+
+private struct WeakDisconnectable {
+    weak var value: FlipperDisconnectable?
+
+    init(_ value: FlipperDisconnectable) {
+        self.value = value
     }
 }

@@ -5,6 +5,7 @@ import type {
   DevtoolsPluginsStore,
   ExtensionSupportedEvents,
   PlayerInitEvent,
+  PlayerStoppedEvent,
   Transaction,
 } from "@player-devtools/types";
 import { dsetAssign } from "@player-devtools/utils";
@@ -30,6 +31,15 @@ export const reducer = (
         const message: PlayerInitEvent = {
           type: "PLAYER_DEVTOOLS_PLAYER_INIT",
           payload,
+        };
+
+        draft.messages.push(message);
+      });
+    case "PLAYER_DEVTOOLS_PLAYER_STOPPED":
+      return produce(state, (draft) => {
+        const message: PlayerStoppedEvent = {
+          type: "PLAYER_DEVTOOLS_PLAYER_STOPPED",
+          payload: transaction.payload,
         };
 
         draft.messages.push(message);
