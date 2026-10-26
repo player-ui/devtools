@@ -8,17 +8,21 @@ import {
   generateUUID,
 } from "@player-devtools/plugin";
 import type { DevtoolsPluginInteractionEvent } from "@player-devtools/types";
-import { dsetAssign } from "@player-devtools/utils";
+import {
+  StateContextPlugin,
+  dataContextKey,
+  getContextPlugin,
+  type ContextPlugin,
+  type SubscriptionToken,
+} from "@player-ui/context-plugin";
 import type {
-  DataController,
   ExpressionEvaluator,
   Flow,
   Player,
-  ViewInstance,
   Logger,
 } from "@player-ui/player";
-import { produce } from "immer";
 
+import { playerConfigContextKey, type PlayerConfig } from "./context";
 import { Evaluation } from "./types";
 
 /** Taps into the Player and ReactPlayer hooks and leverage the WrapperComponent to define and process the content. */
@@ -34,7 +38,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
   data: Record<string, unknown> = {};
 
-  playerConfig: Record<string, unknown> = {};
+  playerConfig: Partial<PlayerConfig> = {};
 
   logs: {
     severity: string;
@@ -47,9 +51,11 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
   expressionEvaluator?: WeakRef<ExpressionEvaluator>;
 
-  view?: WeakRef<ViewInstance>;
-
-  dataController?: WeakRef<DataController>;
+  /** Subscriptions are tied to the context plugin they were made on, which differs per Player */
+  private subscriptions: Array<{
+    context: ContextPlugin;
+    token: SubscriptionToken;
+  }> = [];
 
   overrideFlow?: Player["start"];
 
@@ -60,26 +66,51 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
 
     super.apply(player);
 
-    // Config
-    this.playerConfig = {
-      version: player.getVersion(),
-      plugins: player.getPlugins().map((plugin) => plugin.name),
-    };
+    // State is read from the context plugin rather than tapping Player hooks directly
+    const context = getContextPlugin(player);
 
-    this.dispatchDataUpdate({ playerConfig: this.playerConfig });
+    if (!player.getPlugins().some((p) => p.name === "state-context")) {
+      player.registerPlugin(new StateContextPlugin());
+    }
 
-    // Data
-    player.hooks.dataController.tap(this.name, (dataController) => {
-      dataController.hooks.onUpdate.tap(this.name, (updates) => {
-        this.data = produce(this.data, (draft) => {
-          updates.forEach(({ binding, newValue }) => {
-            dsetAssign(draft, ["data", ...binding.asArray()], newValue);
-          });
-        });
+    // Subscriptions persist across flows on the context plugin, so drop any
+    // left by an earlier apply of this plugin, on whichever Player it was.
+    this.subscriptions.forEach(({ context: previous, token }) =>
+      previous.unsubscribe(token),
+    );
 
-        this.dispatchDataUpdate({ data: this.data });
+    this.subscriptions = [
+      {
+        context,
+        token: context.subscribe(playerConfigContextKey, (playerConfig) => {
+          // The context clears at flow end; keep the last known config until republished
+          if (!playerConfig) return;
+
+          this.playerConfig = { ...playerConfig };
+          this.dispatchDataUpdate({ playerConfig: this.playerConfig });
+        }),
+      },
+      {
+        context,
+        token: context.subscribe(dataContextKey, (model) => {
+          // The model is Player's live data model, so clone it rather than let immer freeze it
+          this.data = {
+            data:
+              model === undefined ? model : JSON.parse(JSON.stringify(model)),
+          };
+          this.dispatchDataUpdate({ data: this.data });
+        }),
+      },
+    ];
+
+    // The context store is reset when a flow ends, so republish on each start
+    const publishConfig = () =>
+      context.set(playerConfigContextKey, {
+        version: player.getVersion(),
+        plugins: player.getPlugins().map((plugin) => plugin.name),
       });
-    });
+
+    publishConfig();
 
     player.logger.hooks.log.tap(this.name, (severity, message) => {
       this.logs = [...this.logs, { severity, message }];
@@ -94,10 +125,7 @@ export class BasicDevtoolsPlugin extends DevtoolsPlugin {
       this.dispatchDataUpdate({ flow: this.flow });
     });
 
-    // View
-    player.hooks.view.tap(this.name, (view) => {
-      this.view = new WeakRef(view);
-    });
+    player.hooks.onStart.tap(this.name, publishConfig);
 
     // Expression evaluator
     player.hooks.expressionEvaluator.tap(this.name, (evaluator) => {

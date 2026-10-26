@@ -448,7 +448,7 @@
         "bzlTransitiveDigest": "aVqwKoRPrSXO367SJABlye04kmpR/9VM2xiXB3nh3Ls=",
         "usagesDigest": "qH5h0y49b/BYrI5SRoLkSpQctbXmqG8KSHgoA8eopCE=",
         "recordedFileInputs": {
-          "@@//package.json": "dd20ac9a9ddd7e87592fda0ad350539f14af9f629de460de2c36c8f66d908dd7"
+          "@@//package.json": "e275f590d1aa71a6926559e3bb2045556c0369df769d9127484144736e022e66"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -3689,7 +3689,7 @@
         "bzlTransitiveDigest": "+z+pZIYCLcHGxGMADT76Mme+Sq6/ptcE1QGsNUmgRZ4=",
         "usagesDigest": "5pbtf6zJZFcAPQSnlUBJd2OrZb5MXjZr++YZ1avmxOQ=",
         "recordedFileInputs": {
-          "@@//ios/demo/Package.resolved": "489329fceef0683e7c2590273a756bb75bef701bb0e262fbcc4b48e08950c490"
+          "@@//ios/demo/Package.resolved": "79f9a1a4b8191a7a4ee4ed0a09143e39ee133467976e09947fde5c1361763866"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -3727,9 +3727,9 @@
             "repoRuleId": "@@rules_swift_package_manager+//swiftpkg/internal:swift_package.bzl%swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_playerui_swift_package",
-              "commit": "57c3528fbdda1d98982cec9cb7c01a198353af8d",
+              "commit": "65d3a560e946c2c71ed8d280d6fdea9df735ce0a",
               "remote": "https://github.com/player-ui/playerui-swift-package.git",
-              "version": "0.15.5",
+              "version": "1.3.0",
               "env": {},
               "env_inherit": [],
               "init_submodules": false,
