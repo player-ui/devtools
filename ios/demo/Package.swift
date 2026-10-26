@@ -26,7 +26,7 @@ let package = Package(
         // Dependencies needed by the development package. This should be the exact same as the one in the root Package.swift.
         // Just copy it over.
         .package(url: "https://github.com/intuit/swift-hooks.git", from: "0.1.0"),
-        .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "0.15.4"),
+        .package(url: "https://github.com/player-ui/playerui-swift-package.git", from: "1.3.0"),
         .package(url: "https://github.com/player-ui/SwiftFlipper.git", exact: "0.3.0"),
 
         // Formatting Dependencies
