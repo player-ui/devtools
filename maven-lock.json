@@ -1985,15 +1985,26 @@
     "com.intuit.playerui.plugins:beacon": {
       "shasums": {
         "jar": "46d74412cb88ddf17e1e5e17880445dbfc000265bc006df34ef085ebfe192ae4",
+        "jar": "46d74412cb88ddf17e1e5e17880445dbfc000265bc006df34ef085ebfe192ae4",
         "sources": "ee19bf4f6f00d97fc7fa39b4d558fb2ddbf9e1071fbbae559841fe767c837a25"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui.plugins:coroutines": {
       "shasums": {
         "jar": "98d808ba33aa36833e41d96f6f9121cf8be0cd906a57ebd00d63de42f5527e02",
+        "jar": "98d808ba33aa36833e41d96f6f9121cf8be0cd906a57ebd00d63de42f5527e02",
         "sources": "3abce98c3d862a66892b7bd7b51d68c52a577c49955af78d37655a2be0f807f6"
       },
+      "version": "1.3.0"
+    },
+    "com.intuit.playerui.plugins:metrics": {
+      "shasums": {
+        "jar": "bd6c82ad9de80edefd11149c6dfec50abbb72d80239a3dd16bd126476053b082",
+        "sources": "9c0f6c40c7bcdb7d3273d68ff633ec1b33afd17b47b2e2757fe40dbf9f174e3d"
+      },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui.plugins:metrics": {
@@ -2006,41 +2017,55 @@
     "com.intuit.playerui.plugins:pubsub": {
       "shasums": {
         "jar": "c5a18e522ee70e95d32b0c0af0e3e195317427f5aef7b2b422548d31f99ac769",
+        "jar": "c5a18e522ee70e95d32b0c0af0e3e195317427f5aef7b2b422548d31f99ac769",
         "sources": "0009dda001744d10b3888d5108b1adbccd29bf65be325e551538e6a59495c1ae"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui.plugins:set-time-out": {
       "shasums": {
         "jar": "efb20316ddd53a5cd184fff1c425093af649f1ca428e7791aed179e7bd5a4381",
+        "jar": "efb20316ddd53a5cd184fff1c425093af649f1ca428e7791aed179e7bd5a4381",
         "sources": "c968845dc3d4b88145197e942125799e4c99a8d9f0f736f754fad942c60302b0"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:android": {
       "shasums": {
         "sources": "224c448052d683c1fd3462619bb4bc300e89a62730e9d8500800c24a989944fd"
+        "sources": "224c448052d683c1fd3462619bb4bc300e89a62730e9d8500800c24a989944fd"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:android:aar": {
       "shasums": {
         "jar": "c93f232aefb1558fb5183f437a5854f2c1b3868e0b718b795864ba83b0b53eda"
+        "jar": "c93f232aefb1558fb5183f437a5854f2c1b3868e0b718b795864ba83b0b53eda"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:core": {
       "shasums": {
         "jar": "27df6b62936dc277c7ecd55596719a03a05ef70586b474864bd6b2c98e5c7163",
         "sources": "29f07b33c9813d781da5dd9a4a8f82278948305b4eee93758ee30256864e00da"
+        "jar": "27df6b62936dc277c7ecd55596719a03a05ef70586b474864bd6b2c98e5c7163",
+        "sources": "29f07b33c9813d781da5dd9a4a8f82278948305b4eee93758ee30256864e00da"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:j2v8": {
       "shasums": {
         "jar": "395d9c3c650c171fb77bf9a0d76f1576afcd0cae598c4c3fcbab645e6c2af02e",
         "sources": "47018ce36bebc5361e0463bcf60ce6fe28f4dc1f37401af43c5639586b5c92fd"
+        "jar": "395d9c3c650c171fb77bf9a0d76f1576afcd0cae598c4c3fcbab645e6c2af02e",
+        "sources": "47018ce36bebc5361e0463bcf60ce6fe28f4dc1f37401af43c5639586b5c92fd"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:j2v8-all": {
@@ -2049,12 +2074,14 @@
         "sources": "e882198da5b65414ab36e971deccc2578117ee4f8996e22783c50b5c21af0d7b"
       },
       "version": "1.3.0"
+      "version": "1.3.0"
     },
     "com.intuit.playerui:j2v8-linux": {
       "shasums": {
         "jar": "70c658e84637f559adb44cdbb78f3f8405626c2ee85d3e1b4c54f0768e2d564f",
         "sources": "e882198da5b65414ab36e971deccc2578117ee4f8996e22783c50b5c21af0d7b"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:j2v8-macos": {
@@ -2063,19 +2090,25 @@
         "sources": "e882198da5b65414ab36e971deccc2578117ee4f8996e22783c50b5c21af0d7b"
       },
       "version": "1.3.0"
+      "version": "1.3.0"
     },
     "com.intuit.playerui:testutils": {
       "shasums": {
         "jar": "9b683a9ed9691e5e12464eba66bf6c6921c0e8ff2101f951e01d3e2f59a15076",
         "sources": "46ef37beff2b809448fc6400447cd37abc17716a765383a9c3d14c0e6e675005"
+        "jar": "9b683a9ed9691e5e12464eba66bf6c6921c0e8ff2101f951e01d3e2f59a15076",
+        "sources": "46ef37beff2b809448fc6400447cd37abc17716a765383a9c3d14c0e6e675005"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.intuit.playerui:utils": {
       "shasums": {
         "jar": "b81e69e87ca5a963142908c007da53cda754421da0e0653aa4a7ea48af48e7cc",
+        "jar": "b81e69e87ca5a963142908c007da53cda754421da0e0653aa4a7ea48af48e7cc",
         "sources": "795e9f11042034aa4cd03ec709284b858ab30465342882f7b74433bc75542489"
       },
+      "version": "1.3.0"
       "version": "1.3.0"
     },
     "com.squareup.curtains:curtains": {
@@ -3365,6 +3398,9 @@
     "com.intuit.playerui.plugins:metrics": [
       "com.intuit.playerui:core"
     ],
+    "com.intuit.playerui.plugins:metrics": [
+      "com.intuit.playerui:core"
+    ],
     "com.intuit.playerui.plugins:pubsub": [
       "com.intuit.playerui:core"
     ],
@@ -3379,6 +3415,7 @@
       "androidx.transition:transition:aar",
       "com.intuit.playerui.plugins:beacon",
       "com.intuit.playerui.plugins:coroutines",
+      "com.intuit.playerui.plugins:metrics",
       "com.intuit.playerui.plugins:metrics",
       "com.intuit.playerui.plugins:pubsub",
       "com.intuit.playerui:core"
@@ -3795,6 +3832,9 @@
     "com.intuit.playerui.plugins:metrics": [
       "com.intuit.playerui.plugins.metrics"
     ],
+    "com.intuit.playerui.plugins:metrics": [
+      "com.intuit.playerui.plugins.metrics"
+    ],
     "com.intuit.playerui.plugins:pubsub": [
       "com.intuit.playerui.plugins.pubsub"
     ],
@@ -3813,6 +3853,7 @@
       "com.intuit.playerui.core.bridge.serialization.serializers",
       "com.intuit.playerui.core.constants",
       "com.intuit.playerui.core.data",
+      "com.intuit.playerui.core.error",
       "com.intuit.playerui.core.error",
       "com.intuit.playerui.core.experimental",
       "com.intuit.playerui.core.expressions",
@@ -4911,6 +4952,8 @@
       "com.intuit.playerui.plugins:coroutines:jar:sources",
       "com.intuit.playerui.plugins:metrics",
       "com.intuit.playerui.plugins:metrics:jar:sources",
+      "com.intuit.playerui.plugins:metrics",
+      "com.intuit.playerui.plugins:metrics:jar:sources",
       "com.intuit.playerui.plugins:pubsub",
       "com.intuit.playerui.plugins:pubsub:jar:sources",
       "com.intuit.playerui.plugins:set-time-out",
@@ -5342,6 +5385,8 @@
       "com.intuit.playerui.plugins:beacon:jar:sources",
       "com.intuit.playerui.plugins:coroutines",
       "com.intuit.playerui.plugins:coroutines:jar:sources",
+      "com.intuit.playerui.plugins:metrics",
+      "com.intuit.playerui.plugins:metrics:jar:sources",
       "com.intuit.playerui.plugins:metrics",
       "com.intuit.playerui.plugins:metrics:jar:sources",
       "com.intuit.playerui.plugins:pubsub",

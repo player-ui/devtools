@@ -60,7 +60,7 @@ struct FlowManagerView: View {
 
             switch context.error as? PlayerError {
             case .promiseRejected(error: let errorState) :
-                Text(errorState.error)
+                Text(errorState.error.message)
             default:
                 EmptyView()
             }
