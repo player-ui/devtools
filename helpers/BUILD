@@ -91,6 +91,7 @@ ktlint_config(
 define_kt_toolchain(
     name = "kotlin_toolchain",
     api_version = "1.8",
+    jvm_target = "17",
     kotlinc_options = ":kt_test_options",
     language_version = "1.8",
 )
