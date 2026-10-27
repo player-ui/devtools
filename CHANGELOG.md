@@ -1,3 +1,23 @@
+# 1.0.0-next.0 (Tue Oct 27 2026)
+
+### Release Notes
+
+#### Player 1.0 ([#38](https://github.com/player-ui/devtools/pull/38))
+
+Bump to Player 1.0
+
+---
+
+#### 💥 Breaking Change
+
+- Player 1.0 [#38](https://github.com/player-ui/devtools/pull/38) ([@KetanReddy](https://github.com/KetanReddy))
+
+#### Authors: 1
+
+- Ketan Reddy ([@KetanReddy](https://github.com/KetanReddy))
+
+---
+
 # 0.16.1-next.3 (Wed Oct 21 2026)
 
 #### 🐛 Bug Fix
