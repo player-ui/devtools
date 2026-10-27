@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import type { ExpressionEvaluator } from "@player-ui/player";
 import { getEvaluateExpression } from "../getEvaluateExpression";
 import type { Evaluation } from "../../types";
 
@@ -6,20 +7,23 @@ vi.mock("@player-devtools/plugin", () => ({
   generateUUID: () => "test-uuid",
 }));
 
+/** The subset of the `onError` hook interceptor that `getEvaluateExpression` registers */
+type MockInterceptor = { call?: (error: Error) => void };
+
 const getMockExpressionEvaluator = (
   evaluate: ReturnType<typeof vi.fn>,
   throwError = false,
 ): {
-  interceptor: Record<string, unknown>;
+  interceptor: MockInterceptor;
   evaluate: (...args: unknown[]) => unknown;
   hooks: {
     onError: {
-      intercept: (args: Record<string, unknown>) => void;
+      intercept: (args: MockInterceptor) => void;
     };
   };
 } => {
   class MockExpressionEvaluator {
-    interceptor: Record<string, unknown> = {};
+    interceptor: MockInterceptor = {};
     evaluate(...args: unknown[]) {
       if (throwError) {
         throw new Error("Evaluation error");
@@ -28,7 +32,7 @@ const getMockExpressionEvaluator = (
     }
     hooks = {
       onError: {
-        intercept: (args: Record<string, unknown>) => {
+        intercept: (args: MockInterceptor) => {
           this.interceptor = args;
         },
       },
@@ -36,6 +40,15 @@ const getMockExpressionEvaluator = (
   }
   return new MockExpressionEvaluator();
 };
+
+/**
+ * The mock only implements the members `getEvaluateExpression` uses, and `ExpressionEvaluator`
+ * has private members that can't be satisfied structurally, so the cast is confined to this helper.
+ */
+const toEvaluatorRef = (
+  mockExpressionEvaluator: ReturnType<typeof getMockExpressionEvaluator>,
+): WeakRef<ExpressionEvaluator> =>
+  new WeakRef(mockExpressionEvaluator as unknown as ExpressionEvaluator);
 
 describe("getEvaluateExpression", () => {
   it("returns an error Evaluation if expressionEvaluator is not available", () => {
@@ -57,7 +70,7 @@ describe("getEvaluateExpression", () => {
     const mockEvaluate = vi.fn().mockReturnValue(2);
     const mockExpressionEvaluator = getMockExpressionEvaluator(mockEvaluate);
     const evaluateExpression = getEvaluateExpression(
-      new WeakRef(mockExpressionEvaluator),
+      toEvaluatorRef(mockExpressionEvaluator),
     );
     const expression = "1 + 1";
     const expected: Evaluation = {
@@ -78,7 +91,7 @@ describe("getEvaluateExpression", () => {
       true,
     );
     const evaluateExpression = getEvaluateExpression(
-      new WeakRef(mockExpressionEvaluator),
+      toEvaluatorRef(mockExpressionEvaluator),
     );
     const expression = "invalid expression";
     const expected: Evaluation = {
@@ -100,14 +113,14 @@ describe("getEvaluateExpression", () => {
       false,
     );
     const evaluateExpression = getEvaluateExpression(
-      new WeakRef(mockExpressionEvaluator),
+      toEvaluatorRef(mockExpressionEvaluator),
     );
     const expression = "trigger hook error";
 
     evaluateExpression(expression);
 
     expect(() => {
-      mockExpressionEvaluator.interceptor.call(new Error("Hook error"));
+      mockExpressionEvaluator.interceptor.call?.(new Error("Hook error"));
       evaluateExpression(expression);
     }).toThrow("Hook error");
   });

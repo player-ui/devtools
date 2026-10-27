@@ -22,13 +22,13 @@ public final class com/intuit/playerui/devtools/BeaconEvent : com/intuit/playeru
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/BeaconEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/BeaconEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/BeaconEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/BeaconEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/BeaconEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/BeaconEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/BeaconEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -64,13 +64,13 @@ public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent : com/in
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/DevtoolsDataChangeEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -93,13 +93,13 @@ public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload 
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsDataChangeEvent$Payload;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -135,13 +135,13 @@ public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent :
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -164,13 +164,13 @@ public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$P
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DevtoolsPluginInteractionEvent$Payload;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -203,13 +203,13 @@ public final class com/intuit/playerui/devtools/DisconnectEvent : com/intuit/pla
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/DisconnectEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/DisconnectEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/DisconnectEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DisconnectEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/DisconnectEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DisconnectEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/DisconnectEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -230,12 +230,6 @@ public final class com/intuit/playerui/devtools/Event$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-final class com/intuit/playerui/devtools/Event$Companion$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Event$Companion$1;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
 public abstract class com/intuit/playerui/devtools/EventWithPayload : com/intuit/playerui/devtools/Event {
 	public static final field Companion Lcom/intuit/playerui/devtools/EventWithPayload$Companion;
 	public synthetic fun <init> (ILkotlinx/serialization/internal/SerializationConstructorMarker;)V
@@ -245,12 +239,6 @@ public abstract class com/intuit/playerui/devtools/EventWithPayload : com/intuit
 
 public final class com/intuit/playerui/devtools/EventWithPayload$Companion {
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/EventWithPayload$Companion$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/EventWithPayload$Companion$1;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/intuit/playerui/devtools/EventsBatchEvent : com/intuit/playerui/devtools/EventWithPayload, com/intuit/playerui/devtools/InternalEvent {
@@ -280,13 +268,13 @@ public final class com/intuit/playerui/devtools/EventsBatchEvent : com/intuit/pl
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/EventsBatchEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/EventsBatchEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/EventsBatchEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/EventsBatchEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/EventsBatchEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/EventsBatchEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/EventsBatchEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -307,25 +295,19 @@ public final class com/intuit/playerui/devtools/EventsBatchEvent$Payload {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/EventsBatchEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/EventsBatchEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/intuit/playerui/devtools/EventsBatchEvent$Payload$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/EventsBatchEvent$Payload$Companion$$childSerializers$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/EventsBatchEvent$Payload$Companion$$childSerializers$1;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
 }
 
 public abstract interface class com/intuit/playerui/devtools/InternalEvent {
@@ -386,98 +368,19 @@ public final class com/intuit/playerui/devtools/Messenger$Options {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/Messenger$Options$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/Messenger$Options$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/Messenger$Options;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/Messenger$Options;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/Messenger$Options;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/Messenger$Options;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
-final class com/intuit/playerui/devtools/Messenger$Options$1 : com/intuit/playerui/devtools/Messenger$Logger {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$1;
-	public final fun log ([Ljava/lang/Object;)V
-}
-
 public final class com/intuit/playerui/devtools/Messenger$Options$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$1;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$2;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$3 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$3;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$4 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$4;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$5 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$5;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$6 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$6;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$7 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$7;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$8 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$8;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$9 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Options$Companion$$childSerializers$9;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$_handleFailedMessage$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public final fun invoke (Lcom/intuit/playerui/core/bridge/Node;)Lkotlin/Unit;
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$_logger$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
-	public final fun invoke ([Ljava/lang/Object;)V
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$_messageCallback$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public final fun invoke (Lcom/intuit/playerui/core/bridge/Node;)V
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
-}
-
-final class com/intuit/playerui/devtools/Messenger$Options$_sendMessage$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public final fun invoke (Lcom/intuit/playerui/core/bridge/Node;)Lcom/intuit/playerui/core/bridge/Promise;
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
 final class com/intuit/playerui/devtools/Messenger$Options$_sendMessage$1$1 : kotlin/coroutines/jvm/internal/SuspendLambda, kotlin/jvm/functions/Function3 {
@@ -493,42 +396,6 @@ public final class com/intuit/playerui/devtools/Messenger$Serializer : kotlinx/s
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/Messenger;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-}
-
-final class com/intuit/playerui/devtools/Messenger$Serializer$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/Messenger$Serializer$1;
-	public final fun invoke (Lcom/intuit/playerui/core/bridge/Node;)Lcom/intuit/playerui/devtools/Messenger;
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
-}
-
-final class com/intuit/playerui/devtools/Messenger$apply$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
-	public final fun invoke (Lkotlin/jvm/functions/Function1;)V
-}
-
-final class com/intuit/playerui/devtools/Messenger$apply$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function1 {
-	public synthetic fun invoke (Ljava/lang/Object;)Ljava/lang/Object;
-	public final fun invoke (Lkotlin/jvm/functions/Function1;)V
-}
-
-final class com/intuit/playerui/devtools/Messenger$destroy$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public final fun invoke ()Lcom/intuit/playerui/core/bridge/Invokable;
-	public synthetic fun invoke ()Ljava/lang/Object;
-}
-
-final class com/intuit/playerui/devtools/Messenger$handleMessage$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public final fun invoke ()Lcom/intuit/playerui/core/bridge/Invokable;
-	public synthetic fun invoke ()Ljava/lang/Object;
-}
-
-final class com/intuit/playerui/devtools/Messenger$reset$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public final fun invoke ()Lcom/intuit/playerui/core/bridge/Invokable;
-	public synthetic fun invoke ()Ljava/lang/Object;
-}
-
-final class com/intuit/playerui/devtools/Messenger$sendMessage$2 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public final fun invoke ()Lcom/intuit/playerui/core/bridge/Invokable;
-	public synthetic fun invoke ()Ljava/lang/Object;
 }
 
 public final class com/intuit/playerui/devtools/MessengerKt {
@@ -561,13 +428,13 @@ public final class com/intuit/playerui/devtools/PlayerInitEvent : com/intuit/pla
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/PlayerInitEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/PlayerInitEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/PlayerInitEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/PlayerInitEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/PlayerInitEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/PlayerInitEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/PlayerInitEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -588,25 +455,19 @@ public final class com/intuit/playerui/devtools/PlayerInitEvent$Payload {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/PlayerInitEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/PlayerInitEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/intuit/playerui/devtools/PlayerInitEvent$Payload$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/PlayerInitEvent$Payload$Companion$$childSerializers$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/PlayerInitEvent$Payload$Companion$$childSerializers$1;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/intuit/playerui/devtools/RequestLostEventsEvent : com/intuit/playerui/devtools/EventWithPayload, com/intuit/playerui/devtools/InternalEvent {
@@ -636,13 +497,13 @@ public final class com/intuit/playerui/devtools/RequestLostEventsEvent : com/int
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/RequestLostEventsEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/RequestLostEventsEvent$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/RequestLostEventsEvent$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/RequestLostEventsEvent;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/RequestLostEventsEvent;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -663,13 +524,13 @@ public final class com/intuit/playerui/devtools/RequestLostEventsEvent$Payload {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/intuit/playerui/devtools/RequestLostEventsEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public synthetic class com/intuit/playerui/devtools/RequestLostEventsEvent$Payload$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload$$serializer;
-	public fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;)V
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/intuit/playerui/devtools/RequestLostEventsEvent$Payload;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
@@ -691,18 +552,13 @@ public final class com/intuit/playerui/devtools/TransactionMetaData$Context : ja
 	public static final field Companion Lcom/intuit/playerui/devtools/TransactionMetaData$Context$Companion;
 	public static final field DEVTOOLS Lcom/intuit/playerui/devtools/TransactionMetaData$Context;
 	public static final field PLAYER Lcom/intuit/playerui/devtools/TransactionMetaData$Context;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/intuit/playerui/devtools/TransactionMetaData$Context;
 	public static fun values ()[Lcom/intuit/playerui/devtools/TransactionMetaData$Context;
 }
 
 public final class com/intuit/playerui/devtools/TransactionMetaData$Context$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-final class com/intuit/playerui/devtools/TransactionMetaData$Context$Companion$1 : kotlin/jvm/internal/Lambda, kotlin/jvm/functions/Function0 {
-	public static final field INSTANCE Lcom/intuit/playerui/devtools/TransactionMetaData$Context$Companion$1;
-	public synthetic fun invoke ()Ljava/lang/Object;
-	public final fun invoke ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/intuit/playerui/devtools/TransactionMetaData$DefaultImpls {

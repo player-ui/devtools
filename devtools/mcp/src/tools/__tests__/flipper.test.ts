@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import type { ExtensionClient } from "@player-devtools/client";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { FlipperServerTransport } from "@player-devtools/client-flipper";
 import type { Transport } from "@player-devtools/types";
 
@@ -15,8 +16,9 @@ import {
 
 const client = {} as ExtensionClient;
 
-function parse(result: { content: Array<{ text?: string }> }): unknown {
-  return JSON.parse(result.content[0]?.text ?? "{}");
+function parse(result: CallToolResult): unknown {
+  const first = result.content[0];
+  return JSON.parse(first?.type === "text" ? first.text : "{}");
 }
 
 /**

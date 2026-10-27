@@ -5,7 +5,11 @@ import { theme } from "flipper-plugin";
 const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(tableAnatomy.keys);
 
-export const Table = defineMultiStyleConfig({
+export const Table: ReturnType<
+  ReturnType<
+    typeof createMultiStyleConfigHelpers<(typeof tableAnatomy.keys)[number]>
+  >["defineMultiStyleConfig"]
+> = defineMultiStyleConfig({
   baseStyle: definePartsStyle({
     table: {
       lineHeight: 1,

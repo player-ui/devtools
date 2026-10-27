@@ -25,7 +25,7 @@ describe("allowlistEventProperties", () => {
     // Assert on the serialized payload, not key presence — a nested leak would
     // pass a shallow key check.
     expect(JSON.stringify(result)).not.toContain(SECRET);
-    expect(result.properties).toEqual({
+    expect(result?.properties).toEqual({
       $mcp_tool_name: "invoke_action",
       $mcp_duration_ms: 12,
     });
@@ -42,7 +42,7 @@ describe("allowlistEventProperties", () => {
     });
 
     expect(JSON.stringify(result)).not.toContain(SECRET);
-    expect(Object.keys(result.properties ?? {})).toEqual(["$mcp_tool_name"]);
+    expect(Object.keys(result?.properties ?? {})).toEqual(["$mcp_tool_name"]);
   });
 
   it("preserves every allowlisted property", () => {
@@ -55,7 +55,7 @@ describe("allowlistEventProperties", () => {
       properties,
     });
 
-    expect(Object.keys(result.properties ?? {}).sort()).toEqual(
+    expect(Object.keys(result?.properties ?? {}).sort()).toEqual(
       [...ALLOWED_EVENT_PROPERTIES].sort(),
     );
   });
@@ -66,7 +66,7 @@ describe("allowlistEventProperties", () => {
       properties: { $mcp_parameters: SECRET, $mcp_response: SECRET },
     });
 
-    expect(result.properties).toEqual({});
+    expect(result?.properties).toEqual({});
     expect(JSON.stringify(result)).not.toContain(SECRET);
   });
 

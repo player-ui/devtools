@@ -1,7 +1,7 @@
 import React from "react";
 import { Collection, Action, Text } from "@devtools-ui/plugin";
 import { expression as e } from "@player-lang/react-dsl";
-import type { Expression } from "@player-ui/types";
+import type { ExpressionTemplateInstance } from "@player-lang/react-dsl";
 import { INTERACTIONS } from "../constants";
 import { bindings } from "../schema";
 
@@ -12,15 +12,15 @@ const toggleLabel = e`conditional(${bindings.profiling} === true, 'Stop', 'Start
 const reset = e`publish('${INTERACTIONS.RESET_PROFILING}')`;
 
 /** Shared footer with a Start/Stop toggle and a Reset action. */
-export const ProfilerFooter = (
+export const ProfilerFooter: React.JSX.Element = (
   <Collection>
     <Collection.Values>
-      <Action exp={toggleProfiling as Expression}>
+      <Action exp={toggleProfiling as ExpressionTemplateInstance<string>}>
         <Action.Label>
           <Text>{toggleLabel}</Text>
         </Action.Label>
       </Action>
-      <Action exp={reset as Expression}>
+      <Action exp={reset as ExpressionTemplateInstance<string>}>
         <Action.Label>
           <Text>Reset</Text>
         </Action.Label>

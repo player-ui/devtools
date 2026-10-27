@@ -4,9 +4,9 @@ import { PLUGIN_ID, INTERACTIONS } from "./constants";
 // Generated via dsl_compile target
 import flow from "../_generated/flow.json";
 
-declare global {
-  const __VERSION__: string;
-}
+// Stamped by tsup at release build time; scoped to this module so that
+// packages declaring the same define don't collide in a shared TS program.
+declare const __VERSION__: string;
 
 const PLUGIN_VERSION =
   typeof __VERSION__ !== "undefined" ? __VERSION__ : "unstamped";

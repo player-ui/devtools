@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { FlipperPluginConnection } from "js-flipper";
+import type * as CommunicationLayer from "../useCommunicationLayer";
 
 type FakePlugin = {
   getId: () => string;
@@ -7,8 +8,16 @@ type FakePlugin = {
   onDisconnect: () => void;
 };
 
+type SetLayerCallbacks = Parameters<
+  typeof CommunicationLayer.startFlipperConnection
+>[0];
+type LayerAction = Parameters<SetLayerCallbacks>[0];
+type LayerCallbacks = ReturnType<
+  Extract<LayerAction, (prev: never) => unknown>
+>;
+
 const start = vi.fn();
-const addPlugin = vi.fn();
+const addPlugin = vi.fn<(plugin: FakePlugin) => void>();
 
 vi.mock("js-flipper", () => ({
   flipperClient: {
@@ -34,6 +43,28 @@ function fakeConnection(): {
     connection,
     emit: (message: unknown) => receiveHandler?.(message),
   };
+}
+
+/** Resolves the SetStateAction handed to startFlipperConnection against an empty layer. */
+function resolveLayer(action: LayerAction): LayerCallbacks {
+  const empty: LayerCallbacks = {
+    sendMessage: [],
+    addListener: [],
+    removeListener: [],
+  };
+
+  return typeof action === "function" ? action(empty) : action;
+}
+
+/** The plugin the module registered with flipperClient.addPlugin(). */
+function registeredPlugin(): FakePlugin {
+  const plugin = addPlugin.mock.calls[0]?.[0];
+
+  if (!plugin) {
+    throw new Error("addPlugin was never called");
+  }
+
+  return plugin;
 }
 
 const FLIPPER_PROXY_KEY = Symbol.for("player-ui-devtools/flipper-proxy");
@@ -80,23 +111,15 @@ describe("startFlipperConnection", () => {
     const firstListeners: unknown[] = [];
     const secondListeners: unknown[] = [];
 
-    startFlipperConnection((updater) => {
-      const result = updater({
-        sendMessage: [],
-        addListener: [],
-        removeListener: [],
-      });
+    startFlipperConnection((action) => {
+      const result = resolveLayer(action);
       result.addListener.forEach((add) =>
         add((message) => firstListeners.push(message)),
       );
     });
 
-    startFlipperConnection((updater) => {
-      const result = updater({
-        sendMessage: [],
-        addListener: [],
-        removeListener: [],
-      });
+    startFlipperConnection((action) => {
+      const result = resolveLayer(action);
       result.addListener.forEach((add) =>
         add((message) => secondListeners.push(message)),
       );
@@ -105,8 +128,8 @@ describe("startFlipperConnection", () => {
     await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
 
     const { emit, connection } = fakeConnection();
-    const registeredPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
-    registeredPlugin.onConnect(connection);
+    const plugin = registeredPlugin();
+    plugin.onConnect(connection);
 
     emit({ payload: "hello" });
 
@@ -151,12 +174,8 @@ describe("startFlipperConnection", () => {
     const { startFlipperConnection } = await import("../useCommunicationLayer");
 
     const messages: unknown[] = [];
-    startFlipperConnection((updater) => {
-      const result = updater({
-        sendMessage: [],
-        addListener: [],
-        removeListener: [],
-      });
+    startFlipperConnection((action) => {
+      const result = resolveLayer(action);
       result.addListener.forEach((add) =>
         add((message) => messages.push(message)),
       );
@@ -164,14 +183,14 @@ describe("startFlipperConnection", () => {
 
     await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
 
-    const registeredPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
+    const plugin = registeredPlugin();
     const first = fakeConnection();
-    registeredPlugin.onConnect(first.connection);
+    plugin.onConnect(first.connection);
 
-    registeredPlugin.onDisconnect();
+    plugin.onDisconnect();
 
     const second = fakeConnection();
-    registeredPlugin.onConnect(second.connection);
+    plugin.onConnect(second.connection);
 
     expect(start).toHaveBeenCalledTimes(1);
     expect(addPlugin).toHaveBeenCalledTimes(1);
@@ -190,24 +209,16 @@ describe("startFlipperConnection", () => {
     const secondListeners: unknown[] = [];
     let removeFirst: (() => void) | undefined;
 
-    startFlipperConnection((updater) => {
-      const result = updater({
-        sendMessage: [],
-        addListener: [],
-        removeListener: [],
-      });
+    startFlipperConnection((action) => {
+      const result = resolveLayer(action);
       const listener = (message: unknown) => firstListeners.push(message);
       result.addListener.forEach((add) => add(listener));
       removeFirst = () =>
         result.removeListener.forEach((remove) => remove(listener));
     });
 
-    startFlipperConnection((updater) => {
-      const result = updater({
-        sendMessage: [],
-        addListener: [],
-        removeListener: [],
-      });
+    startFlipperConnection((action) => {
+      const result = resolveLayer(action);
       result.addListener.forEach((add) =>
         add((message) => secondListeners.push(message)),
       );
@@ -216,8 +227,8 @@ describe("startFlipperConnection", () => {
     await vi.waitFor(() => expect(addPlugin).toHaveBeenCalledTimes(1));
 
     const { emit, connection } = fakeConnection();
-    const registeredPlugin = addPlugin.mock.calls[0][0] as FakePlugin;
-    registeredPlugin.onConnect(connection);
+    const plugin = registeredPlugin();
+    plugin.onConnect(connection);
 
     removeFirst?.();
 

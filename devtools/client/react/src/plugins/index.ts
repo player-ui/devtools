@@ -22,7 +22,7 @@ class LogForwarder implements PlayerPlugin, ReactPlayerPlugin {
   }
 }
 
-export const PUBSUB_PLUGIN = new PubSubPlugin();
+export const PUBSUB_PLUGIN: PubSubPlugin = new PubSubPlugin();
 
 export const PLAYER_PLUGINS: ReactPlayerPlugin[] = [
   new CommonTypesPlugin(),

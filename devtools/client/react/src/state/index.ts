@@ -1,7 +1,13 @@
-import type { CommunicationLayerMethods } from "@player-devtools/types";
+import type {
+  CommunicationLayerMethods,
+  ExtensionState,
+} from "@player-devtools/types";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 
-import { createExtensionClient } from "@player-devtools/client";
+import {
+  createExtensionClient,
+  type ExtensionClient,
+} from "@player-devtools/client";
 
 /**
  * Thin React adapter over `createExtensionClient`.
@@ -14,7 +20,12 @@ export const useExtensionState = ({
 }: {
   /** the communication layer to use for the extension */
   communicationLayer: CommunicationLayerMethods;
-}) => {
+}): {
+  state: ExtensionState;
+  selectPlayer: ExtensionClient["selectPlayer"];
+  selectPlugin: ExtensionClient["selectPlugin"];
+  handleInteraction: ExtensionClient["handleInteraction"];
+} => {
   const client = useMemo(
     () => createExtensionClient(communicationLayer),
     [communicationLayer],

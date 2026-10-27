@@ -5,7 +5,7 @@ import { VIEWS_IDS } from "../constants";
 import { Screen } from "../common";
 import { bindings } from "../schema";
 
-export const LogsView = (
+export const LogsView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.LOGS}
     main={<Table binding={bindings.logs as BindingTemplateInstance} />}

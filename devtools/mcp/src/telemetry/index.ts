@@ -13,9 +13,9 @@ export {
 export { resolveTelemetryConfig, type TelemetryConfig } from "./config";
 export { getInstallId, type InstallIdDeps } from "./installId";
 
-declare global {
-  const __VERSION__: string;
-}
+// Scoped to this module so that packages declaring the same define don't
+// collide in a shared TS program.
+declare const __VERSION__: string;
 
 /**
  * Stamped at release build time by tsup (see devtools/tsup.config.ts). The

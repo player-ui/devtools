@@ -65,21 +65,27 @@ optins = [
     "com.intuit.playerui.core.experimental.ExperimentalPlayerApi",
 ]
 
+# NOTE: x_lambdas/x_sam_conversions are set explicitly because rules_kotlin sets it to class mode by default
+# may not be needed with a future version of rules_kotlin
 # Common main Kotlin compiler options
 kt_kotlinc_options(
     name = "kt_main_options",
+    jvm_target = "17",
     visibility = ["//visibility:public"],
-    x_context_receivers = True,
     x_explicit_api_mode = "strict",
+    x_lambdas = "indy",
     x_optin = optins,
+    x_sam_conversions = "indy",
 )
 
 # Common test Kotlin compiler options
 kt_kotlinc_options(
     name = "kt_test_options",
+    jvm_target = "17",
     visibility = ["//visibility:public"],
-    x_context_receivers = True,
+    x_lambdas = "indy",
     x_optin = optins,
+    x_sam_conversions = "indy",
 )
 
 ktlint_config(
@@ -90,7 +96,7 @@ ktlint_config(
 
 define_kt_toolchain(
     name = "kotlin_toolchain",
-    api_version = "1.8",
+    api_version = "2.1",
     kotlinc_options = ":kt_test_options",
-    language_version = "1.8",
+    language_version = "2.1",
 )

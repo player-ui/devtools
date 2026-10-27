@@ -13,19 +13,19 @@ export class MockedMessagingAPI {
 
   constructor(private spies: Array<MessengerSpies>) {}
 
-  addListener(callback: (event: any) => void) {
+  addListener(callback: (event: any) => void): void {
     this.spies.forEach(({ addListener }) => addListener(callback));
 
     this.listeners.add(callback);
   }
 
-  removeListener(callback: (event: any) => void) {
+  removeListener(callback: (event: any) => void): void {
     this.spies.forEach(({ removeListener }) => removeListener(callback));
 
     this.listeners.delete(callback);
   }
 
-  async sendMessage(event: any, fail = false) {
+  async sendMessage(event: any, fail = false): Promise<void> {
     this.spies.forEach(({ sendMessage }) => sendMessage(event));
 
     if (fail) {
@@ -36,7 +36,14 @@ export class MockedMessagingAPI {
   }
 }
 
-export function createMockContext() {
+export function createMockContext(): {
+  spies: {
+    web1: MessengerSpies;
+    web2: MessengerSpies;
+    devtools: MessengerSpies;
+  };
+  mockMessagingAPI: MockedMessagingAPI;
+} {
   const spies = {
     web1: {
       sendMessage: vi.fn(),

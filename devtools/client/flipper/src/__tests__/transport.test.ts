@@ -11,21 +11,22 @@ const INSTALLED = {
   version: "1.2.3",
 };
 
+type ExecFn = (method: string, ...args: Array<unknown>) => Promise<unknown>;
+
 /**
- * A fake `FlipperServer` whose `exec` outcomes the test controls.
- *
- * `plugins-get-installed-plugins` resolves to `INSTALLED` by default (as if
- * the plugin is already present) so tests unrelated to installation don't
- * have to stub it; pass a custom `exec` to override that.
+ * `plugins-get-installed-plugins` resolves to `INSTALLED` (as if the plugin is
+ * already present) so tests unrelated to installation don't have to stub it.
  */
-function fakeFlipperServer(
-  exec: (method: string, ...args: Array<unknown>) => Promise<unknown> = async (
-    method,
-  ) => {
-    if (method === "plugins-get-installed-plugins") return [INSTALLED];
-    return undefined;
-  },
-): FlipperServer {
+const defaultExec: ExecFn = async (method) => {
+  if (method === "plugins-get-installed-plugins") return [INSTALLED];
+  return undefined;
+};
+
+/**
+ * A fake `FlipperServer` whose `exec` outcomes the test controls; pass a
+ * custom `exec` to override `defaultExec`.
+ */
+function fakeFlipperServer(exec: ExecFn = defaultExec): FlipperServer {
   return { exec } as unknown as FlipperServer;
 }
 
@@ -33,7 +34,11 @@ function fakeFlipperServer(
  * while exercising the connection-state and plugin-activation surfaces. */
 type TransportInternals = {
   server: unknown;
-  refcount: { peek: () => { pid: number; refs: number } | null };
+  refcount: {
+    peek: () => { pid: number; refs: number } | null;
+    release?: () => number | null;
+    acquire?: () => { shouldStart: boolean; commit: (pid: number) => void };
+  };
   owns: boolean;
   host: string;
   port: number;
@@ -137,13 +142,13 @@ describe("FlipperServerTransport", () => {
         (call) => call[0] === "client-request-response",
       );
       expect(installCallOrder).toBeLessThan(
-        exec.mock.invocationCallOrder[initCall],
+        exec.mock.invocationCallOrder[initCall]!,
       );
       expect(exec).toHaveBeenCalledWith("plugins-get-installed-plugins");
     });
 
     it("sends init to a single client id when one is given", async () => {
-      const exec = vi.fn(fakeFlipperServer().exec);
+      const exec = vi.fn(defaultExec);
       const transport = new FlipperServerTransport();
       attach(transport, fakeFlipperServer(exec), {
         connectedClientIds: ["a", "b"],
@@ -163,7 +168,7 @@ describe("FlipperServerTransport", () => {
     });
 
     it("sends init to every connected client that isn't already active when no id is given", async () => {
-      const exec = vi.fn(fakeFlipperServer().exec);
+      const exec = vi.fn(defaultExec);
       const transport = new FlipperServerTransport();
       attach(transport, fakeFlipperServer(exec), {
         connectedClientIds: ["a", "b", "c"],
@@ -190,7 +195,7 @@ describe("FlipperServerTransport", () => {
     });
 
     it("still sends init to an explicit client id even if already active", async () => {
-      const exec = vi.fn(fakeFlipperServer().exec);
+      const exec = vi.fn(defaultExec);
       const transport = new FlipperServerTransport();
       attach(transport, fakeFlipperServer(exec), {
         connectedClientIds: ["a"],
@@ -208,7 +213,7 @@ describe("FlipperServerTransport", () => {
 
     it("swallows a per-client failure instead of rejecting the whole call", async () => {
       vi.spyOn(console, "warn").mockImplementation(() => {});
-      const exec = vi.fn(async (method: string, id?: string) => {
+      const exec = vi.fn<ExecFn>(async (method, id) => {
         if (method === "plugins-get-installed-plugins") return [INSTALLED];
         if (id === "bad") throw new Error("boom");
         return undefined;
@@ -239,7 +244,7 @@ describe("FlipperServerTransport", () => {
 
   describe("disablePlugin", () => {
     it("sends deinit to a single client id when one is given", async () => {
-      const exec = vi.fn(fakeFlipperServer().exec);
+      const exec = vi.fn(defaultExec);
       const transport = new FlipperServerTransport();
       attach(transport, fakeFlipperServer(exec), { activeClientIds: ["a"] });
 
@@ -253,7 +258,7 @@ describe("FlipperServerTransport", () => {
     });
 
     it("sends deinit only to clients currently believed active when no id is given", async () => {
-      const exec = vi.fn(fakeFlipperServer().exec);
+      const exec = vi.fn(defaultExec);
       const transport = new FlipperServerTransport();
       attach(transport, fakeFlipperServer(exec), {
         connectedClientIds: ["a", "b"],
@@ -543,15 +548,10 @@ describe("FlipperServerTransport", () => {
       vi.useFakeTimers();
       try {
         const transport = new FlipperServerTransport();
-        const state = internals(transport);
-        state.refcount = {
+        internals(transport).refcount = {
           peek: () => null,
-        } as unknown as TransportInternals["refcount"];
-        (
-          transport as unknown as {
-            refcount: { release: () => number | null };
-          }
-        ).refcount.release = () => 4242;
+          release: () => 4242,
+        };
 
         let alive = true;
         const killSpy = vi.spyOn(process, "kill").mockImplementation(((
@@ -591,17 +591,13 @@ describe("FlipperServerTransport", () => {
       const transport = new FlipperServerTransport();
 
       let releaseCalls = 0;
-      (
-        transport as unknown as {
-          refcount: { release: () => number | null };
-        }
-      ).refcount = {
+      internals(transport).refcount = {
         peek: () => null,
         release: () => {
           releaseCalls += 1;
           return null;
         },
-      } as unknown as TransportInternals["refcount"];
+      };
 
       const first = transport.close();
       const second = transport.close();
@@ -649,23 +645,13 @@ describe("FlipperServerTransport", () => {
           // or locally, so real net.connect attempts genuinely fail fast.
           port: 1,
         });
-        const state = internals(transport);
-        state.refcount = {
+        internals(transport).refcount = {
           peek: () => null,
-        } as unknown as TransportInternals["refcount"];
-        (
-          transport as unknown as {
-            refcount: {
-              acquire: () => {
-                shouldStart: boolean;
-                commit: (pid: number) => void;
-              };
-            };
-          }
-        ).refcount.acquire = () => ({
-          shouldStart: true,
-          commit: vi.fn(),
-        });
+          acquire: () => ({
+            shouldStart: true,
+            commit: vi.fn(),
+          }),
+        };
 
         const connectPromise = transport.connect().catch((err) => err as Error);
 

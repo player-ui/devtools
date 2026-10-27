@@ -1,12 +1,23 @@
 import { dataTypes } from "@player-ui/common-types-plugin";
 import type { Schema } from "@player-ui/types";
-import { DSLSchema, makeBindingsForObject } from "@player-lang/react-dsl";
+import {
+  DSLSchema,
+  MakeBindingRefable,
+  makeBindingsForObject,
+} from "@player-lang/react-dsl";
 
 const RecordType: Schema.DataType<Record<string, unknown>> = {
   type: "RecordType",
 };
 
-export const schema = {
+export const schema: {
+  playerConfig: Schema.DataType<Record<string, unknown>>;
+  flow: Schema.DataType<Record<string, unknown>>;
+  expression: Schema.DataType<string>;
+  code: Schema.DataType<string>;
+  history: [DSLSchema];
+  logs: [DSLSchema];
+} = {
   playerConfig: RecordType,
   flow: RecordType,
   expression: dataTypes.StringType,
@@ -37,4 +48,5 @@ export const schema = {
   ] as [DSLSchema],
 };
 
-export const bindings = makeBindingsForObject(schema);
+export const bindings: MakeBindingRefable<typeof schema> =
+  makeBindingsForObject(schema);
