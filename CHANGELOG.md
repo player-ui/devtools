@@ -1,3 +1,37 @@
+# 1.0.0 (Tue Oct 27 2026)
+
+### Release Notes
+
+#### Player 1.0 ([#38](https://github.com/player-ui/devtools/pull/38))
+
+Bump to Player 1.0
+
+#### Fix a handful of minor bugs with the JVM implementation. ([#35](https://github.com/player-ui/devtools/pull/35))
+
+Fixes three bugs in the JVM devtools bindings that stop a JVM Player from talking to a devtools client.
+
+---
+
+#### 💥 Breaking Change
+
+- Player 1.0 [#38](https://github.com/player-ui/devtools/pull/38) ([@KetanReddy](https://github.com/KetanReddy))
+
+#### 🐛 Bug Fix
+
+- Release main [#39](https://github.com/player-ui/devtools/pull/39) ([@intuit-svc](https://github.com/intuit-svc))
+- bugfix: clears dead/disconnected players [#36](https://github.com/player-ui/devtools/pull/36) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+- Fix a handful of minor bugs with the JVM implementation. [#35](https://github.com/player-ui/devtools/pull/35) ([@KetanReddy](https://github.com/KetanReddy))
+- fix: messenger destroy() now sends disconnects to its actual peers [#34](https://github.com/player-ui/devtools/pull/34) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+- fix: destroy() only clears its own instance's state [#33](https://github.com/player-ui/devtools/pull/33) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+#### Authors: 3
+
+- [@intuit-svc](https://github.com/intuit-svc)
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+- Ketan Reddy ([@KetanReddy](https://github.com/KetanReddy))
+
+---
+
 # 1.0.0-next.0 (Tue Oct 27 2026)
 
 ### Release Notes
