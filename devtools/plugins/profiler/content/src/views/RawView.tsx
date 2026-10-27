@@ -5,7 +5,7 @@ import { VIEWS_IDS } from "../constants";
 import { Screen, ProfilerFooter } from "../common";
 import { bindings } from "../schema";
 
-export const RawView = (
+export const RawView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.RAW}
     main={

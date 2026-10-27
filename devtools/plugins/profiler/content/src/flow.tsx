@@ -3,7 +3,18 @@ import { navigation } from "./navigation";
 import { schema } from "./schema";
 import { views } from "./views";
 
-export default {
+const flow: {
+  id: string;
+  views: typeof views;
+  navigation: typeof navigation;
+  schema: typeof schema;
+  data: {
+    profiling: boolean;
+    displayFlameGraph: boolean;
+    rootNode: { value: number };
+    rawNodes: unknown[];
+  };
+} = {
   id: PLUGIN_ID,
   views,
   navigation,
@@ -17,3 +28,5 @@ export default {
     rawNodes: [],
   },
 };
+
+export default flow;

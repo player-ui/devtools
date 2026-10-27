@@ -5,7 +5,7 @@ import { VIEWS_IDS } from "../constants";
 import { Screen } from "../common";
 import { bindings } from "../schema";
 
-export const FlowView = (
+export const FlowView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.FLOW}
     main={

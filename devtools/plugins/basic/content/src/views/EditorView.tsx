@@ -11,7 +11,7 @@ import { bindings } from "../schema";
 
 const evaluateExpression = e` publish('${INTERACTIONS.OVERRIDE_FLOW}', ${bindings.code}) `;
 
-export const EditorView = (
+export const EditorView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.EDITOR}
     main={

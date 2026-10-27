@@ -12,7 +12,7 @@ const toggleLabel = e`conditional(${bindings.profiling} === true, 'Stop', 'Start
 const reset = e`publish('${INTERACTIONS.RESET_PROFILING}')`;
 
 /** Shared footer with a Start/Stop toggle and a Reset action. */
-export const ProfilerFooter = (
+export const ProfilerFooter: React.JSX.Element = (
   <Collection>
     <Collection.Values>
       <Action exp={toggleProfiling as ExpressionTemplateInstance<string>}>

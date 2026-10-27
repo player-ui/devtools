@@ -5,7 +5,11 @@ import { theme } from "flipper-plugin";
 const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(selectAnatomy.keys);
 
-export const Select = defineMultiStyleConfig({
+export const Select: ReturnType<
+  ReturnType<
+    typeof createMultiStyleConfigHelpers<(typeof selectAnatomy.keys)[number]>
+  >["defineMultiStyleConfig"]
+> = defineMultiStyleConfig({
   baseStyle: definePartsStyle({
     field: {
       background: theme.buttonDefaultBackground,

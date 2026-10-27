@@ -6,7 +6,7 @@ import path from "path";
  * This is a workaround to copy to the file to where bazel expects it to be once the test is over
  */
 class CustomReporter {
-  onFinished() {
+  onFinished(): void {
     const { COVERAGE_OUTPUT_FILE } = process.env;
 
     if (!COVERAGE_OUTPUT_FILE) {

@@ -8,7 +8,13 @@ const transitions = Object.entries(VIEWS_IDS).reduce(
   {} as Record<string, string>,
 );
 
-export const navigation = {
+export const navigation: {
+  BEGIN: string;
+  Plugin: {
+    startState: string | undefined;
+    [state: string]: unknown;
+  };
+} = {
   BEGIN: "Plugin",
   Plugin: {
     startState: Object.keys(VIEWS_IDS)[0],

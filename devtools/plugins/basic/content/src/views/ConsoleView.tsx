@@ -11,7 +11,7 @@ import { bindings } from "../schema";
 
 const evaluateExpression = e` publish('${INTERACTIONS.EVALUATE_EXPRESSION}', ${bindings.expression}) `;
 
-export const ConsoleView = (
+export const ConsoleView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.CONSOLE}
     main={

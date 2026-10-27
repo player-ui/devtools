@@ -24,7 +24,7 @@ export const Screen = ({
   id: string;
   main: React.ReactNode;
   footer?: React.ReactNode;
-}) => (
+}): React.JSX.Element => (
   <StackedView id={id}>
     <StackedView.Header>
       <Nav />

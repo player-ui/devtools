@@ -5,7 +5,7 @@ import { VIEWS_IDS } from "../constants";
 import { bindings } from "../schema";
 import { Screen } from "../common";
 
-export const ConfigView = (
+export const ConfigView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.CONFIG}
     main={

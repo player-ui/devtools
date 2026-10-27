@@ -13,7 +13,7 @@ import { bindings } from "../schema";
 // directly rather than through the schema-derived bindings.
 const width = e`${b`rootNode.value`} / 200`;
 
-export const ProfileView = (
+export const ProfileView: React.JSX.Element = (
   <Screen
     id={VIEWS_IDS.PROFILE}
     main={

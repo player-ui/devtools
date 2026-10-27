@@ -396,7 +396,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     });
   }
 
-  public destroy() {
+  public destroy(): void {
     if (this.beaconInterval) {
       clearInterval(this.beaconInterval);
     }
@@ -424,7 +424,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
   }
 
   /** reset static records for every instance, intended for tests */
-  static reset() {
+  static reset(): void {
     Messenger.events = {};
     Messenger.connections = {};
   }
