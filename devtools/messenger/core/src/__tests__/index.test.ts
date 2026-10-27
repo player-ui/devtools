@@ -11,6 +11,7 @@ import { Messenger } from "../index";
 import { createMockContext } from "./helpers";
 import {
   BaseEvent,
+  type MessengerEvent,
   type Transaction,
   type ExtensionSupportedEvents,
 } from "@player-devtools/types";
@@ -399,8 +400,9 @@ describe("Messenger", () => {
       const messengers: Array<Messenger<ExtensionSupportedEvents>> = [];
 
       const api = {
-        sendMessage: async (event: Frame) =>
-          listeners.forEach((listener) => listener(event)),
+        // the Messenger stamps transaction metadata before it sends
+        sendMessage: async (event: MessengerEvent<ExtensionSupportedEvents>) =>
+          listeners.forEach((listener) => listener(event as Frame)),
         addListener: (cb: (event: Frame) => void) => {
           listeners.add(cb);
         },
@@ -469,7 +471,9 @@ describe("Messenger", () => {
       type Frame = Transaction<ExtensionSupportedEvents>;
       const listeners = new Set<(event: Frame) => void>();
       const layer = {
-        sendMessage: async (event: Frame) => listeners.forEach((l) => l(event)),
+        // the Messenger stamps transaction metadata before it sends
+        sendMessage: async (event: MessengerEvent<ExtensionSupportedEvents>) =>
+          listeners.forEach((l) => l(event as Frame)),
         addListener: (cb: (event: Frame) => void) => {
           listeners.add(cb);
         },
@@ -530,7 +534,9 @@ describe("Messenger", () => {
       type Frame = Transaction<ExtensionSupportedEvents>;
       const listeners = new Set<(event: Frame) => void>();
       const layer = {
-        sendMessage: async (event: Frame) => listeners.forEach((l) => l(event)),
+        // the Messenger stamps transaction metadata before it sends
+        sendMessage: async (event: MessengerEvent<ExtensionSupportedEvents>) =>
+          listeners.forEach((l) => l(event as Frame)),
         addListener: (cb: (event: Frame) => void) => {
           listeners.add(cb);
         },

@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+import { createAnalytics } from "../index";
+
 const instrument = vi.hoisted(() => vi.fn());
 const shutdown = vi.hoisted(() => vi.fn());
 const PostHogCtor = vi.hoisted(() => vi.fn());
@@ -19,8 +21,6 @@ vi.mock("posthog-node", () => ({
     }
   },
 }));
-
-const { createAnalytics } = await import("../index");
 
 const KEY = "phc_test_key";
 const server = {} as object;

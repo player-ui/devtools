@@ -1,6 +1,8 @@
 import { expression as e } from "@player-lang/react-dsl";
-import type { BindingTemplateInstance } from "@player-lang/react-dsl";
-import type { Expression } from "@player-ui/types";
+import type {
+  BindingTemplateInstance,
+  ExpressionTemplateInstance,
+} from "@player-lang/react-dsl";
 import { Console } from "@devtools-ui/plugin";
 import React from "react";
 import { VIEWS_IDS, INTERACTIONS } from "../constants";
@@ -14,7 +16,7 @@ export const ConsoleView = (
     id={VIEWS_IDS.CONSOLE}
     main={
       <Console
-        exp={evaluateExpression as Expression}
+        exp={evaluateExpression as ExpressionTemplateInstance<string>}
         binding={bindings.history as BindingTemplateInstance}
       />
     }

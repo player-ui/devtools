@@ -112,21 +112,32 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     }
   }
 
-  private getConnection(id: string) {
-    if (!Messenger.connections[this.id]) {
-      Messenger.connections[this.id] = {};
+  private getConnections() {
+    let connections = Messenger.connections[this.id];
+
+    if (!connections) {
+      connections = {};
+      Messenger.connections[this.id] = connections;
     }
 
-    return Messenger.connections[this.id][id];
+    return connections;
   }
 
-  private addConnection(id: string) {
-    Messenger.connections[this.id][id] = {
+  private getConnection(id: string): Connection | undefined {
+    return this.getConnections()[id];
+  }
+
+  private addConnection(id: string): Connection {
+    const connection: Connection = {
       id,
       messagesReceived: 0,
       messagesSent: 0,
       desync: false,
     };
+
+    this.getConnections()[id] = connection;
+
+    return connection;
   }
 
   private getEvents() {
@@ -151,11 +162,8 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       return -1;
     }
 
-    if (!this.getConnection(message.target)) {
-      this.addConnection(message.target);
-    }
-
-    const connection = this.getConnection(message.target);
+    const connection =
+      this.getConnection(message.target) ?? this.addConnection(message.target);
     connection.messagesSent += 1;
     return connection.messagesSent;
   }
@@ -196,7 +204,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
     const isFromSameContext = parsed.context === this.options.context;
     const isTargetingOthers = parsed.target ? parsed.target !== this.id : false;
     const connection = this.getConnection(parsed.sender);
-    const isKnownConnection = Boolean(connection);
+    const isKnownConnection = connection !== undefined;
 
     if (
       !isFromMessenger ||
@@ -225,7 +233,8 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       const isBatch = parsed.type === "MESSENGER_EVENT_BATCH";
 
       const transactionID = isBatch
-        ? (parsed.payload as EventsBatchEvent<T>["payload"]).events[0].id
+        ? ((parsed.payload as EventsBatchEvent<T>["payload"]).events[0]?.id ??
+          -1)
         : parsed.id;
 
       const { messagesReceived, desync } = connection;
@@ -289,7 +298,7 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
       return;
     }
 
-    this.addConnection(parsed.sender);
+    const connection = this.addConnection(parsed.sender);
     const events = this.getEvents();
 
     if (events.length > 0) {
@@ -309,7 +318,6 @@ export class Messenger<T extends BaseEvent<string, unknown>> {
         }`,
       );
 
-      const connection = this.getConnection(parsed.sender);
       connection.messagesSent = events.length;
     }
 

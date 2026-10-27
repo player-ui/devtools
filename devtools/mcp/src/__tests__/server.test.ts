@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Transport } from "@player-devtools/types";
 
+import { MCPServer } from "../server";
+
 const shutdown = vi.hoisted(() => vi.fn());
 const createAnalytics = vi.hoisted(() => vi.fn());
 
@@ -17,8 +19,6 @@ vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
     async close(): Promise<void> {}
   },
 }));
-
-const { MCPServer } = await import("../server");
 
 /** A transport whose connect outcome the test controls. */
 function fakeTransport(connect: () => Promise<void>): Transport {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Collection, Action, Text } from "@devtools-ui/plugin";
 import { expression as e } from "@player-lang/react-dsl";
-import type { Expression } from "@player-ui/types";
+import type { ExpressionTemplateInstance } from "@player-lang/react-dsl";
 import { INTERACTIONS } from "../constants";
 import { bindings } from "../schema";
 
@@ -15,12 +15,12 @@ const reset = e`publish('${INTERACTIONS.RESET_PROFILING}')`;
 export const ProfilerFooter = (
   <Collection>
     <Collection.Values>
-      <Action exp={toggleProfiling as Expression}>
+      <Action exp={toggleProfiling as ExpressionTemplateInstance<string>}>
         <Action.Label>
           <Text>{toggleLabel}</Text>
         </Action.Label>
       </Action>
-      <Action exp={reset as Expression}>
+      <Action exp={reset as ExpressionTemplateInstance<string>}>
         <Action.Label>
           <Text>Reset</Text>
         </Action.Label>
