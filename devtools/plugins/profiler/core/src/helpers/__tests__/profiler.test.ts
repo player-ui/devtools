@@ -279,4 +279,53 @@ describe("Profiler", () => {
     expect(rootNodes).toHaveLength(2);
     expect(rootNodes[0]!.children).toHaveLength(1);
   });
+
+  describe("maxRootNodes", () => {
+    test("drops the oldest finished root nodes beyond the limit", () => {
+      const p = new Profiler(undefined, { maxRootNodes: 3 });
+      p.start();
+
+      for (const name of ["a", "b", "c", "d", "e"]) {
+        p.startTimer(name);
+        p.endTimer({ hookName: name });
+      }
+
+      const { rootNodes } = p.stopProfiler();
+      expect(rootNodes.map((n) => n.name)).toEqual(["c", "d", "e"]);
+    });
+
+    test("never drops a root node that is still in progress", () => {
+      const p = new Profiler(undefined, { maxRootNodes: 1 });
+      p.start();
+
+      p.startTimer("finished");
+      p.endTimer({ hookName: "finished" });
+      p.startTimer("in-progress");
+      p.startTimer("child");
+      p.endTimer({ hookName: "child" });
+
+      const { rootNodes } = p.stopProfiler();
+      expect(rootNodes.map((n) => n.name)).toEqual(["in-progress"]);
+
+      // It can still finish normally after older roots were dropped
+      p.endTimer({ hookName: "in-progress" });
+      expect(p.stopProfiler().rootNodes[0]!.endTime).toBeDefined();
+    });
+
+    test("keeps everything when the limit is not reached", () => {
+      const p = new Profiler(undefined, { maxRootNodes: 10 });
+      p.start();
+
+      for (const name of ["a", "b", "c"]) {
+        p.startTimer(name);
+        p.endTimer({ hookName: name });
+      }
+
+      expect(p.stopProfiler().rootNodes.map((n) => n.name)).toEqual([
+        "a",
+        "b",
+        "c",
+      ]);
+    });
+  });
 });
