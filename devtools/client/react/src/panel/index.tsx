@@ -135,7 +135,7 @@ export const Panel: React.FC<{
     // PUBSUB_PLUGIN is shared by every Panel, so a subscription left behind
     // by an unmounted Panel would forward each event again.
     return () => PUBSUB_PLUGIN.unsubscribe(token);
-  }, []);
+  }, [handleInteraction]);
 
   useEffect(() => {
     const { player, plugin } = state.current;

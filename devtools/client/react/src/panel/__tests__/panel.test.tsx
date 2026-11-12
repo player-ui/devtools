@@ -77,12 +77,30 @@ describe("Panel", () => {
   });
 
   it("sends nothing once every panel has unmounted", () => {
-    const layer = createCommunicationLayer();
+    const layers = [1, 2, 3].map(() => createCommunicationLayer());
+    const panels = layers.map((layer) =>
+      render(<Panel communicationLayer={layer} />),
+    );
 
-    render(<Panel communicationLayer={layer} />).unmount();
+    panels.forEach((panel) => panel.unmount());
 
     PUBSUB_PLUGIN.publish("reset-profiling");
 
-    expect(sentInteractions(layer)).toHaveLength(0);
+    layers.forEach((layer) => {
+      expect(sentInteractions(layer)).toHaveLength(0);
+    });
+  });
+
+  it("sends through the new communication layer after it changes", () => {
+    const oldLayer = createCommunicationLayer();
+    const newLayer = createCommunicationLayer();
+
+    const { rerender } = render(<Panel communicationLayer={oldLayer} />);
+    rerender(<Panel communicationLayer={newLayer} />);
+
+    PUBSUB_PLUGIN.publish("evaluate-expression", "1 + 1");
+
+    expect(sentInteractions(oldLayer)).toHaveLength(0);
+    expect(sentInteractions(newLayer)).toHaveLength(1);
   });
 });
