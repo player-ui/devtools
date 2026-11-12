@@ -122,12 +122,19 @@ export const Panel: React.FC<{
   useEffect(() => {
     // we subscribe to all messages from the devtools plugin
     // so the plugin author can define their own events
-    PUBSUB_PLUGIN.subscribe("*", (type: string, payload: string) => {
-      handleInteraction({
-        type,
-        payload,
-      });
-    });
+    const token = PUBSUB_PLUGIN.subscribe(
+      "*",
+      (type: string, payload: string) => {
+        handleInteraction({
+          type,
+          payload,
+        });
+      },
+    );
+
+    // PUBSUB_PLUGIN is shared by every Panel, so a subscription left behind
+    // by an unmounted Panel would forward each event again.
+    return () => PUBSUB_PLUGIN.unsubscribe(token);
   }, []);
 
   useEffect(() => {
