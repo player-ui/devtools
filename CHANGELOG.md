@@ -1,3 +1,30 @@
+# 1.0.1-next.0 (Fri Nov 13 2026)
+
+### Release Notes
+
+#### Player 1.0 ([#38](https://github.com/player-ui/devtools/pull/38))
+
+Bump to Player 1.0
+
+---
+
+#### 💥 Breaking Change
+
+- Player 1.0 [#38](https://github.com/player-ui/devtools/pull/38) ([@KetanReddy](https://github.com/KetanReddy))
+
+#### 🐛 Bug Fix
+
+- [fix] subscriber leak [#41](https://github.com/player-ui/devtools/pull/41) ([@cehan-Chloe](https://github.com/cehan-Chloe))
+- Release main [#39](https://github.com/player-ui/devtools/pull/39) ([@intuit-svc](https://github.com/intuit-svc))
+
+#### Authors: 3
+
+- [@intuit-svc](https://github.com/intuit-svc)
+- Chloe ([@cehan-Chloe](https://github.com/cehan-Chloe))
+- Ketan Reddy ([@KetanReddy](https://github.com/KetanReddy))
+
+---
+
 # 1.0.0 (Tue Oct 27 2026)
 
 ### Release Notes
