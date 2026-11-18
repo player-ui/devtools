@@ -1,3 +1,15 @@
+# 1.0.1-next.1 (Wed Nov 18 2026)
+
+#### 🐛 Bug Fix
+
+- fix: profiler slowdown bug [#40](https://github.com/player-ui/devtools/pull/40) ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+#### Authors: 1
+
+- Angela Villadiego ([@AngelaVilladiego](https://github.com/AngelaVilladiego))
+
+---
+
 # 1.0.1-next.0 (Fri Nov 13 2026)
 
 ### Release Notes
