@@ -1,11 +1,39 @@
 import type { ProfilerNode } from "../types";
 import { getNowTime } from "@player-devtools/plugin";
 
+export interface ProfilerOptions {
+  /**
+   * Upper bound on the number of top-level nodes that are kept. Once it is exceeded the oldest
+   * finished top-level nodes are dropped, so a profiler that is never stopped can't grow forever.
+   * A node that is still in progress is never dropped. Unbounded when not set.
+   */
+  maxRootNodes?: number;
+}
+
 export class Profiler {
   private rootNodes: ProfilerNode[] = [];
   private stack: ProfilerNode[] = [];
 
-  constructor(private readonly onUpdate?: () => void) {}
+  constructor(
+    private readonly onUpdate?: () => void,
+    private readonly options: ProfilerOptions = {},
+  ) {}
+
+  /** Drop the oldest finished top-level nodes until we are back within `maxRootNodes`. */
+  private trimRootNodes(): void {
+    const { maxRootNodes } = this.options;
+    if (maxRootNodes === undefined) return;
+
+    const excess = this.rootNodes.length - maxRootNodes;
+    let drop = 0;
+    while (drop < excess && this.rootNodes[drop]!.endTime !== undefined) {
+      drop++;
+    }
+
+    if (drop > 0) {
+      this.rootNodes.splice(0, drop);
+    }
+  }
 
   start(): void {
     this.rootNodes = [];
@@ -65,6 +93,7 @@ export class Profiler {
       this.stack[this.stack.length - 1]!.children.push(node);
     } else {
       this.rootNodes.push(node);
+      this.trimRootNodes();
     }
 
     this.stack.push(node);
