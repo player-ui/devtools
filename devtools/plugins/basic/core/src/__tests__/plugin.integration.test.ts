@@ -4,7 +4,12 @@ import { Player } from "@player-ui/player";
 import {
   ContextPlugin,
   dataContextKey,
+  flowIdContextKey,
+  flowStateContextKey,
   getContextPlugin,
+  playerStateContextKey,
+  playerStatusContextKey,
+  viewIdContextKey,
 } from "@player-ui/context-plugin";
 import type { Flow } from "@player-ui/player";
 import { BasicDevtoolsPlugin } from "../plugin";
@@ -94,6 +99,31 @@ describe("BasicDevtoolsPlugin", () => {
     expect(
       sharedPlayer.getPlugins().filter((p) => p.name === "context"),
     ).toHaveLength(1);
+  });
+
+  it("exposes the state context keys and the devtools config key from the same context", () => {
+    player.start(makeFlow());
+    const context = getContextPlugin(player);
+
+    // Keys written by StateContextPlugin
+    expect(context.get(flowIdContextKey)).toBe("test-flow");
+    expect(context.get(flowStateContextKey)).toBe("VIEW_1");
+    expect(context.get(viewIdContextKey)).toBe("view-1");
+    expect(context.get(dataContextKey)).toEqual({ name: "initial" });
+    expect(context.get(playerStatusContextKey)).toBe("in-progress");
+
+    // Key written by the devtools plugin
+    expect(context.get(playerConfigContextKey)?.version).toBe(
+      player.getVersion(),
+    );
+
+    // The roll-up carries the state, including the actions, next to the config key
+    const state = context.get(playerStateContextKey);
+    expect(state?.flow?.id).toBe("test-flow");
+    expect(state?.view?.id).toBe("view-1");
+    expect(state?.data?.model).toEqual({ name: "initial" });
+    expect(typeof state?.data?.set).toBe("function");
+    expect(typeof state?.flow?.transition).toBe("function");
   });
 
   it("only registers one state context plugin", () => {
